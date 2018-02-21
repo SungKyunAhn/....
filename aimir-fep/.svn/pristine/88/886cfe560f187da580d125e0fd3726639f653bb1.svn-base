@@ -1,0 +1,85 @@
+2017-01-09 19:47:19,885 ERROR [com.aimir.fep.adapter.FepAdapter.main(FepAdapter.java:465)]  - org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [config/spring.xml]: Invocation of init method failed; nested exception is javax.persistence.PersistenceException: Exception [EclipseLink-28018] (Eclipse Persistence Services - 2.5.0.v20130425-368d603): org.eclipse.persistence.exceptions.EntityManagerSetupException
+Exception Description: Predeployment of PersistenceUnit [eclipselink.jpa] failed.
+Internal Exception: Exception [EclipseLink-7212] (Eclipse Persistence Services - 2.5.0.v20130425-368d603): org.eclipse.persistence.exceptions.ValidationException
+Exception Description: The attribute [createdDate] from the entity class [class com.aimir.model.system.AuditLog] does not specify a temporal type. A temporal type must be specified for persistent fields or properties of type java.util.Date and java.util.Calendar.
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [config/spring.xml]: Invocation of init method failed; nested exception is javax.persistence.PersistenceException: Exception [EclipseLink-28018] (Eclipse Persistence Services - 2.5.0.v20130425-368d603): org.eclipse.persistence.exceptions.EntityManagerSetupException
+Exception Description: Predeployment of PersistenceUnit [eclipselink.jpa] failed.
+Internal Exception: Exception [EclipseLink-7212] (Eclipse Persistence Services - 2.5.0.v20130425-368d603): org.eclipse.persistence.exceptions.ValidationException
+Exception Description: The attribute [createdDate] from the entity class [class com.aimir.model.system.AuditLog] does not specify a temporal type. A temporal type must be specified for persistent fields or properties of type java.util.Date and java.util.Calendar.
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1578)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:545)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:482)
+	at org.springframework.beans.factory.support.AbstractBeanFactory$1.getObject(AbstractBeanFactory.java:306)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:230)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:302)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:197)
+	at org.springframework.context.support.AbstractApplicationContext.getBean(AbstractApplicationContext.java:1054)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:829)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:538)
+	at org.springframework.context.support.ClassPathXmlApplicationContext.<init>(ClassPathXmlApplicationContext.java:139)
+	at org.springframework.context.support.ClassPathXmlApplicationContext.<init>(ClassPathXmlApplicationContext.java:93)
+	at com.aimir.fep.adapter.FepAdapter.main(FepAdapter.java:394)
+Caused by: javax.persistence.PersistenceException: Exception [EclipseLink-28018] (Eclipse Persistence Services - 2.5.0.v20130425-368d603): org.eclipse.persistence.exceptions.EntityManagerSetupException
+Exception Description: Predeployment of PersistenceUnit [eclipselink.jpa] failed.
+Internal Exception: Exception [EclipseLink-7212] (Eclipse Persistence Services - 2.5.0.v20130425-368d603): org.eclipse.persistence.exceptions.ValidationException
+Exception Description: The attribute [createdDate] from the entity class [class com.aimir.model.system.AuditLog] does not specify a temporal type. A temporal type must be specified for persistent fields or properties of type java.util.Date and java.util.Calendar.
+	at org.eclipse.persistence.internal.jpa.EntityManagerSetupImpl.createPredeployFailedPersistenceException(EntityManagerSetupImpl.java:1950)
+	at org.eclipse.persistence.internal.jpa.EntityManagerSetupImpl.predeploy(EntityManagerSetupImpl.java:1941)
+	at org.eclipse.persistence.jpa.PersistenceProvider.createContainerEntityManagerFactory(PersistenceProvider.java:322)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:343)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:319)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1637)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1574)
+	... 12 more
+Caused by: Exception [EclipseLink-28018] (Eclipse Persistence Services - 2.5.0.v20130425-368d603): org.eclipse.persistence.exceptions.EntityManagerSetupException
+Exception Description: Predeployment of PersistenceUnit [eclipselink.jpa] failed.
+Internal Exception: Exception [EclipseLink-7212] (Eclipse Persistence Services - 2.5.0.v20130425-368d603): org.eclipse.persistence.exceptions.ValidationException
+Exception Description: The attribute [createdDate] from the entity class [class com.aimir.model.system.AuditLog] does not specify a temporal type. A temporal type must be specified for persistent fields or properties of type java.util.Date and java.util.Calendar.
+	at org.eclipse.persistence.exceptions.EntityManagerSetupException.predeployFailed(EntityManagerSetupException.java:230)
+	... 19 more
+Caused by: Exception [EclipseLink-7212] (Eclipse Persistence Services - 2.5.0.v20130425-368d603): org.eclipse.persistence.exceptions.ValidationException
+Exception Description: The attribute [createdDate] from the entity class [class com.aimir.model.system.AuditLog] does not specify a temporal type. A temporal type must be specified for persistent fields or properties of type java.util.Date and java.util.Calendar.
+	at org.eclipse.persistence.exceptions.ValidationException.noTemporalTypeSpecified(ValidationException.java:1461)
+	at org.eclipse.persistence.internal.jpa.metadata.accessors.mappings.MappingAccessor.processTemporal(MappingAccessor.java:1933)
+	at org.eclipse.persistence.internal.jpa.metadata.accessors.mappings.MappingAccessor.processMappingConverter(MappingAccessor.java:1736)
+	at org.eclipse.persistence.internal.jpa.metadata.accessors.mappings.MappingAccessor.processMappingValueConverter(MappingAccessor.java:1759)
+	at org.eclipse.persistence.internal.jpa.metadata.accessors.mappings.BasicAccessor.process(BasicAccessor.java:417)
+	at org.eclipse.persistence.internal.jpa.metadata.MetadataDescriptor.processMappingAccessors(MetadataDescriptor.java:1525)
+	at org.eclipse.persistence.internal.jpa.metadata.accessors.classes.ClassAccessor.processMappingAccessors(ClassAccessor.java:1648)
+	at org.eclipse.persistence.internal.jpa.metadata.accessors.classes.EntityAccessor.processMappingAccessors(EntityAccessor.java:1234)
+	at org.eclipse.persistence.internal.jpa.metadata.accessors.classes.EntityAccessor.process(EntityAccessor.java:697)
+	at org.eclipse.persistence.internal.jpa.metadata.MetadataProject.processStage2(MetadataProject.java:1791)
+	at org.eclipse.persistence.internal.jpa.metadata.MetadataProcessor.processORMMetadata(MetadataProcessor.java:576)
+	at org.eclipse.persistence.internal.jpa.deployment.PersistenceUnitProcessor.processORMetadata(PersistenceUnitProcessor.java:585)
+	at org.eclipse.persistence.internal.jpa.EntityManagerSetupImpl.predeploy(EntityManagerSetupImpl.java:1865)
+	... 17 more
+2017-01-09 19:54:32,192 DEBUG [com.aimir.fep.protocol.emnv.server.EMnVAdapter.<init>(EMnVAdapter.java:85)]  - load EMnV MIB Completed
+2017-01-09 19:54:32,536 DEBUG [com.aimir.fep.protocol.fmp.server.FMPTrapAdapter.<init>(FMPTrapAdapter.java:58)]  - load FMP MIB Completed
+2017-01-09 19:54:32,555 DEBUG [com.aimir.fep.protocol.fmp.server.IF4NewAdapter.<init>(IF4NewAdapter.java:50)]  - IF4NewAdapter Completed
+2017-01-09 19:54:32,698 DEBUG [com.aimir.fep.protocol.snmp.SnmpManagerAdapter.<init>(SnmpManagerAdapter.java:55)]  - load SNMP Adapter Completed
+2017-01-09 19:54:39,143 DEBUG [com.aimir.fep.adapter.FepAdapter.main(FepAdapter.java:435)]  - OTA Context => firmware-file
+2017-01-09 19:54:39,143 DEBUG [com.aimir.fep.adapter.FepAdapter.main(FepAdapter.java:436)]  - OTA Context path => D:\kyunghee.yoon\workspace\3.3\aimir-fep\tomcat.8081\webapps
+2017-01-09 19:57:12,461 DEBUG [com.aimir.fep.protocol.emnv.server.EMnVAdapter.<init>(EMnVAdapter.java:85)]  - load EMnV MIB Completed
+2017-01-09 19:57:13,049 DEBUG [com.aimir.fep.protocol.fmp.server.FMPTrapAdapter.<init>(FMPTrapAdapter.java:58)]  - load FMP MIB Completed
+2017-01-09 19:57:13,058 DEBUG [com.aimir.fep.protocol.fmp.server.IF4NewAdapter.<init>(IF4NewAdapter.java:50)]  - IF4NewAdapter Completed
+2017-01-09 19:57:13,189 DEBUG [com.aimir.fep.protocol.snmp.SnmpManagerAdapter.<init>(SnmpManagerAdapter.java:55)]  - load SNMP Adapter Completed
+2017-01-09 19:57:20,181 DEBUG [com.aimir.fep.adapter.FepAdapter.main(FepAdapter.java:435)]  - OTA Context => firmware-file
+2017-01-09 19:57:20,181 DEBUG [com.aimir.fep.adapter.FepAdapter.main(FepAdapter.java:436)]  - OTA Context path => D:\kyunghee.yoon\workspace\3.3\aimir-fep\tomcat.8081\webapps
+2017-01-09 19:59:08,367 DEBUG [com.aimir.fep.protocol.emnv.server.EMnVAdapter.<init>(EMnVAdapter.java:85)]  - load EMnV MIB Completed
+2017-01-09 19:59:08,441 DEBUG [com.aimir.fep.protocol.fmp.server.FMPTrapAdapter.<init>(FMPTrapAdapter.java:58)]  - load FMP MIB Completed
+2017-01-09 19:59:08,450 DEBUG [com.aimir.fep.protocol.fmp.server.IF4NewAdapter.<init>(IF4NewAdapter.java:50)]  - IF4NewAdapter Completed
+2017-01-09 19:59:08,597 DEBUG [com.aimir.fep.protocol.snmp.SnmpManagerAdapter.<init>(SnmpManagerAdapter.java:55)]  - load SNMP Adapter Completed
+2017-01-09 19:59:15,451 DEBUG [com.aimir.fep.adapter.FepAdapter.main(FepAdapter.java:435)]  - OTA Context => firmware-file
+2017-01-09 19:59:15,451 DEBUG [com.aimir.fep.adapter.FepAdapter.main(FepAdapter.java:436)]  - OTA Context path => D:\kyunghee.yoon\workspace\3.3\aimir-fep\tomcat.8081\webapps
+2017-01-09 23:20:15,746 DEBUG [com.aimir.fep.protocol.emnv.server.EMnVAdapter.<init>(EMnVAdapter.java:85)]  - load EMnV MIB Completed
+2017-01-09 23:20:15,849 DEBUG [com.aimir.fep.protocol.fmp.server.FMPTrapAdapter.<init>(FMPTrapAdapter.java:58)]  - load FMP MIB Completed
+2017-01-09 23:20:15,864 DEBUG [com.aimir.fep.protocol.fmp.server.IF4NewAdapter.<init>(IF4NewAdapter.java:50)]  - IF4NewAdapter Completed
+2017-01-09 23:20:16,085 DEBUG [com.aimir.fep.protocol.snmp.SnmpManagerAdapter.<init>(SnmpManagerAdapter.java:55)]  - load SNMP Adapter Completed
+2017-01-09 23:20:25,835 DEBUG [com.aimir.fep.adapter.FepAdapter.main(FepAdapter.java:435)]  - OTA Context => firmware-file
+2017-01-09 23:20:25,835 DEBUG [com.aimir.fep.adapter.FepAdapter.main(FepAdapter.java:436)]  - OTA Context path => D:\kyunghee.yoon\workspace\3.3\aimir-fep\tomcat.8081\webapps
+2017-01-12 16:42:53,857 DEBUG [com.aimir.fep.protocol.emnv.server.EMnVAdapter.<init>(EMnVAdapter.java:85)]  - load EMnV MIB Completed
+2017-01-12 16:42:53,915 DEBUG [com.aimir.fep.protocol.fmp.server.FMPTrapAdapter.<init>(FMPTrapAdapter.java:58)]  - load FMP MIB Completed
+2017-01-12 16:42:53,923 DEBUG [com.aimir.fep.protocol.fmp.server.IF4NewAdapter.<init>(IF4NewAdapter.java:50)]  - IF4NewAdapter Completed
+2017-01-12 16:42:54,047 DEBUG [com.aimir.fep.protocol.snmp.SnmpManagerAdapter.<init>(SnmpManagerAdapter.java:55)]  - load SNMP Adapter Completed
+2017-01-12 16:42:59,793 DEBUG [com.aimir.fep.adapter.FepAdapter.main(FepAdapter.java:435)]  - OTA Context => firmware-file
+2017-01-12 16:42:59,793 DEBUG [com.aimir.fep.adapter.FepAdapter.main(FepAdapter.java:436)]  - OTA Context path => D:\kyunghee.yoon\workspace\3.3\aimir-fep\tomcat.8081\webapps

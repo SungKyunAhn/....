@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:int="http://www.springframework.org/schema/integration"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/integration
+        http://www.springframework.org/schema/integration/spring-integration.xsd
+        ">
+        
+  <context:property-placeholder location="classpath:config/fmp.properties"/>
+  
+  <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+        <property name="poolName" value="springHikariCP" />
+        <property name="dataSourceClassName" value="${jdbc.driverClassName}" />
+        <property name="maximumPoolSize" value="${jdbc.maximumSize}" />
+        <property name="minimumIdle" value="${jdbc.minimumIdleSize}"/>
+        <property name="autoCommit" value="false"/>
+        <property name="idleTimeout" value="30000" />
+    
+        <property name="dataSourceProperties">
+            <props>
+                <prop key="url">${jdbc.url}</prop>
+                <prop key="user">${jdbc.username}</prop>
+                <prop key="password">${jdbc.password}</prop>
+            </props>
+        </property>
+    </bean>
+    
+    <!-- HikariCP configuration -->
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <constructor-arg ref="hikariConfig" />
+    </bean>
+    
+  <!-- Necessary to get the entity manager injected into the factory bean -->
+  <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
+    
+  <bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
+    <!-- <property name="databasePlatform" value="org.eclipse.persistence.platform.database.DerbyPlatform" /> -->
+    <property name="databasePlatform" value="org.eclipse.persistence.platform.database.OraclePlatform" />
+    <property name="showSql" value="true" />
+  </bean>
+
+  <!-- Entity Manager Factory  -->
+  <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+    <property name="persistenceXmlLocation" value="classpath:config/persistence.xml" />
+    <property name="dataSource" ref="dataSource" />
+    <property name="persistenceUnitName" value="eclipselink.jpa"/>
+    <property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
+    <property name="jpaDialect" ref="jpaDialect" />
+    <property name="loadTimeWeaver" ref="loadTimeWeaver" />
+  </bean>    
+    
+  <bean id="loadTimeWeaver" class="org.springframework.instrument.classloading.InstrumentationLoadTimeWeaver" />    
+  <bean id="jpaDialect" class="org.springframework.orm.jpa.vendor.EclipseLinkJpaDialect " />
+    
+  <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+    <property name="entityManagerFactory" ref="entityManagerFactory"/>
+  </bean>
+    
+  <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
+    
+  <!-- Enable @Transactional support -->
+  <tx:annotation-driven transaction-manager="transactionManager" />
+    
+  <!-- Activates scanning of @Autowired -->            
+  <context:annotation-config/>
+  
+  <context:component-scan base-package="com.aimir"></context:component-scan>
+    
+  <!-- 이벤트 알람을 Topic으로 사용하지 않고 Queue로 변경한다. Topic이 ActiveMQ MBean 브라우저 -->
+  <bean id="eventTopic" class="org.apache.activemq.command.ActiveMQTopic">
+    <constructor-arg value="AiMiR.Event"/>
+  </bean>
+    
+  <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+    <property name="brokerURL">
+      <value>${activemq.broker.url}</value>
+    </property>
+  </bean>
+
+  <bean id="activeCachingConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+    <property name="targetConnectionFactory" ref="activeMQConnectionFactory"/>
+    <property name="reconnectOnException" value="true"/>
+  </bean>
+
+  <bean id="activeJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <property name="connectionFactory" ref="activeCachingConnectionFactory"/>
+  </bean>
+    
+</beans>

@@ -1,0 +1,157 @@
+package com.aimir.fep.util;
+
+import java.io.Serializable;
+
+import com.aimir.constants.CommonConstants.Protocol;
+
+public class Message implements Serializable {
+    private String startDateTime = "";
+    private String endDateTime = "";
+    private String dataType = "ServiceData";
+    private long sendBytes = 0L;
+    private long rcvBytes = 0L;
+    private int totalCommTime = 0;
+    private String senderId = "";
+    private String senderIp = "";
+    private String receiverId = "";
+    private String receiverIp = "";
+    private String nameSpace = "";
+    private Protocol protocolType;
+    private String filename = "";
+    private byte[] data;
+    
+    public Message() {}
+
+    public String getStartDateTime() {
+        return startDateTime;
+    }
+
+    public void setStartDateTime(String startDateTime) {
+        this.startDateTime = startDateTime;
+    }
+
+    public String getEndDateTime() {
+        return endDateTime;
+    }
+
+    public void setEndDateTime(String endDateTime) {
+        this.endDateTime = endDateTime;
+    }
+
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    public long getSendBytes() {
+        return sendBytes;
+    }
+
+    public void setSendBytes(long sendBytes) {
+        this.sendBytes = sendBytes;
+    }
+
+    public long getRcvBytes() {
+        return rcvBytes;
+    }
+
+    public void setRcvBytes(long rcvBytes) {
+        this.rcvBytes = rcvBytes;
+    }
+
+    public int getTotalCommTime() {
+        return totalCommTime;
+    }
+
+    public void setTotalCommTime(int totalCommTime) {
+        this.totalCommTime = totalCommTime;
+    }
+
+    public String getSenderId() {
+        return senderId;
+    }
+
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
+    }
+
+    public String getSenderIp() {
+        return senderIp;
+    }
+
+    public void setSenderIp(String senderIp) {
+        this.senderIp = senderIp;
+    }
+
+    public String getReceiverId() {
+        return receiverId;
+    }
+
+    public void setReceiverId(String receiverId) {
+        this.receiverId = receiverId;
+    }
+
+    public String getReceiverIp() {
+        return receiverIp;
+    }
+
+    public void setReceiverIp(String receiverIp) {
+        this.receiverIp = receiverIp;
+    }
+
+    public String getNameSpace() {
+        return nameSpace;
+    }
+
+    public void setNameSpace(String nameSpace) {
+        this.nameSpace = nameSpace;
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+
+    public void setData(byte[] data) {
+        this.data = data;
+    }
+    
+    public Protocol getProtocolType() {
+        return protocolType;
+    }
+
+    public void setProtocolType(Protocol protocolType) {
+        this.protocolType = protocolType;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer("{");
+        buf.append("\"startDateTime\"=\"" + startDateTime + "\"");
+        buf.append("\"endDateTime=\"=\"" + endDateTime+ "\"");
+        buf.append("\"dataType\"=\"" + dataType + "\"");
+        buf.append("\"sendBytes\"=\"" + sendBytes + "\"");
+        buf.append("\"rcvBytes\"=\"" + rcvBytes + "\"");
+        buf.append("\"totalCommTime\"=\"" + totalCommTime + "\"");
+        buf.append("\"senderId\"=\"" + senderId + "\"");
+        buf.append("\"senderIp\"=\"" + senderIp + "\"");
+        buf.append("\"receiverId\"=\"" + receiverId + "\"");
+        buf.append("\"receiverIp\"=\"" + receiverIp + "\"");
+        buf.append("\"nameSpace\"=\"" + nameSpace + "\"");
+        buf.append("\"protocolType\"=\"" + protocolType + "\"");
+        buf.append("\"filename\"=\"" + filename + "\"");
+        buf.append("\"data\"=\"" + Hex.decode(data) + "\"");
+        buf.append("}");
+        
+        return buf.toString();
+    }
+}

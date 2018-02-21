@@ -1,0 +1,34 @@
+SnmpTrapOID, 1.3.6.1.6.3.1.1.4.1.0, SnmpTrapOID
+NuriTelecom, 1.3.6.1.4.1.3204, Nuritelecom
+soria, 1.3.6.1.4.1.3204.31,soria
+trap, 1.3.6.1.4.1.3204.31.10,trap
+trapFromMeter, 1.3.6.1.4.1.3204.31.10.1,Identified By trapMeterSerial
+trapFromMT, 1.3.6.1.4.1.3204.31.10.2,Identified By requestIP
+trapMeterSerial, 1.3.6.1.4.1.3204.31.10.3.0,Meter Serial (SORIA)
+changeClock, 1.3.6.1.4.1.3204.31.10.1.1,Change of clock notification.
+changeParameter, 1.3.6.1.4.1.3204.31.10.1.2,Change of parameters configuration notification
+selfDiagnosticError, 1.3.6.1.4.1.3204.31.10.1.3,Self-diagnostic error notification
+openBreakerPowerLimitation, 1.3.6.1.4.1.3204.31.10.1.4,Open breaker due to power limitation notification
+openBreakerControl, 1.3.6.1.4.1.3204.31.10.1.5,Open breaker due to control commands notification
+closeBreakerButton, 1.3.6.1.4.1.3204.31.10.1.6,Close breaker via press button notification
+closeBreakerControl, 1.3.6.1.4.1.3204.31.10.1.7,Close breaker via control commands notification
+longPowerInterruption, 1.3.6.1.4.1.3204.31.10.1.8,Long power interruption notification
+shortPowerInterruption, 1.3.6.1.4.1.3204.31.10.1.9,Short power interruption notification
+longAbnormalVoltage, 1.3.6.1.4.1.3204.31.10.1.10,Long-term Under/Over voltage notification
+shortAbnormalVoltage, 1.3.6.1.4.1.3204.31.10.1.11,Short-term Under/Over voltage notification
+voltageSag, 1.3.6.1.4.1.3204.31.10.1.12,Voltage sag/swell notification
+thd, 1.3.6.1.4.1.3204.31.10.1.13,THD (time stamp or code of event) notification
+groundFault, 1.3.6.1.4.1.3204.31.10.1.14,Ground faults notification
+magneticDisturbance, 1.3.6.1.4.1.3204.31.10.1.15,Magnetic field disturbance  notification
+openFaceCover, 1.3.6.1.4.1.3204.31.10.1.16,Open face cover notification
+openTerminalCover, 1.3.6.1.4.1.3204.31.10.1.17,Open terminal cover notification
+accessWrongKey, 1.3.6.1.4.1.3204.31.10.1.18,Access with wrong key notification
+firmwareReception, 1.3.6.1.4.1.3204.31.10.1.19,Firmware reception key notification
+firmwareVerificationFails, 1.3.6.1.4.1.3204.31.10.1.20,Firmware verification fails notification
+firmwareVerificationOK, 1.3.6.1.4.1.3204.31.10.1.21,Firmware verification ok notification
+firmwareActivationFail, 1.3.6.1.4.1.3204.31.10.1.22,Firmware activation fails notification
+firmwareActivationOK, 1.3.6.1.4.1.3204.31.10.1.23,Firmware activation ok notification
+resetFactorySetting, 1.3.6.1.4.1.3204.31.10.2.1,Meter Terminal notification.
+oTAdownload, 1.3.6.1.4.1.3204.31.10.2.2,Meter Terminal notification.
+timeSync, 1.3.6.1.4.1.3204.31.10.2.3,Meter Terminal notification.
+mTfwUpload, 1.3.6.1.4.1.3204.31.10.2.4,Meter Terminal' F/W Upload notification.

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+    <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                value="%d{yyyy.M.d. a h:mm:ss} %p - %C{1}.%M(%L) | %m%n"/>
+        </layout>
+    </appender>
+
+    <!--  날짜별 로그 -->  
+    <appender name="dailyout" class="org.apache.log4j.DailyRollingFileAppender">  
+        <!-- 이것은 날짜별로  로그를 남김. 파일명.확장자.DatePattern으로 정의 함-->  
+<!--         <param name="file" value="..\\logs\\aimir.log"/>  -->
+        <param name="file" value="../logs/aimir.log"/>    
+        <param name="Append" value="true"/>  
+        <param name="DatePattern" value="'.'yyMMdd"/>  
+        <layout class="org.apache.log4j.PatternLayout">  
+            <param name="ConversionPattern" value="%t> [%d{yyyy-MM-dd HH:mm:ss}] [%c{1}] [%L] [%p] %m %n"/>  
+        </layout>  
+    </appender> 
+    
+    <logger name="org.apache">
+        <level value="WARN"/>
+    </logger>
+    
+    <logger name="org.hibernate">
+        <level value="ERROR"/>
+    </logger>
+
+    <logger name="org.hibernate.SQL">
+        <level value="DEBUG"/>
+    </logger>
+
+    <!-- Suppress warnings from Commons Validator -->
+    <logger name="org.apache.commons.validator.ValidatorResources">
+        <level value="ERROR"/>
+    </logger>
+
+    <logger name="org.springframework">
+        <level value="WARN"/>
+    </logger>
+    
+    <logger name="org.springframework.flex">
+        <level value="ERROR"/>
+    </logger>
+    
+    <logger name="org.springframework.web.servlet">
+        <level value="ERROR"/>
+    </logger>   
+    
+    <logger name="flex.messaging">
+        <level value="ERROR"/>
+    </logger> 
+       
+    <logger name="com.aimir">
+        <level value="DEBUG"/>
+    </logger>
+
+    <root>
+        <level value="INFO"/>
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="dailyout"/>
+    </root>
+
+</log4j:configuration>

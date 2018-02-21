@@ -1,0 +1,688 @@
+smiEntry,OID,3,1.1.0,SMI Variable
+unknownEntry,BYTE,0,1.2.0,unsigned char
+boolEntry,BOOL,1,1.3.0,unsigned char
+byteEntry,BYTE,1,1.4.0,unsigned char
+wordEntry,WORD,2,1.5.0,unsigned short
+uintEntry,UINT,4,1.6.0,unsigned int
+charEntry,CHAR,1,1.7.0,signed char
+shortEntry,SHORT,2,1.8.0,signed short
+intEntry,INT,4,1.9.0,signed int
+oidEntry,OID,3,1.10.0,Object ID (3 Bytes)
+oidDot1,BYTE,1,1.10.1,ID 1
+oidDot2,BYTE,1,1.10.2,ID 2
+oidDot3,BYTE,1,1.10.3,ID 3
+stringEntry,OCTET,0,1.11.0,String
+streamEntry,OCTET,0,1.12.0,Data Stream
+opaqueEntry,OPAQUE,0,1.13.0,Structure
+eui64Entry,HEX,8,1.14.0,SINK-SENSOR ID
+eui64High,UINT,4,1.14.1,High Value
+eui64Low,UINT,4,1.14.2,Low Value
+ipEntry,IPADDR,4,1.15.0,IP Address
+ipDot1,BYTE,1,1.15.1,IP 1
+ipDot2,BYTE,1,1.15.2,IP 2
+ipDot3,BYTE,1,1.15.3,IP 3
+ipDot4,BYTE,1,1.15.4,IP 4
+timeEntry,TIMESTAMP,7,1.16.0,yyyymmddhhMMss
+timeYear,WORD,2,1.16.1,year
+timeMon,BYTE,1,1.16.2,month
+timeDay,BYTE,1,1.16.3,day
+timeHour,BYTE,1,1.16.4,hour
+timeMin,BYTE,1,1.16.5,minute
+timeSec,BYTE,1,1.16.6,second
+dayEntry,TIMEDATE,4,1.17.0,yyyymmdd
+dayYear,WORD,2,1.17.1,year
+dayMon,BYTE,1,1.17.2,month
+dayDay,BYTE,1,1.17.3,day
+verEntry,OCTET,16,1.18.0,version char stream
+verPrefix,OCTET,3,1.18.1,always  MCU
+verFixed1,BYTE,1,1.18.2,always  '-'
+verHwVersion,OCTET,2,1.18.3,version
+verFixed2,BYTE,1,1.18.4,always '-'
+verSwVersion,OCTET,4,1.18.5,version
+verFixed3,BYTE,1,1.18.6,always '-'
+verService,OCTET,4,1.18.7,service type
+smivarEntry,OCTET,0,1.19.0,SMIValue Entry
+smivarOid,OID,3,1.19.1, OID
+smivarLength,WORD,2,1.19.2,data length
+smivarData,OCTET,0,1.19.3,data
+pageEntry,OCTET,0,1.20.0,page info
+pageNumber,BYTE,1,1.20.1,page info
+pageLength,BYTE,1,1.20.2,page length (MAX=50)
+pageData,OCTET,0,1.20.3,page data
+gmtEntry,OPAQUE,11,1.21.0,time
+gmtTimezone,WORD,2,1.21.1,Timezone
+gmtDstValue,WORD,2,1.21.2,DST Value(+-value)
+gmtYear,WORD,2,1.21.3,year
+gmtMon,BYTE,1,1.21.4,month
+gmtDay,BYTE,1,1.21.5,day
+gmtHour,BYTE,1,1.21.6,hour
+gmtMin,BYTE,1,1.21.7,min
+gmtSec,BYTE,1,1.21.8,sec
+sysEntry,OPAQUE,690,2.1.0,mcu system info structure
+sysMask,UINT,4,2.1.1,system info search/modify MASK
+sysID,UINT,4,2.1.2,mcu ID
+sysType,BYTE,1,2.1.3,mcu type
+sysName,OCTET,64,2.1.4,mcu name
+sysDescr,OCTET,64,2.1.5,mcu descr
+sysLocation,OCTET,64,2.1.6,mcu location
+sysContact,OCTET,64,2.1.7,mcu manager
+sysHwVersion,VER,1,2.1.8,HW version (Top.)
+sysSwVersion,VER,1,2.1.9,FW version (Top.)
+sysPhoneNumber,OCTET,16,2.1.10,mobile phonenumber
+sysEtherType,BYTE,1,2.1.11,ethernet type
+sysMobileType,BYTE,1,2.1.12,mobile type
+sysMobileMode,BYTE,1,2.1.13,mobile connect type
+sysMobileAPN,BYTE,1,2.1.14,mobile service provider deprecated
+sysUpTime,UINT,4,2.1.15,Boot time has elapsed
+sysTime,TIMESTAMP,7,2.1.16,system time
+sysCurTemp,INT,4,2.1.17,current temperature * 10
+sysMinTemp,INT,4,2.1.18,minimum temperature * 10
+sysMaxTemp,INT,4,2.1.19,maximum temperature * 10
+sysServer,OCTET,256,2.1.20,FEP server address size changed 2008.05.08
+sysServerPort,UINT,4,2.1.21,FEP server control port number
+sysServerAlarmPort,UINT,4,2.1.22,FEP server alarm port number
+sysLocalPort,UINT,4,2.1.23,mcu local control port number
+sysState,BYTE,1,2.1.24,mcu state
+sysVendor,BYTE,1,2.1.25,mcu manufacturer
+sysModel,BYTE,1,2.1.26,mcu model
+sysCircuitMode,BYTE,1,2.1.27,Circuit Mode Flag
+sysMobileVendor,INT,4,2.1.28,mobile manufacturer
+sysMobileAccessPointName,OCTET,64,2.1.29,mobile APN Name
+sysSwRevision,OCTET,32,2.1.30,mcu SW Revision
+sysResetReason,BYTE,1,2.1.31,mcu Reset Reason(0:Unknown 1:Command 2:Firmware Upgrade 3:Fixed Reset 4:Watchdog 5:Low Battery)
+sysJoinNodeCount,UINT,4,2.1.32,system start  Join Node count
+sysTimeZone,SHORT,2,2.1.33,system Timezone (unit min)
+sysOpMode,BYTE,1,2.1.34,system Operating mode (0:Normal 1:Test)
+sysPowerType,UINT,4,2.1.35,system power souce
+sysStateMask,UINT,4,2.1.36,system state (sysState  0 day   Error Mask  Setting )
+sysSecurityState,BYTE,1,2.1.37,auth mode setting
+varEntry,OPAQUE,24,2.2.0,mcu evironment setting structure
+varEnableMask,UINT,4,2.2.1,evironment variable Enable MASK bit
+varEnableRecovery,BOOL,1,2.2.2,fail metering function use enabled
+varEnableCmdHistLog,BOOL,1,2.2.3,command use history save enabled
+varEnableCommLog,BOOL,1,2.2.4,comm log write enabled
+varEanbleAutoRegister,BOOL,1,2.2.5,auto sensor registered allow enabled
+varEnableAutoReset,BOOL,1,2.2.6,auto reset mode allow enabled
+varEnableAutoTimeSync,BOOL,1,2.2.7,auto time sync allow enabled
+varEnableAutoSinkReset,BOOL,1,2.2.8,auto SINK reset function allow
+varEnableSubNetwork,BOOL,1,2.2.9,Secondary Network allow - del
+varEnableMobileStaticLog,BOOL,1,2.2.10,mobile device usage log
+varEnableAutoUpload,BOOL,1,2.2.11,metering data auto send enabled
+varEnableSecurity,BOOL,1,2.2.12,security function use enabled
+varEnableMonitoring,BOOL,1,2.2.13,monitoring function use enabled
+varEnableKeepalive,BOOL,1,2.2.14,Keepalive event send enabled
+varEnableGpsTimesync,BOOL,1,2.2.15,GPS  time sync use enabled
+varEnableTimeBroadcast,BOOL,1,2.2.16,current time Broadcast
+varEnableStatusMonitoring,BOOL,1,2.2.17,energy node state monitoring use enabled
+varEnableMemoryCheck,BOOL,1,2.2.18,memory thresholdcheck
+varEnableFlashCheck,BOOL,1,2.2.19,flash thresholdcheck
+varEnableMeterTimesync,BOOL,1,2.2.20,meter time sync use enabled
+varEnableMeterCheck,BOOL,1,2.2.21,meter state check function use enabled
+varEnableHeater,BOOL,1,2.2.22,Heater function use enabled
+varEnableReadMeterEvent,BOOL,1,2.2.23,meter event read use enabled
+varValueEntry,OPAQUE,235,2.3.0,evironment variable value
+varValueMask,UINT,4,2.3.1,evironment variable value setting MASK bit
+varAutoResetCheckInterval,UINT,4,2.3.2,auto reset cycle (sec)
+varSysPowerOffDelay,UINT,4,2.3.3,Power Failhour power off wating time (min)
+varSysTempMonInterval,UINT,4,2.3.4,temperature monitoring cycle (sec)
+varAutoTimeSyncInterval,UINT,4,2.3.5,auto time sync cycle (sec)
+varSysMeteringThreadCount,BYTE,1,2.3.6,meteringhour Number of threads simultaneously reading
+varSinkPollingInterval,UINT,4,2.3.7,SINK polling cycle (sec)
+varSinkResetInterval,UINT,4,2.3.8,SINK abnormal hour reset cycle (sec)
+varSinkResetDelay,UINT,4,2.3.9,SINK reset wating time (sec)
+varSinkLedTurnOffInterval,UINT,4,2.3.10,SINK abnormal hour LED OFF cycle (sec)
+varSinkAckWaitTime,BYTE,1,2.3.11,SINK send ACK wating time (sec)
+varSensorTimeout,BYTE,1,2.3.12,sensor  comm timeout (sec)
+varSensorKeepalive,BYTE,1,2.3.13,sensor max comm allow time (sec)
+varSensorMeterSaveCount,WORD,2,2.3.14,sensor meteringdata save count
+varMeterDayMask,INT,4,2.3.15,metering date mask
+varMeterHourMask,INT,4,2.3.16,metering time mask
+varMeterStartMin,BYTE,1,2.3.17,metering start min (min)
+varRecoveryDayMask,INT,4,2.3.18,fail metering date mask
+varRecoveryHourMask,INT,4,2.3.19,fail metering time mask
+varRecoveryStartMin,BYTE,1,2.3.20,fail metering start time (min)
+varCmdHistSaveDay,BYTE,1,2.3.21,command use history Days to keep
+varEventLogSaveDay,BYTE,1,2.3.22,event log Days to keep
+varCommLogSaveDay,BYTE,1,2.3.23,comm log Days to keep
+varMeterLogSaveDay,BYTE,1,2.3.24,metering log Days to keep
+varAutoResetTime,TIMESTAMP,7,2.3.25,auto reset time
+varMeterUploadCycleType,BYTE,1,2.3.26,metering data send cycle type
+varMeterUploadCycle,UINT,4,2.3.27,metering data send cycle (2.2.45)
+varMeterUploadStartHour,BYTE,1,2.3.28,metering data send start time(hour) (0~23)
+varMeterUploadStartMin,BYTE,1,2.3.29,metering data send start time(min) (0~59)
+varMeterUploadRetry,BYTE,1,2.3.30,metering data send failhour repeat count
+varMeterIssueDate,TIMESTAMP,7,2.3.31,mcu Operating start time (metering execute start time)
+varMemoryCriticalRate,BYTE,1,2.3.32,mcu memory threshold(%)
+varFlashCriticalRate,BYTE,1,2.3.33,mcu flash threshold(%)
+varNapcGroupInterval,BYTE,1,2.3.34,group  Wakup cycle(min)
+varNapcRetry,BOOL,1,2.3.35,metering retry function using enabled
+varNapcRetryHour,BYTE,1,2.3.36,maintenance time (hour)
+varNapcRetryStartSecond,BYTE,1,2.3.37,metering time resend request start (sec)  3 times send
+varNapcRetryClear,UINT,4,2.3.38,metering success flag Clear Mask
+varMaxEventLogSize,UINT,4,2.3.39,event log size limit (file unit)
+varMaxAlarmLogSize,UINT,4,2.3.40,alarm log size limit (file unit)
+varMaxCmdLogSize,UINT,4,2.3.41,command use history size limit (file unit)
+varMaxCommLogSize,UINT,4,2.3.42,comm log size limit (file unit)
+varMaxMobileLogSize,UINT,4,2.3.43,mobile log size limit (file unit)
+varKeepaliveInterval,UINT,4,2.3.44,mcu Keep alive event send cycle (min)
+varAlarmLogSaveDay,BYTE,1,2.3.45,alarm log Days to keep
+varTimeBroadcastInterval,UINT,4,2.3.46,time frame broadcast cycle(sec)
+varStatusMonitorTime,BYTE,1,2.3.47,energy node state monitoring start (min)
+varUploadTryTime,UINT,4,2.3.48,metering data server send start time (min)
+varDataSaveDay,UINT,4,2.3.49,metering data saving duration (day)
+varMeteringPeriod,UINT,4,2.3.50,scheduled  metering start time (min)
+varRecoveryPeriod,UINT,4,2.3.51,fail metering start time (min)
+varMeteringRetry,UINT,4,2.3.52,scheduled  metering retry count (ntry)
+varRecoveryRetry,UINT,4,2.3.53,fail metering retry count (ntry)
+varCheckDayMask,UINT,4,2.3.54,meter state check date mask (0BIT = 1day..)
+varCheckHourMask,UINT,4,2.3.55,meter state check time mask (0BIT = 0hour..)
+varCheckStartMin,BYTE,1,2.3.56,meter state check start min
+varCheckPeriod,UINT,4,2.3.57,meter state check allow time (min)
+varCheckRetry,UINT,4,2.3.58,meter state check restart count
+varMeterTimesyncDayMask,UINT,4,2.3.59,meter time sync date mask (0BIT=1day..)
+varMeterTimesyncHourMask,UINT,4,2.3.60,meter time sync time mask (0BIT=0hour..)
+varMeterReadingInterval,UINT,4,2.3.61,Rural MCU to outside Meter info read time interval - Norway
+varHeaterOnTemp,INT,4,2.3.62,Heater On temperature (* 10)
+varHeaterOffTemp,INT,4,2.3.63,Heater Off temperature (* 10)
+varMobileLiveCheckInterval,INT,4,2.3.64,mobile connect state check cycle(min) - ICMP Ping
+varEventReadDayMask,UINT,4,2.3.65,GE event READ date mask (0Bit = 1day  30Bit=31day)
+varEventReadHourMask,UINT,4,2.3.66,GE event READ time mask (0BIT = 0hour  22Bit=23hour)
+varEventSendDelay,UINT,4,2.3.67,Start the transmission of mass events delay (sec)
+varEventAlertLevel,BYTE,1,2.3.68,Server to send the event to minimum level
+varSensorLimit,INT,4,2.3.69,MCU max manage Sensor count
+varMeteringStrategy,BYTE,1,2.3.70,Metering Strategy(Serial:0  Distribute:1)
+varTimesyncThreshold,INT,4,2.3.71,Meter Timesync Threshold
+varMobileLiveCheckMethod,BYTE,1,2.3.72,mcu mobile state to identify the type of polling
+varScanningStrategy,BYTE,1,2.3.73,MCU Inventory Scanning strategy (Lazy:0 Immediately:1)
+varMobileLogSaveDay,BYTE,1,2.3.74,Mobile log Days to keep
+varUpgradeLogSaveDay,BYTE,1,2.3.75,OTA log Days to keep
+varUploadLogSaveDay,BYTE,1,2.3.76,Upload log Days to keep
+varTimesyncLogSaveDay,BYTE,1,2.3.77,Timesync log Days to keep
+varMaxMeterLogSize,UINT,4,2.3.78,Metering log size limit (file unit)
+varMaxUpgradeLogSize,UINT,4,2.3.79,OTA log size limit (file unit)
+varMaxUploadLogSize,UINT,4,2.3.80,Upload log size limit (file unit)
+varMaxTimesyncLogSize,UINT,4,2.3.81,Timesync log size limit (file unit)
+varDefaultGetMeteringOption,BYTE,1,2.3.82,GE Meter scheduled metering Read Option (0:SelfRead 16:DemandReset)
+varSensorCleaningThreshold,BYTE,1,2.3.83,Sensor comm success history threshold
+varTimeSyncStrategy,BYTE,1,2.3.84,Agent shall determine the way in the use TimeSync.
+varTransactionSaveDay,BYTE,1,2.3.85,Transaction Validity (Default 7)
+varSubValueEntry,OPAQUE,7,2.4.0,Secondary Network structure
+varSubValueMask,INT,4,2.4.1,Secondary Network MASK bit
+varSubChannel,BYTE,1,2.4.2,Secondary Network Channel (1 ~ 14)
+varSubPanID,WORD,2,2.4.3,Secondary Network PanID
+varGeEntry,OPAQUE,35,2.5.0,GE Meter evironment setting structure
+varGeMeteringInterval,UINT,4,2.5.1,metering cycle (min)
+varGeUser,OCTET,10,2.5.2,metering log User
+varGeMeterSecurity,OCTET,20,2.5.3,metering unit login Security
+varGeAllUpladHour,BYTE,1,2.5.4,all(All Table)send time
+usrEntry,OPAQUE,34,2.10.0,user list structure
+usrMask,BYTE,1,2.10.1,user structure mask
+usrAccount,OCTET,16,2.10.2,user account
+usrPassword,OCTET,16,2.10.3,user password
+usrGroup,BYTE,1,2.10.4,user group
+gpsEntry,OPAQUE,29,2.11.0,mcu GPS info
+gpsFixPosition,BYTE,1,2.11.1,GPS Position enable use
+gpsCount,BYTE,1,2.11.2,GPS Satellite count
+gpsTime,TIMESTAMP,7,2.11.3,GPS current time
+gpsPosN,OCTET,32,2.11.4,GPS Position Coordinates
+gpsTimezone,INT,10,2.11.5,GPS time diff 
+memEntry,OPAQUE,20,2.100.0,memory info structure
+memTotalSize,UINT,4,2.100.1,total memory size
+memFreeSize,UINT,4,2.100.2,remain memory size
+memUseSize,UINT,4,2.100.3,using memory size
+memCacheSize,UINT,4,2.100.4,cache memory size
+memBufferSize,UINT,4,2.100.5,buffer memory size
+flashEntry,OPAQUE,12,2.101.0,flash info structure
+flashTotalSize,UINT,4,2.101.1,total Flash memory size
+flashFreeSize,UINT,4,2.101.2,remain Flash memory size
+flashUseSize,UINT,4,2.101.3,using Flash memory size
+ethEntry,OPAQUE,34,2.102.0,ethernet list structure
+ethName,OCTET,16,2.102.1,ethernet name
+ethPhyAddr,OCTET,6,2.102.2,physical address (MAC)
+ethIpAddr,IPADDR,4,2.102.3,IP address
+ethSubnetMask,IPADDR,4,2.102.4,subnet mask
+ethGateway,IPADDR,4,2.102.5,gateway
+gpioEntry,OPAQUE,15,2.103.0,GPIO info
+gpioMask,UINT,4,2.103.1,GPIO MASK bit
+gpioPowerFail,BYTE,1,2.103.2,Power Fail (power outage) state
+gpioLowBattery,BYTE,1,2.103.3,Low Battery state (Not Supported)
+gpioBUSY,BYTE,1,2.103.4,mobile BUSY state
+gpioSTBY,BYTE,1,2.103.5,mobile STBY state
+gpioDCD,BYTE,1,2.103.6,mobile DCD state
+gpioRI,BYTE,1,2.103.7,mobile RI state
+gpioSink1State,BYTE,1,2.103.8,SINK1 state signal
+gpioSink2State,BYTE,1,2.103.9,SINK2 state signal
+gpioHeaterState,BYTE,1,2.103.10,Heater state
+gpioCoverState,BYTE,1,2.103.11,Cover OpenClose state
+gpioChargingState,BYTE,1,2.103.12,Battery Charging state
+mobileEntry,OPAQUE,71,2.104.0,mobile info structure
+mobileID,OCTET,16,2.104.1,GSNESN Number
+mobileIpaddr,IPADDR,4,2.104.2,packet IP address
+mobileRxDbm,INT,4,2.104.3,mobile receive dBm
+mobileTxDbm,INT,4,2.104.4,mobile send dBm - disabled
+mobilePacketLiveTime,UINT,4,2.104.5,mobile connect elapsed time
+mobileSendBytes,UINT,4,2.104.6,mobile connect send bytes
+mobileRecvBytes,UINT,4,2.104.7,mobile connect receive bytes
+mobileLastConnectTime,TIMESTAMP,7,2.104.8,last mobile connect time
+mobileSimCardId,OCTET,20,2.104.9,mobile SIM CARD ID
+mobileVolt,INT,4,2.104.10,mobile volt
+pluginEntry,OPAQUE,122,2.105.0,plugin list structure
+pluginName,OCTET,16,2.105.1,plugin name
+pluginFileName,OCTET,32,2.105.2,plugin file
+pluginDescr,OCTET,64,2.105.3,plugin descr
+pluginType,BYTE,1,2.105.4,plugin type
+pluginState,BYTE,1,2.105.5,plugin state
+pluginVersion,OCTET,8,2.105.6,plugin version
+procEntry,OPAQUE,67,2.106.0,process list structure
+procID,UINT,4,2.106.1,process ID
+procTTY,OCTET,8,2.106.2,process TTY
+procSize,UINT,4,2.106.3,process SIZE
+procState,BYTE,1,2.106.4,process state
+procCmd,OCTET,50,2.106.5,process execute command
+pppEntry,OPAQUE,48,2.107.0,PPP auth list structure
+pppProvider,OCTET,64,2.107.1,PPP supplier
+pppUser,OCTET,16,2.107.2,PPP auth user
+pppPassword,OCTET,16,2.107.3,PPP auth password
+envEntry,OPAQUE,196,2.108.0,mcu Operating Environment structure
+envKernelVersion,OCTET,64,2.108.1,kernel version
+envGccVersion,OCTET,64,2.108.2,GCC version
+envCpuName,OCTET,64,2.108.3,CPU name
+envCpuMips,UINT,4,2.108.4,CPU SPEED
+gpioCtrlEntry,OPAQUE,17,2.109.0,GPIO MASK bit
+gpioPowerCtrl,BYTE,1,2.109.1,main power
+gpioReset,BYTE,1,2.109.2,reset
+gpioMobilePower,BYTE,1,2.109.3,mobile power
+gpioMobileReset,BYTE,1,2.109.4,mobile reset
+gpioMobileDtr,BYTE,1,2.109.5,mobile DTR
+gpioSink1Power,BYTE,1,2.109.6,SINK1 LED
+gpioSink2Power,BYTE,1,2.109.7,SINK2 LED
+gpioExternalPower,BYTE,1,2.109.8,outside power (ADSL)
+gpioLedSink1,BYTE,1,2.109.9,SINK1 LED
+gpioLedSink2,BYTE,1,2.109.10,SINK2 LED
+gpioLedReady,BYTE,1,2.109.11,READY LED
+gpioLedDebug1,BYTE,1,2.109.12,DEBUG1 LED
+gpioLedDebug2,BYTE,1,2.109.13,DEBUG2 LED
+gpioLedDebug3,BYTE,1,2.109.14,DEBUG3 LED
+gpioLedDebug4,BYTE,1,2.109.15,DEBUG4 LED
+gpioEmergencyOff,BYTE,1,2.109.16,GPIO Emergency Off
+gpioCoordinatorReset,BYTE,1,2.109.17,Coordinator Reset
+commLogEntry,OPAQUE,43,2.200.0,communication log list structure
+commLogDate,TIMESTAMP,7,2.200.1,communication log date
+commLogFileName,OCTET,32,2.200.2,communication log file
+commLogFileSize,UINT,4,2.200.3,communication log file size
+commLogStruct,OPAQUE,3,2.201.0,communication log file structure
+commLogLength,BYTE,1,2.201.1,communication log length (MAX=255)
+commLogMin,BYTE,1,2.201.2,write time (min)
+commLogSec,BYTE,1,2.201.3,write time (sec)
+commLogData,OCTET,0,2.201.4,data frame
+cmdHistEntry,OPAQUE,43,2.202.0,command request history list structure
+cmdHistDate,TIMESTAMP,7,2.202.1,command request history writedate
+cmdHistFileName,OCTET,32,2.202.2,command request history file
+cmdHistFileSize,UINT,4,2.202.3,command request history file size
+cmdHistStruct,OPAQUE,22,2.203.0,command request history filecontents
+cmdHistLength,WORD,2,2.203.1,command history length
+cmdHistTimeHour,BYTE,1,2.203.2,command create time (hour)
+cmdHistTimeMin,BYTE,1,2.203.3,command create time (min)
+cmdHistTimeSec,BYTE,1,2.203.4,command create time (sec)
+cmdHistOwner,BYTE,1,2.203.5,command request target
+cmdHistUser,OCTET,16,2.203.6,command  user
+cmdHistData,OCTET,0,2.203.7,OAMPC-FEP request frame
+mcuEventEntry,OPAQUE,43,2.204.0,mcu event log list structure
+mcuEvnetDate,TIMESTAMP,7,2.204.1,event date
+mcuEventFileName,OCTET,32,2.204.2,event file 
+mcuEventFileSize,UINT,4,2.204.3,event file size
+mcuEventStruct,OPAQUE,0,2.205.0,event file contents
+mcuEventLength,WORD,2,2.205.1,event  length
+mcuEventData,OCTET,0,2.205.2,FEP event contents
+meterLogEntry,OPAQUE,43,2.206.0,mcu metering log list structure
+meterLogDate,TIMESTAMP,7,2.206.1,metering log date
+meterLogFileName,OCTET,32,2.206.2,metering log file
+meterLogFileSize,UINT,4,2.206.3,metering log file size
+meterLogStruct,OPAQUE,36,2.207.0,metering log file contents
+meterLogID,HEX,8,2.207.1,metering sensor ID
+meterLogType,BYTE,1,2.207.2,metering type
+meterLogTime,TIMESTAMP,7,2.207.3,The first metering start time
+meterLogStartTime,TIMESTAMP,7,2.207.4,metering start time
+meterLogEndTime,TIMESTAMP,7,2.207.5,metering end time
+meterLogResult,BYTE,1,2.207.6,metering result
+meterLogElapse,UINT,4,2.207.7,metering time (ms)
+meterLogTryCount,BYTE,1,2.207.8,metering successful attempts
+mobileLogEntry,OPAQUE,40,2.208.0,mcu mobile usage log list structure
+mobileLogDate,TIMEDATE,4,2.208.1,mobile usage log date
+mobileLogFileName,OCTET,32,2.208.2,mobile usage log file 
+mobileLogFileSize,UINT,4,2.208.3,mobile usage log file size
+mobileLogStruct,OPAQUE,192,2.209.0,mobile log file 
+mobileLogRecv00,UINT,4,2.209.1,00time mobile receive bytes
+mobileLogSend00,UINT,4,2.209.2,00time mobile send bytes
+mobileLogRecv01,UINT,4,2.209.3,01time mobile receive bytes
+mobileLogSend01,UINT,4,2.209.4,01time mobile send bytes
+mobileLogRecv02,UINT,4,2.209.5,02time mobile receive bytes
+mobileLogSend02,UINT,4,2.209.6,02time mobile send bytes
+mobileLogRecv03,UINT,4,2.209.7,03time mobile receive bytes
+mobileLogSend03,UINT,4,2.209.8,03time mobile send bytes
+mobileLogRecv04,UINT,4,2.209.9,04time mobile receive bytes
+mobileLogSend04,UINT,4,2.209.10,04time mobile send bytes
+mobileLogRecv05,UINT,4,2.209.11,05time mobile receive bytes
+mobileLogSend05,UINT,4,2.209.12,05time mobile send bytes
+mobileLogRecv06,UINT,4,2.209.13,06time mobile receive bytes
+mobileLogSend06,UINT,4,2.209.14,06time mobile send bytes
+mobileLogRecv07,UINT,4,2.209.15,07time mobile receive bytes
+mobileLogSend07,UINT,4,2.209.16,07time mobile send bytes
+mobileLogRecv08,UINT,4,2.209.17,08time mobile receive bytes
+mobileLogSend08,UINT,4,2.209.18,08time mobile send bytes
+mobileLogRecv09,UINT,4,2.209.19,09time mobile receive bytes
+mobileLogSend09,UINT,4,2.209.20,09time mobile send bytes
+mobileLogRecv10,UINT,4,2.209.21,10time mobile receive bytes
+mobileLogSend10,UINT,4,2.209.22,10time mobile send bytes
+mobileLogRecv11,UINT,4,2.209.23,11time mobile receive bytes
+mobileLogSend11,UINT,4,2.209.24,11time mobile send bytes
+mobileLogRecv12,UINT,4,2.209.25,12time mobile receive bytes
+mobileLogSend12,UINT,4,2.209.26,12time mobile send bytes
+mobileLogRecv13,UINT,4,2.209.27,13time mobile receive bytes
+mobileLogSend13,UINT,4,2.209.28,13time mobile send bytes
+mobileLogRecv14,UINT,4,2.209.29,14time mobile receive bytes
+mobileLogSend14,UINT,4,2.209.30,14time mobile send bytes
+mobileLogRecv15,UINT,4,2.209.31,15time mobile receive bytes
+mobileLogSend15,UINT,4,2.209.32,15time mobile send bytes
+mobileLogRecv16,UINT,4,2.209.33,16time mobile receive bytes
+mobileLogSend16,UINT,4,2.209.34,16time mobile send bytes
+mobileLogRecv17,UINT,4,2.209.35,17time mobile receive bytes
+mobileLogSend17,UINT,4,2.209.36,17time mobile send bytes
+mobileLogRecv18,UINT,4,2.209.37,18time mobile receive bytes
+mobileLogSend18,UINT,4,2.209.38,18time mobile send bytes
+mobileLogRecv19,UINT,4,2.209.39,19time mobile receive bytes
+mobileLogSend19,UINT,4,2.209.40,19time mobile send bytes
+mobileLogRecv20,UINT,4,2.209.41,20time mobile receive bytes
+mobileLogSend20,UINT,4,2.209.42,20time mobile send bytes
+mobileLogRecv21,UINT,4,2.209.43,21time mobile receive bytes
+mobileLogSend21,UINT,4,2.209.44,21time mobile send bytes
+mobileLogRecv22,UINT,4,2.209.45,22time mobile receive bytes
+mobileLogSend22,UINT,4,2.209.46,22time mobile send bytes
+mobileLogRecv23,UINT,4,2.209.47,23time mobile receive bytes
+mobileLogSend23,UINT,4,2.209.48,23time mobile send bytes
+modemPacketRetryCount,BYTE,1,210.1.1,event packet retry send count
+modemMeterID,OCTET,12,210.1.2,meter serial number
+modemEventTime,TIMESTAMP,7,210.1.3,event create time
+modemEventCode,BYTE,1,210.1.4,event code value 
+sinkID,HEX,8,3.1.3,EUI64
+codiEntry,OPAQUE,70,3.3.0,Coordinator basic info structure
+codiMask,WORD,2,3.3.1,Mask Value
+codiIndex,BYTE,1,3.3.2,Coordinator Index (0:CODI#1 1:CODI#2)
+codiID,HEX,8,3.3.3,EUI64
+codiType,BYTE,1,3.3.4,Coordinator Type
+codiShortID,WORD,2,3.3.5,Short ID
+codiFwVer,BYTE,1,3.3.6,Firmware Version
+codiHwVer,BYTE,1,3.3.7,Hardware Version
+codiZAIfVer,BYTE,1,3.3.8,ZA If Version
+codiZZIfVer,BYTE,1,3.3.9,ZZ If Version
+codiFwBuild,BYTE,1,3.3.10,Firmware Build Number
+codiResetKind,BYTE,1,3.3.11,Reset type-cause
+codiAutoSetting,BYTE,1,3.3.12,auto channel setting
+codiChannel,BYTE,1,3.3.13,ZigBee RF channel
+codiPanID,WORD,2,3.3.14,ZigBee Personal Area Network ID setting
+codiExtPanID,OCTET,8,3.3.15,pan id
+codiRfPower,BYTE,1,3.3.16,ZigBee RF send power (Signed Data)
+codiTxPowerMode,BYTE,1,3.3.17,ZigBee RF send power
+codiPermit,BYTE,1,3.3.18,Permit Format(0:deny ~ 255:permit)
+codiEnableEncrypt,BYTE,1,3.3.19,\ubcf4\uc548\ud0a4 \uc0ac\uc6a9 \uc5ec\ubd80 (0:disable 1:enable)
+codiLineKey,OCTET,16,3.3.20,Join\uc744 \uc704\ud574 \uc0ac\uc6a9\ub418\ub294 Key
+codiNetworkKey,OCTET,16,3.3.21,ZigBee \ud1b5\uc2e0\uc744 \uc704\ud574 \uc0ac\uc6a9\ub418\ub294 Key
+codiRouteDiscovery,BOOL,1,3.3.22,Route Discovery On-Off
+codiMulticastHops,BYTE,1,3.3.23,Multicast Frame  HOP info
+codiDeviceEntry,OPAQUE,21,3.4.0,Coordinator \ub514\ubc14\uc774\uc2a4 \uc815\ubcf4 \uad6c\uc870\uccb4
+codiDevice,OCTET,16,3.4.1,Coordinator \ub514\ubc14\uc774\uc2a4
+codiBaudRate,BYTE,1,3.4.2,UART Baud Rate
+codiParityBit,BYTE,1,3.4.3,UART parity bit
+codiDataBit,BYTE,1,3.4.4,UART data bit
+codiStopBit,BYTE,1,3.4.5,UART stop bit
+codiRtsCts,BYTE,1,3.4.6,RTS-CTS Enable - Disable
+codiBindingEntry,OPAQUE,16,3.5.0,Coordinator binding info structure
+codiBindIndex,BYTE,1,3.5.1,index
+codiBindType,BYTE,1,3.5.2,type
+codiBindLocal,BYTE,1,3.5.3,local
+codiBindRemote,BYTE,1,3.5.4,remote
+codiBindID,HEX,8,3.5.5,bind ID
+codiLastHeard,WORD,2,3.5.7,last heard
+codiNeighborEntry,OPAQUE,15,3.6.0,Coordinator Neighbor Node info structure
+codiNeighborIndex,BYTE,1,3.6.1,neighbor index
+codiNeighborShortID,WORD,2,3.6.2,neighbor short id
+codiNeighborLgi,BYTE,1,3.6.3,neighbor lgi
+codiNeighborInCost,BYTE,1,3.6.4,neighbor in cost
+codiNeighborOutCost,BYTE,1,3.6.5,neighbor out cost
+codiNeighborAge,BYTE,1,3.6.6,neighbor age
+codiNeighborID,HEX,8,3.6.7,neighbor ID
+codiMemoryEntry,OPAQUE,7,3.7.0,Coordinator Static Memory info structure
+codiBindingTableSize,BYTE,1,3.7.1,binding table size
+codiTempBindingEntries,BYTE,1,3.7.2,temp binding entries
+codiNeighborTableSize,BYTE,1,3.7.3,neighbor table size
+codiTCAddressCasheSize,BYTE,1,3.7.4,TC address cashe size
+codiRouteTableSize,BYTE,1,3.7.5,route table size
+codiMaxHops,BYTE,1,3.7.6,max hops
+codiPacketBufferCount,BYTE,1,3.7.7,packet buffer count
+sensorConnectEntry,OCTET,54,4.1.0, structure all
+sensorID,HEX,8,4.1.1,sensor ID
+sensorType,BYTE,1,4.1.2,sensor type
+sensorLastConnect,TIMESTAMP,7,4.1.3,sensor last connect time
+sensorLastDisconnect,TIMESTAMP,7,4.1.4,sensor last 종료 time
+sensorInstallDate,TIMESTAMP,7,4.1.5,sensor registered time
+sensorPageCount,BYTE,1,4.1.6,sensor page count
+sensorState,BYTE,1,4.1.7,sensor state
+sensorFlag,BYTE,1,4.1.8,sensor flag   
+sensorVendor,BYTE,1,4.1.9,sensor Vendor code
+sensorSerialNumber,OCTET,20,4.1.10,meter  serial number
+sensorServiceType,BYTE,1,4.1.11,meter  service type
+sensorInfoEntry,OPAQUE,42,4.2.0, structure all
+sensorGroup,BYTE,1,4.2.1,sensor group(SAT2)
+sensorMember,BYTE,1,4.2.2,sensor member number(SAT2)
+sensorInfoID,HEX,8,4.2.3,sensor ID
+sensorSerial,OCTET,18,4.2.4,sensor  meter serial
+sensorLastConnect,TIMESTAMP,7,4.2.5, sensor last connect time
+sensorInstallDate,TIMESTAMP,7,4.2.6, sensor registered time
+sensorAttr,BYTE,1,4.2.7,sensor attribute
+sensorState,BYTE,1,4.2.8,sensor state
+sensorInfoNewEntry,OPAQUE,53,4.3.0, structure all (MCU revision 1597 < 43 1597 > 51 1615 > 53)
+sensorSerial,OCTET,20,4.3.2,sensor  meter serial
+sensorLastConnect,TIMESTAMP,7,4.3.3, sensor last connect time
+sensorInstallDate,TIMESTAMP,7,4.3.4, sensor registered time
+sensorAttr,BYTE,1,4.3.5,sensor attribute
+sensorState,BYTE,1,4.3.6,sensor state
+sensorModel,OCTET,18,4.3.7, sensor model
+sensorHwVersion,WORD,2,4.3.8,sensor HW version
+sensorFwVersion,WORD,2,4.3.9,sensor FW version 
+sensorOTAState,BYTE,1,4.3.10,sensor OTA  state (INIT:0 TRY_WRITE:1 FAIL_WRITE:2 SUCC_WRITE:3 FAIL_VALIDATION:4 SUCC_VALIDATEION:5 FAIL_INSTALL:6 SUCC_INSTALL:7 SCAN:8)
+sensorLastOTATime,TIMESTAMP,7,4.3.11,sensor OTA state  time
+sensorFwBuild,WORD,2,4.3.12,sensor F-W build
+sensorPathEntry,OPAQUE,118,4.4.0, structure all (MCU revision 1615 > 118)
+sensorPathID,HEX,8,4.4.1,sensorID
+sensorPathSerial,OCTET,20,4.4.2,sensor meter serial
+sensorPathModel,OCTET,18,4.4.3,sensor model info
+sensorPathShortID,WORD,2,4.4.4,sensor Short ID
+sensorPathHops,BYTE,1,4.4.5,sensor HOP
+sensorPathNode,OCTET,60,4.4.6,sensor HOP node  Short ID array
+sensorPathTime,TIMESTAMP,7,4.4.7,sensor HOP last changed time
+sensorPathLQI,BYTE,1,4.4.8,sensor LQI
+sensorPathRSSI,CHAR,1,4.4.9,sensor RSSI
+sensorEventEntry,OPAQUE,12,4.6.0,sensor event
+sevtTime,TIMESTAMP,7,4.6.1,event create time
+sevtType,BYTE,1,4.6.2,event type
+sevtStatus,OCTET,4,4.6.3,event state
+sensorBatteryEntry,OPAQUE,4,4.7.0,sensor battery
+battVolt,WORD,2,4.7.1,battery volt
+battCurrent,WORD,2,4.7.2,Ampare
+battOffset,BYTE,1,4.7.3,difference with previous volt
+meterDataEntry,OPAQUE,268,10.1.0, structure all
+mdID,HEX,8,10.1.1,sensor ID
+mdType,BYTE,1,10.1.2,meter type 
+mdVendor,BYTE,1,10.1.3,meter Vendor type 
+mdServiceType,BYTE,1,10.1.4,meter service type 
+mdTime,TIMESTAMP,7,10.1.5,metering time
+mdLength,WORD,2,10.1.6,data length
+mdData,OCTET,250,10.1.7,metering data
+mdSerial,OCTET,20,10.1.8,meter serial
+meterEntry,OPAQUE,0,10.2.0, structure all
+mtrGroup,BYTE,1,10.2.1,group number
+mtrMember,BYTE,1,10.2.2,member number
+mtrID,HEX,8,10.2.3, sensor ID
+mtrSerial,OCTET,18,10.2.4,meter serial
+mtrTime,TIMESTAMP,7,10.2.5, metering time
+mtrLength,WORD,2,10.2.6,metering data length
+mtrData,OCTET,0,10.2.7,metering data
+meterLPEntry,OPAQUE,0,10.3.0,total metering data structure
+mlpId,HEX,8,10.3.1,sensor ID
+mlpMid,OCTET,20,10.3.2,meter serial number
+mlpType,BYTE,1,10.3.3,meter type
+mlpVendor,BYTE,1,10.3.4,meter Vendor type
+mlpServiceType,BYTE,1,10.3.5,meter service type
+mlpDataCount,WORD,2,10.3.6,metering data count
+mlpLength,WORD,2,10.3.7,metering data length
+mlpTime,TIMESTAMP,7,10.3.8,metering time
+mlpData,OCTET,0,10.3.9,metering data
+ffdEntry,OPAQUE,62,5.1.0,ffdEntry  structure
+ffdID,HEX,8,5.1.1,Device ID
+ffdModel,OCTET,18,5.1.2,Device model info
+ffdLastPoll,TIMESTAMP,7,5.1.3,last Poll success time
+ffdLastPush,TIMESTAMP,7,5.1.4,last Push success time
+ffdHwVersion,WORD,2,5.1.5,Device H-W version
+ffdFwVersion,WORD,2,5.1.6,Device F-W version
+ffdFwBuild,WORD,2,5.1.7,Device F-W build number
+ffdPowerType,BYTE,1,5.1.8,power type(0:Unknown 0x01:Line 0x02:Battery 0x04:Solar)
+ffdPermitMode,BYTE,1,5.1.9,Auto Permit Control  (0:Manual 1:Auto Control)
+ffdPermitState,BYTE,1,5.1.10,current Permit State (0:Disable !0:Enable)
+ffdMaxChildTbl,BYTE,1,5.1.11,Max Child Table Count
+ffdCurrentChild,BYTE,1,5.1.12,Current Child Count
+ffdAlarmMask,WORD,2,5.1.13,Alarm Mask
+ffdAlarmFlag,BYTE,1,5.1.14,Alarm Flag (0:Off !0:On)
+ffdTestFlag,BYTE,1,5.1.15,Test Mode (0:Off !0:On)
+ffdSolarAdVolt,WORD,2,5.1.16,Solar AD Volt(value*2)
+ffdSolarChgBattVolt,WORD,2,5.1.17,Solar Charge Battery Volt
+ffdSolarBoardVolt,WORD,2,5.1.18,Solar Board Volt
+ffdSolarBattChgState,BYTE,1,5.1.19,Rechargeable Battery charged (Charging:LOW No Charging:HIGH)
+groupSensorInfoEntry,OPAQUE,79,4.5.0,group sensor structure
+gsiSensorID,HEX,11,4.5.1,sensor ID
+gsiSlaveSerialNumber,OCTET,20,4.5.2,sensor  meter serial
+gsiSlaveLastConnect,TIMESTAMP,7,4.5.3,sensor last connect time(metering time)
+gsiSlaveInstallDate,TIMESTAMP,7,4.5.4,sensor registered time
+gsiSlaveAttr,BYTE,1,4.5.5,sensor attribute
+gsiSlaveState,BYTE,1,4.5.6,sensor stateNormal(0) Init(1) Connect Error(10) Meter Error(11) Error(100)
+gsiSlaveModel,OCTET,18,4.5.7,sensor model
+gsiSlaveHwVersion,WORD,2,4.5.8,sensor H-W version
+gsiSlaveFwVersion,WORD,2,4.5.9,sensor F-W version
+gsiSlaveOTAState,BYTE,1,4.5.10,sensor OTA state INIT(0) TRY_WRITE(1) FAIL_WRITE(2) SUCC_WRITE(3) FAIL_VALIDATION(4) SUCC_VALIDATION(5) FAIL_INSTALL(6) SUCC_INSTALL(7) SCAN(8)
+gsiSlaveLastOTATime,TIMESTAMP,7,4.5.11,sensor last OTA state time
+gsiSlaveFwBuild,WORD,2,4.5.12,sensor F-W Build
+trInfoEntry,OPAQUE,39,6.1.0,Transaction Information
+triTargetID,HEX,8,6.1.1,Device ID
+triCommand,OID,3,6.1.2,Command ID
+triID,WORD,2,6.1.3,Transaction ID
+triOption,BYTE,1,6.1.4,Transaction Option
+triDay,BYTE,1,6.1.5,Save Option
+triInitNice,CHAR,1,6.1.6, Request Priority
+triCurNice,CHAR,1,6.1.7,current Request Priority
+triInitTry,BYTE,1,6.1.8,try count
+triCurTry,BYTE,1,6.1.9,current try count
+triQueue,BYTE,1,6.1.10,Transaction Queue Waiting times
+triCreateTime,TIMESTAMP,7,6.1.11,Transaction create time
+triLastTime,TIMESTAMP,7,6.1.12,last state apply time
+triSate,BYTE,1,6.1.13,Transaction Sate
+triError,INT,4,6.1.14,Error Code
+trHistoryEntry,OPAQUE,12,6.2.0,Transaction Information
+trhTime,TIMESTAMP,7,6.2.1,Action time
+trhState,BYTE,1,6.2.2,Transaction State
+trhError,INT,4,6.2.3,Error Code
+sinkNeighborNode,BYTE,1,3.1.9,SINK Neighbor Node Count
+sinkState,BYTE,1,3.1.12,SINK 상태 (0:Abnormal 1:Normal)
+sinkID,EUI64,8,3.1.1,SINK ID
+kmcID,BYTE,1,7.1.1,ID OR Number
+kmcImmediateID,BYTE,1,7.1.4,485 Modem connected meter ID
+groupInfoEntry,OPAQUE,0,7.1.0,groupinfo structure
+groupName,OCTET,256,7.1.1, group Name
+memberCnt,INT,4,7.1.2, group member count
+memberInfo,OCTET,0,7.1.3,member info(member id command oid status)
+drLevelEntry,OPAQUE,0,8.1.0,DLC or DR Agreement
+commdevId,OCTET,0,8.1.1, Comm Device ID Modem ID
+deviceId,OCTET,0,8.1.2, Device ID
+drLevel,INT,4,8.1.3,DR LEVEL
+drProgramName,OCTET,0,8.1.4,drProgramName
+duration,INT,4,8.1.5,Dutation(Min)
+incentive,OCTET,0,8.1.6,Incentive
+status,BYTE,1,8.1.7,0:completed 1:canceled 2: comm failed
+endDeviceEntry,OPAQUE,0,8.2.0,EndDevice Information
+commDevId,OCTET,0,8.2.1,Comm Device ID
+deviceId,OCTET,0,8.2.2,HAN Asset ID
+deviceDescription,OCTET,0,8.2.3,ex Room1 TV
+firmwareVersion,OCTET,0,8.2.4,Firmware version
+drLevel,INT,4,8.2.5,drProgram Level 1 2 3 4(1 6:ACD)
+drProgramMandatory,BOOL,4,8.2.6,DR Agreement
+drEnable,BOOL,4,8.2.7,DR Available Device
+loadCapacity,OCTET,0,8.2.8,Capacity
+loadControl,BOOL,1,8.2.9,Load Control Enable Disable
+currentDemand,UINT,0,8.2.10, Current Load W
+type,INT,4,8.2.11,1:Smart Device 2:Battery 3:Generation 4:ACD
+scheduledInterval,INT,4,8.2.12,DR Schedule Interval
+status,INT,4,8.2.13,0:install 1:delete 2:update drLevel modify and comm fail
+updateDate,TIMESTAMP,7,8.2.14,Date of changed
+switchStatus,BOOL,1,8.2.15,True:ON false:OFF
+idrEntry,OPAQUE,0,8.3.0,Incentive DR Information
+eventId,OCTET,0,8.3.1,Event ID
+groupName,OCTET,0,8.3.2,Home Group Number
+startTime,TIMESTAMP,7,8.3.3,starttime
+duration,INT,4,8.3.4,unit(min)
+expectedUsage,UINT,0,8.3.5,CBL_I wh
+reductionGoal,UINT,0,8.3.6,Saving Goal(W)
+incentive,OCTET,0,8.3.7,Incentive
+status,BYTE,1,8.3.8,status(0:start 1:ing 2:cancel)
+priceEntry,OPAQUE,0,8.4.0,price info
+serviceId,OCTET,0,8.4.1,group name
+groupName,OCTET,0,8.4.2,home group number
+appliedDate,TIMESTAMP,7,8.4.3,Date of applied
+validateDate,TIMESTAMP,7,8.4.4, validate date price
+cycle,BYTE,1,8.4.5,billing cycle(0:hourly 1:daily 2:monthly)
+priceType,INT,4,8.4.6,0:Unknown 1:CBL 2:TOU
+priceUnitEntry,OPAQUE,0,8.5.0,price unit info
+priceName,OCTET,0,8.5.1,price category name CBL Price
+usageUnit,OCTET,0,8.5.2,unit(kWh Wh W kW m3..)
+value,UINT,0,8.5.3,unit
+exponent,CHAR,0,8.5.4,10 exponent
+priceUnit,OCTET,0,8.5.5,price unit
+billingEntry,OPAQUE,0,8.6.0,billing info
+groupName,OCTET,0,8.6.1,group name
+billingDate,TIMESTAMP,3,8.6.2,billing month
+meteringDate,TIMESTAMP,7,8.6.3,metering date
+deadlene,TIMESTAMP,4,8.6.4,dead line
+realCharge,OCTET,0,8.6.5,real charge
+totalCharge,OCTET,0,8.6.6,total usage charge
+totalUsage,OCTET,0,8.6.7,total usage
+usageCharge,OCTET,0,8.6.8,usage charge
+basicCharge,OCTET,0,8.6.9,basic charge
+discountCharge,OCTET,0,8.6.10,discount charge
+addtionalCharge,OCTET,0,8.6.11,additional charge
+useMiles,OCTET,0,8.6.12,used miles
+saveMiles,OCTET,0,8.6.13,save miles
+remainMiles,OCTET,0,8.6.14,remail miles
+vat,OCTET,0,8.6.15,vat
+cummulativeCo2,OCTET,0,8.6.16, co2
+cummulativeCo2reduction,OCTET,0,8.6.17, co2 reduction 
+co2,OCTET,0,8.6.18,co2 
+co2Reduction,OCTET,0,8.6.19,co2 reduction
+mileageUnits,OCTET,0,8.6.20,point
+dayBillingEntry,OPAQUE,0,8.7.0,billing charge
+groupName,OCTET,0,8.7.1,group name
+billingDate,TIMESTAMP,7,8.7.2,billing date
+billingData,OCTET,0,8.7.3,daily billing info
+usageCharge,OCTET,0,8.7.4,daily billing charge
+usage,OCTET,0,8.7.5,daily usage
+cummulativeUsage,OCTET,0,8.7.6,cummulative usage
+cummulativeCharge,OCTET,0,8.7.7,cummulative charge
+totalCummulativeUsage,OCTET,0,8.7.8,total cummulative usage
+useMiles,OCTET,0,8.7.9,use miles
+saveMiles,OCTET,0,8.7.10,save miles
+remainMiles,OCTET,0,8.7.11,remail miles
+mileageUnits,OCTET,0,8.7.12,miles
+customerInfoEntry,OPAQUE,0,8.8.0,customer info
+customerAccount,OCTET,0,8.8.1,customer number
+serviceType,BYTE,1,8.8.2,electricity water gas
+contractCapacity,UINT,0,8.8.3,contract demand
+capacityExponent,CHAR,1,8.8.4,10 exponent
+contractCapacityUnit,OCTET,0,8.8.5, contract capacity (kW m3)
+tariffType,INT,4,8.8.6,tariff code
+tariffName,OCTET,0,8.8.7,tariff name

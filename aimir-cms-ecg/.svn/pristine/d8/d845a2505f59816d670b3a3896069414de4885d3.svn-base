@@ -1,0 +1,10 @@
+package com.aimir.cms.dao;
+
+import org.springframework.stereotype.Repository;
+
+import com.aimir.cms.model.CustEnt;
+import com.aimir.dao.AbstractHibernateGenericDao;
+
+@Repository(value="custEntDao")
+public class CustEntDaoImpl extends AbstractHibernateGenericDao<CustEnt, Integer> implements CustEntDao{
+}

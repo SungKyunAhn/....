@@ -1,0 +1,27 @@
+package com.aimir.bo.smartcity.controller;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.aimir.dao.iot.HeartBeatDao;
+
+@Controller
+public class TabHRMController {
+	private static Log logger = LogFactory.getLog(TabHRMController.class);
+	
+	@Autowired
+	HeartBeatDao hrmDao;	
+
+	@RequestMapping(value="/gadget/heartbeat/getTableauMainParameter")
+	public ModelAndView getTableauMainParameter(HttpServletResponse response ,HttpServletRequest request) {
+		ModelAndView mav = new ModelAndView("/gadget/TabDevice/TabHrmMaxGadget");	
+		return mav;
+	}
+}

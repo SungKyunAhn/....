@@ -1,0 +1,287 @@
+# Spring properties
+<<<<<<< .mine
+## DATABASE 설정이 변경 되는 경우 jdbc.XX.에 대한 설정을 각 드라이버별로 해줘야 하며
+## Dialrect 설정도 변경해야 한다.
+hibernate.dialect=org.hibernate.dialect.MySQLDialect
+hibernate.hbm2ddl.auto=update
+jdbc.driverClassName=org.mariadb.jdbc.Driver
+#jdbc.driverClassName=com.mysql.jdbc.Driver
+jdbc.url=jdbc:mysql://187.1.10.58:3306/aimirdb
+=======
+## DATABASE \uc124\uc815\uc774 \ubcc0\uacbd \ub418\ub294 \uacbd\uc6b0 jdbc.XX.\uc5d0 \ub300\ud55c \uc124\uc815\uc744 \uac01 \ub4dc\ub77c\uc774\ubc84\ubcc4\ub85c \ud574\uc918\uc57c \ud558\uba70
+## Dialrect \uc124\uc815\ub3c4 \ubcc0\uacbd\ud574\uc57c \ud55c\ub2e4.
+jdbc.driverClassName=org.apache.derby.jdbc.ClientDriver
+hibernate.dialect=org.hibernate.dialect.DerbyDialect
+#jdbc.url=jdbc:derby://187.1.10.58:1527//disk1/aimir/javadb1;
+#jdbc.url=jdbc:derby://localhost:1527/C:\\Users\\jiae\\aimirdb
+jdbc.url=jdbc:derby://localhost:1527/C:\\Users\\jiae\\javadb58
+#jdbc.url=jdbc:derby://localhost:1527/javadb;create=true;
+>>>>>>> .r28257
+jdbc.username=aimir
+jdbc.password=aimir
+hibernate.connection.isolation=1
+jms.concurrent.consumers=2
+
+################## ORACLE #####################
+
+#jdbc.driverClassName=oracle.jdbc.driver.OracleDriver
+#jdbc.url=jdbc:oracle:thin:@187.1.10.58:1521:ORCL
+#jdbc.username=aimirdb
+#jdbc.password=aimirdb
+
+<<<<<<< .mine
+################## MS SQL Server ###############
+#hibernate.dialect=org.hibernate.dialect.SQLServer2008Dialect
+#hibernate.hbm2ddl.auto=update
+#jdbc.driverClassName=net.sourceforge.jtds.jdbc.Driver
+#jdbc.driverClassName=com.microsoft.sqlserver.jdbc.SQLServerDriver
+#jdbc.url=jdbc:jtds:sqlserver://187.1.10.126:1433/aimir
+#jdbc.url=jdbc:sqlserver://187.1.10.126:1433;databaseName=aimir
+#jdbc.username=aimir
+#jdbc.password=aimir
+
+activemq.broker.url=tcp://187.1.10.58:61616
+#FEPd에서만 사용한다.
+=======
+activemq.broker.url=tcp://localhost:61616
+#FEPd\uc5d0\uc11c\ub9cc \uc0ac\uc6a9\ud55c\ub2e4.
+>>>>>>> .r28257
+webservice.baseaddress=http://localhost:9090/
+
+ServiceData.AlarmData=ServiceData.AlarmData
+ServiceData.EventData=ServiceData.EventData
+ServiceData.FileData=ServiceData.FileData
+ServiceData.MDData=ServiceData.MDData
+ServiceData.NDData=ServiceData.NDData
+ServiceData.DFData=ServiceData.DFData
+ServiceData.PLCData=ServiceData.PLCData
+ServiceData.AMUMDData=ServiceData.AMUMDData?consumer.prefetchSize=100
+ServiceData.AMUEventData=ServiceData.AMUEventData?consumer.prefetchSize=100
+LogData.CommLogData=LogData.CommLogData
+
+<<<<<<< .mine
+feph.webservice.port=8080
+feph.jetty.thread.min=10
+feph.jetty.thread.max=100
+fepd.webservice.port=9090
+
+=======
+# else
+webservice.port=9090
+
+>>>>>>> .r28257
+#Default LP Resolution
+lp.resolution.default=60
+
+#ZEUPLS_ALARM_TYPE  1:Water(default) 2:GasNatural 3:SSE GAS
+zeupls.alarm.type=3
+
+# Target Port
+protocol.mcu.listenport=8000
+################################
+# moa execution args.
+# korea gas 8002, 8003
+#protocol.fep.listenport=8000
+#protocol.fep.alarm.listenport=8001
+#protocol.fep.circuit.listenport=1:8005
+executor.max.pool.size=20
+
+# Timeout and Retry
+protocol.response.timeout=60
+protocol.enq.timeout=120
+protocol.ack.timeout=10
+protocol.idle.time=30
+protocol.retry=3
+protocol.waittime.send.frames=10
+protocol.waittime.after.send.frame=1000
+protocol.connection.timeout=120
+
+#Slide Window (Partial Frame)
+protocol.enq.ext.used=false
+# Frame
+frame.maxlen=4096
+frame.window.size=8
+# Verion
+protocol.version=0100
+
+# Byte Order(big or little)
+protocol.peer.byteorder=little
+
+# Communication Log
+protocol.log.alarm.backup.dir=db/alarm
+protocol.log.pd.backup.dir=db/pd
+protocol.slidewindow.dir=db/slidewindow
+protocol.uncompress.zlib=/home/aimir/uncompress/uncompress
+protocol.uncompress.gzip=
+
+# System Type
+protocol.system.FEP=1
+protocol.system.MCU=2
+
+# Default protocol Type ==>for communication log
+# 1:CDMA 2:GSM 3:GPRS 4:PSTN 5:LAN 9:PLC 11:SMS
+protocol.type.default=3
+
+# protocol Type
+protocol.type.CDMA=1
+protocol.type.GSM=2
+protocol.type.GPRS=3
+protocol.type.PSTN=4
+protocol.type.LAN=5
+protocol.type.PLC=9
+
+# protocol Parser
+protocol.parser.alarm.vendor.1=com.aimir.fep.protocol.fmp.parser.alarm.Summit3208GLD
+protocol.parser.alarm.vendor.2=com.aimir.fep.protocol.fmp.parser.alarm.Menix
+
+# Firmware DownLoad
+#
+firmware.dir=./mcu/firmware
+firware.update.file.divsize=50000
+file.download.dir=./mcu/download
+file.upload.dir=./mcu/upload
+
+# Circuit
+# Ciruit Mode( 1: Terminal Server, 2: Serial Port )
+protocol.circuit.connection.mode=1
+
+# Set Terminal Port(IpAddr1:Port1,IpAddr1:Port2,IpAddr2:Port2....)
+#protocol.Circuit.TS.Port=10.80.80.10:2009,10.80.80.10:2010
+###########################################
+# norway 2108, 2112
+# currently korea gas
+protocol.circuit.ts.port=187.1.200.248:2112
+#protocol.Circuit.TS.Listener.Port=10.80.80.111:2001,10.80.80.111:2002
+protocol.circuit.ts.listener.port=187.1.200.248:2108
+
+// by location
+protocol.circuit.ts.port.location=Daehan:187.1.200.248:2108,Daehan:187.1.200.248:2108
+
+protocol.circuit.serial.tty=/dev/tty01
+protocol.circuit.serial.speed=4800
+protocol.circuit.serial.databit=8
+protocol.circuit.serial.stopbit=1
+protocol.circuit.serial.parity=EVEN
+
+# Circuit Command
+protocol.circuit.command.ATZ=ATZ
+#protocol.circuit.command.AT.GSM=AT+CRM=129
+protocol.circuit.command.AT.GSM=ATE0
+protocol.circuit.command.AT.CDMA=AT+CRM=129
+protocol.circuit.command.AT.PSTN=ATX3
+protocol.circuit.command.ATDT=ATDT
+protocol.circuit.command.ATH.1=+++
+protocol.circuit.command.ATH.2=ATH0
+
+# MServer Service Command
+protocol.circuit.command.service.NACS=NURI/1.0 NACS 8000
+
+# Circuit Listener
+protocol.circuit.ts.listener.RING=RING
+protocol.circuit.ts.listener.ATA=ATA
+protocol.circuit.ts.listener.CONNECT=CONNECT
+protocol.circuit.ts.listener.service.NACS=NURI/1.0 NACS
+protocol.circuit.ts.listener.service.ACCEPT=NURI/1.0 250 Accept (NACS)
+
+# Parameter for circuit connect
+protocol.circuit.connect.retry=3
+protocol.circuit.connect.request.idle.time=5
+protocol.circuit.connect.listener.idle.Time=1800
+
+circuit.meter.security.loginid.KV2C=000261696D69720000000000
+circuit.meter.security.password.KV2C=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+circuit.meter.security.authcode.KV2C=6666666666666666666666666666666666666666
+
+#protocol.circuit.ts.port.location=Meco:187.1.200.248:2108,Cebeco2:187.1.200.248:2108,BLCI:187.1.200.248:2108
+
+############################################
+#  aimir.properties 2010.02.11
+
+# mcu revision for m-bus modem.
+mcu.revision.support.mbus=5000
+mcu.gmt.timezone=
+
+hdm.data.type.plc=3
+client.max.count=100
+
+# to check eui64
+# if you modify eui64 prefix, the aimir server have to be restarted.
+# except MMIU(11), IEIU(13)
+eui64.prefix.candidate=000D12,000D6F,000B12
+eui64.except.modem=11,13
+
+#////////////////////////////////////////////////////////////////
+#   Command
+#////////////////////////////////////////////////////////////////
+command.conf.default=/command/default.conf.xml
+command.firmware.dir=/home/aimir/aimiramm/moa1/mcu/firmware
+command.upload.dir=/home/aimir/aimiramm/aimir-moa-exec/mcu/upload
+command.download.dir=/home/aimir/aimiramm/aimir-moa-exec/mcu/download
+
+#////////////////////////////////////////////////////////////////
+# Firmware Management
+# by Hun
+#////////////////////////////////////////////////////////////////
+firmware.dir=/home/aimir/aimiramm/fw
+firmware.tooldir=/home/aimir/aimiramm/fw
+firmware.tempdir=/home/aimir/aimiramm/fw/temp
+firmware.enableGzip=true
+firmware.filename.defaultStart=SWAMM
+firmware.web.url=http://187.1.10.62:8085/fw/jsp/fw/downfw.jsp
+firmware.mes.distributeFw.title=[$aimir.mes.distribute.fw$]
+firmware.mes.distributeFW.content=[$aimir.mes.ditribute.fw$]<br>From : [$src.firmware$]<br>To : [$target.firmware$]
+firmware.checkRevision=3265
+
+
+#Default LP Resolution
+default.lp.resolution=60
+
+# GE meter time difference (second)
+metertime.diff.limit.forcertain=600
+
+# Meter vendor, model
+vendor=GE|AIDON|KAMSTRUP|NURITELECOM
+vendor.model=GE I210,2,4|GE SM110,2,12|GE I210+c,2,12|AIDON ADN5520,5,3|AIDON ADN5530,5,11|AIDON ADN5540,5,6|KAMST K382B/K382C( N.1),1,2|  KAMSTRUP-382,1,2|KAMST K382D/K382E( N.1),1,2|
+
+# 203.105 
+install.unit.scanning=true
+
+# Sweden Smoke detector
+send.to.alarmsw=false
+
+# Meter Event 연계를 위한 클래스 정의. 연계가 필요하지 않으면 BulkMeterEventLink를 사용한다.
+meter.event.link=com.aimir.fep.meter.link.BulkMeterEventLink
+
+# SSL 정보. use를 false로 하면 ssl을 사용하지 않는다.
+protocol.ssl.use=false
+# SSLv3 (Secure Socket Layer) or TLSv1 (Transport Layer Security)
+protocol.ssl.protocol=SSLv3
+protocol.ssl.store.alias=fepssl
+protocol.ssl.keystore=keystore
+protocol.ssl.keystore.password=aimiramm
+protocol.ssl.truststore=truststore
+protocol.ssl.truststore.password=aimiramm
+
+<<<<<<< .mine
+meter.pulse.constant.hmu=5000
+
+sms.phonelist=6618881234,6618881234,66818452233
+
+rawdata.save.enable=false=======
+meter.pulse.constant.hmu=5000
+
+############## Send SMS Info Start #################
+smsClassPath=com.aimir.fep.util.sms.SendSMSSpasa
+#Ghana 	  => baseUrl=http://api.smsgh.com/v2/  id=ecg2   pass=kmQ25Rv   msgOriginator=smsgh
+#Spasa 	  => baseUrl=https://www.xml2sms.gsm.co.za/send?  id=spasaussd   pass=sp4s4sms
+prepay.sms.baseUrl=https://www.xml2sms.gsm.co.za/send?
+prepay.sms.id=spasaussd
+prepay.sms.pass=sp4s4sms
+prepay.sms.msgOriginator=
+#Thailand => baseUrl=https://www.xml2sms.gsm.co.za/send?  id=spasaussd   pass=sp4s4sms
+sms.phonelist=
+sms.hostname=127.0.0.1
+sms.port=81
+sms.path=getmsg.php
+sms.from=MEATH12345
+############### Send SMS Info End#####################>>>>>>> .r28257

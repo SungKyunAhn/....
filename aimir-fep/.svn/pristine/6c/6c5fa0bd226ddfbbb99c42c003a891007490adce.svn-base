@@ -1,0 +1,605 @@
+package com.aimir.fep.protocol.mrp.client;
+
+import java.util.ArrayList;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.core.session.IoSession;
+
+import com.aimir.fep.protocol.fmp.client.FMPClientResource;
+import com.aimir.fep.protocol.fmp.common.CircuitTarget;
+import com.aimir.fep.protocol.fmp.exception.FMPACKTimeoutException;
+import com.aimir.fep.protocol.mrp.exception.MRPError;
+import com.aimir.fep.protocol.mrp.exception.MRPException;
+import com.aimir.fep.util.FMPProperty;
+
+/**
+ * {@link SMSClientProtocolHandler} implementation of FEP (AiMiR and Meter Protocol).
+ * 
+ * @author Yeon Kyoung Park
+ * @version $Rev: 1 $, $Date: 2008-01-05 15:59:15 +0900 $,
+ */
+public class SMSClientProtocolHandler implements IoHandler
+{
+    private static Log log = LogFactory.getLog(SMSClientProtocolHandler.class);
+    
+	private final int IDLE_TIME = Integer.parseInt(FMPProperty.getProperty(
+            "protocol.idle.time","5"));
+    private int CNT_RETRY = Integer.parseInt(FMPProperty.getProperty(
+                "protocol.retry","3"));
+    private int responseTimeout = Integer.parseInt(
+            FMPProperty.getProperty("protocol.response.timeout","15"));
+
+    private FMPClientResource resource = null;
+    private Object resourceObj = null;
+
+    private boolean  isSessionOpened = false;
+    private final String CRLF = "\r\n";
+    private final char CTRLZ = 0x1A;
+    private final char DQUATA = 0x22;
+    public final static String ODOA= new String(new byte[]{0x0D,0x0A});
+
+	private static final int CONN_TIMEOUT = 180;
+
+    /**
+     * inherited method from ProtocolHandlerAdapter
+     */
+    public void exceptionCaught(IoSession session, Throwable cause )
+    {
+        cause.printStackTrace();
+        session.closeNow();
+    }
+    
+    /**
+     * inherited method from ProtocolHandlerAdapter
+     * handling GeneralDataFrame
+     *
+     * @param session <code>IoSession</code> session
+     * @param message <code>Object</code> decoded GeneralDataFrame
+     */
+    public void messageReceived(IoSession session, Object message )
+    {
+        log.debug("[messageReceived] [" + message.toString() +"]");   
+    }    
+    
+    public void messageSent(IoSession session, Object message) throws Exception { 
+        log.debug("[MessageSent] [" + message.toString() +"]");   
+    }
+
+    public void sessionIdle(IoSession session, IdleStatus status) 
+    throws Exception
+    {
+		log.debug("IDLE COUNT : "
+                + session.getIdleCount(IdleStatus.BOTH_IDLE));
+        if(session.getIdleCount(IdleStatus.BOTH_IDLE) >= CNT_RETRY)
+        {
+        	session.closeNow();
+            log.debug(String.format("Session Close [%s]",session.getRemoteAddress().toString()));
+        }
+    }
+
+    /**
+     * inherited method from ProtocolHandlerAdapter
+     */
+    public void sessionOpened(IoSession session)
+    {
+        session.getConfig().setIdleTime(IdleStatus.BOTH_IDLE,
+        		IDLE_TIME);
+        isSessionOpened = true;
+        log.debug("sessionOpened : " + session.getRemoteAddress());
+    }
+
+    /**
+     * inherited method from ProtocolHandlerAdapter
+     */
+    public void sessionClosed(IoSession session)
+    {
+        log.info("### Bye Bye ~ Client session closed from " + session.getRemoteAddress().toString());
+        session.closeNow();
+    }
+
+    /**
+     * set command data response timeout
+     *
+     * @param responseTimeout <code>String</code> timeout of response for request command
+     */
+    public void setResponseTimeout(int responseTimeout)
+    {
+        this.responseTimeout = responseTimeout;
+    }
+
+    public void setMRPResource(FMPClientResource resource,Object resourceObj)
+    {
+        this.resource = resource;
+        this.resourceObj = resourceObj;
+    }
+
+    /**
+     * wait util received command response data and return Response
+     * 
+     * @param session <code>IoSession</code> session
+     * @param tid <code>int</code> command request id
+     * @throws FMPACKTimeoutException 
+     * @throws InterruptedException 
+     * @throws Exception
+     */
+    public String getMsg(IoSession session, long timeout) 
+        throws MRPException, FMPACKTimeoutException, InterruptedException
+    {
+    	String message = null;
+        long stime = System.currentTimeMillis();
+        long ctime = 0;
+        while(session.isConnected())
+        { 
+        	Thread.sleep(100);
+        	message = (String) session.read().getMessage();
+            if(message != null)
+                break;
+            ctime = System.currentTimeMillis();
+            if(((ctime - stime)/1000.0) > timeout)
+            {
+                log.debug(" waitTime["+((ctime - stime)/1000)+"] timeout["
+                    + timeout+"]");
+                throw new FMPACKTimeoutException(" Msg Receive Timeout["
+                        +timeout +"]");
+            }
+        }
+        return message;
+    }
+    
+    /**
+     * connect SMS
+     * 
+     * @param session <code>IoSession</code> session
+     * @param target <code>CircuitTarget</code> Circuit Connect Information
+     * @throws FMPACKTimeoutException 
+     * @throws InterruptedException 
+     * @throws Exception
+     */
+    private void connectSMS(IoSession session, CircuitTarget target)
+        throws MRPException, FMPACKTimeoutException
+    {
+        String ATZ = 
+            FMPProperty.getProperty("protocol.circuit.command.ATZ","ATZ");
+
+        String message = null;
+        boolean ATZ_OK = false;
+        for(int i = 0 ; i < CNT_RETRY && !ATZ_OK; i++)
+        {
+        	session.write(ATZ+CRLF);
+            try 
+            {  
+            	Thread.sleep(100);
+            	int cnt = 0;
+            	while(cnt < 10){
+    				message = (String) session.read().getMessage();
+
+                    if(message != null) 
+                    {
+    	                log.debug("AT Read MSG["+message+"]");
+                        if(message.indexOf("OK") >= 0)
+                        {
+                        	ATZ_OK = true;
+                        	break;
+                        }
+                        if(message.indexOf("ERROR") >= 0)
+                        {
+                        	ATZ_OK = false;
+                        	break;
+                        }
+                    }
+                    cnt++;
+            	}
+
+            }catch(Exception ex) {}
+        }
+        if(!ATZ_OK)
+            throw new MRPException(MRPError.ERR_INITLOCALMODEM_CLASS,
+                                   "Init Modem(AT Command) Failed");
+
+
+        /*
+        String AT = "ATE0";
+        AT = FMPProperty.getProperty("protocol.circuit.command.AT.GSM");
+
+        log.debug("initCircuit AT["+AT+"]");
+        if(AT != null && AT.length() > 1)
+        {
+            session.write(FrameUtil.getByteBuffer(AT+CRLF));
+            message = new String((byte[])getMsg(session,3)).trim();
+            log.debug("initCircuit Read MSG["+message+"]");
+            if(message == null || message.indexOf("OK") < 0)
+            { 
+                throw new MRPException(MRPError.ERR_INITLOCALMODEM_CLASS,
+                                       "Init Modem(AT Command) Failed");
+            }
+        } 
+        else
+        {
+            log.debug("initCircuit AT Command Skip");
+        }
+        */
+        
+        deleteSMS(session);
+    }
+    
+    public void deleteSMS(IoSession session)  
+	throws MRPException, FMPACKTimeoutException
+    {
+    	try{
+
+        	try{
+
+        		boolean DELETE_ALL_OK = false;
+        		String message = "";
+        		session.write("AT+CMGD=ALL\r\n");
+        		Thread.sleep(100);
+        		
+            	int cnt = 0;
+            	while(cnt < 10){
+    				message = (String) session.read().getMessage();
+
+                    if(message != null) 
+                    {
+    	                log.debug("AT Read MSG["+message+"]");
+                        if(message.indexOf("OK") >= 0)
+                        {
+                        	DELETE_ALL_OK = true;
+                        	break;
+                        }
+                        if(message.indexOf("ERROR") >= 0)
+                        {
+                        	DELETE_ALL_OK = false;
+                        	break;
+                        }
+                    }
+                    cnt++;
+            	}
+
+        	    if (DELETE_ALL_OK) return;
+        		
+        		int index = 40;
+        		Object obj = null;
+
+    			for(int i = index; i > 0; i--){
+                	session.write("AT+CMGD="+i+"\r\n");
+            		Thread.sleep(100);
+                	message = (String)session.read().getMessage();
+                    log.debug("AT Read MSG["+message+"]");
+            	    //if (message.indexOf("OK") > -1) break;
+                	/*
+                	while (true) {
+                    	obj = getMsg(session, 10);
+                    	if (obj != null) {
+                    	    message += new String((byte[])getMsg(session,10));
+                    	    log.debug(message);
+                    	    if (message.indexOf("OK") > -1) break;
+                    	}
+                    	//log.debug("["+message+"]");
+                	}
+                	*/
+    			}
+        	}catch(Exception e){
+        		log.error(e,e);
+        	}
+    	}catch(Exception e){
+    		log.warn(e,e);
+    	}
+    }
+    
+    public boolean receiveSMS(IoSession session) 
+    	throws MRPException, FMPACKTimeoutException
+    {
+    	String message = null;
+
+    	int cnt = 0;
+    	while(cnt < 10){
+			message = (String) session.read().getMessage();
+
+            if(message != null) 
+            {
+                log.debug("AT Read MSG["+message+"]");
+                if(message.indexOf("+CMTI:") >= 0)
+                {
+                	return true;
+                }
+                if(message.indexOf("ERROR") >= 0)
+                {
+                	return false;
+                }
+            }
+            cnt++;
+    	}
+
+    	return false;
+    }
+
+    public void sendSMS(IoSession session,String mobileId, String sendMessage) 
+        	throws MRPException, FMPACKTimeoutException, InterruptedException
+    {
+    	log.debug("<<<<<<<<<<<<<<<<<<<<<< Start Send SMS"); 
+    	String message = "";
+
+    	session.write("AT+CMGF=1\r\n");//set text mode
+    	message = (String)session.read().getMessage();
+    	//while ((message += new String((byte[])getMsg(session,5))).indexOf("OK") == -1);
+    	log.debug("AT Read MSG["+message+"]");
+
+    	message = "";
+    	session.write("AT+CSDH=1\r\n");//set text mode
+    	message = (String)session.read().getMessage();
+    	//while ((message += new String((byte[])getMsg(session,5))).indexOf("OK") == -1);
+    	log.debug("AT Read MSG["+message+"]");
+
+    	message = "";
+    	session.write("AT+CSMP=49,167,0,0\r\n");//set text mode
+    	message = (String)session.read().getMessage();
+    	//while ((message += new String((byte[])getMsg(session,5))).indexOf("OK") == -1);
+    	log.debug("AT Read MSG["+message+"]");
+    	        	
+    	message = "";
+    	session.write("AT+CMGS="+mobileId+"\r\n");
+    	message = (String)session.read().getMessage();
+    	//while ((message += new String((byte[])getMsg(session,5))).indexOf(">") == -1);
+    	log.debug("AT Read MSG["+message+"]");
+    	            
+    	session.write(sendMessage);
+    	session.write(CTRLZ+"\r\n");
+    	//message = new String((byte[])getMsg(session,10));
+    	message = (String)session.read().getMessage();
+    	log.debug("AT Read MSG["+message+"]");
+    	Thread.sleep(1000);
+    	log.debug("AT+CMGS RESULT="+message);
+
+    	log.debug("<<<<<<<<<<<<<<<<<<<<<< End Send SMS");        	
+    }
+
+    
+	public ArrayList<String> readSMS(IoSession session, String modemId, String header, int cnt) 
+	throws MRPException, FMPACKTimeoutException
+    {
+    	ArrayList<String> list = new ArrayList<String>();
+    	String message = null;
+    	
+    	if(cnt == 0){// One time, the settings will be initialized.
+        	session.write("AT+CNMI=2,1,0,2,1\r\n");//set text mode
+        	//message = new String((byte[])getMsg(session,responseTimeout));
+        	message = (String)session.read().getMessage();
+        	session.write("AT^SMGO=1\r\n");//set text mode
+        	//message = new String((byte[])getMsg(session,responseTimeout));
+        	message = (String)session.read().getMessage();
+        	session.write("AT+CSMP=49,167,0,0\r\n");//set text mode
+        	//message = new String((byte[])getMsg(session,responseTimeout));
+        	message = (String)session.read().getMessage();
+        	session.write("AT^SSCONF=1\r\n");//set text mode
+        	//message = new String((byte[])getMsg(session,responseTimeout));
+        	message = (String)session.read().getMessage();
+    	}
+   	
+    	//session.write(FrameUtil.getByteBuffer("AT+CMGL="+DQUATA+"REC UNREAD"+DQUATA+"\r\n"));
+    	session.write("AT+CMGL="+DQUATA+"ALL"+DQUATA+"\r\n");
+    	
+    	//message = new String((byte[])getMsg(session,responseTimeout,1024));
+    	message = (String)session.read().getMessage();
+    	
+    	log.debug("AT+CMGL READ=>"+message);
+    	message = message.replace(ODOA,"");
+    	
+    	/*
+    	StringTokenizer st = new StringTokenizer(message,"+CMGL: ");
+    	try{
+        	while(st.hasMoreTokens()){
+        		String listMessage = (String)st.nextToken();
+            	log.debug("AT+CMGL UNREAD TOKEN=>"+listMessage);
+        		int sInx = listMessage.indexOf(",");
+        		int index = Integer.parseInt(listMessage.substring(0,sInx));
+        		session.write(FrameUtil.getByteBuffer("AT+CMGR="+index+"\r\n"));
+        		
+        		message = new String((byte[])getMsg(session,10));
+        		list.add(message);
+        	}
+    	}catch(Exception e){
+    		log.error(e,e);
+    		list = null;
+    	}*/
+   	 
+    	int fInx = message.lastIndexOf(header);
+    	try{
+    		if(fInx >= 0){
+        		message = message.substring(fInx,message.length()).trim();
+        		log.debug("AT+CMGL="+"MESSAGE="+message);
+        		list.add(message);
+    		}
+    	}catch(Exception e){
+    		log.error(e,e);
+    		list = null;
+    	}
+
+    	return list;
+	
+    }
+    
+    public ArrayList readSMS(IoSession session) 
+    	throws MRPException, FMPACKTimeoutException
+    {
+    	ArrayList list = new ArrayList<String>();
+    	String message = null;
+    	
+    	session.write("AT+CNMI=2,1,0,2,1\r\n");//set text mode
+    	//message = new String((byte[])getMsg(session,5));
+    	message = (String)session.read().getMessage();
+    	session.write("AT^SMGO=1\r\n");//set text mode
+    	//message = new String((byte[])getMsg(session,5));
+    	message = (String)session.read().getMessage();
+    	session.write("AT+CSMP=49,167,0,0\r\n");//set text mode
+    	//message = new String((byte[])getMsg(session,5));
+    	message = (String)session.read().getMessage();
+    	session.write("AT^SSCONF=1\r\n");//set text mode
+    	//message = new String((byte[])getMsg(session,5));
+    	message = (String)session.read().getMessage();
+    	
+    	//session.write(FrameUtil.getByteBuffer("AT+CMGL="+DQUATA+"REC UNREAD"+DQUATA+"\r\n"));
+    	session.write("AT+CMGL="+DQUATA+"ALL"+DQUATA+"\r\n");
+    	
+    	//message = new String((byte[])getMsg(session,40,1024));
+    	message = (String)session.read().getMessage();
+    	
+    	log.debug("AT+CMGL UNREAD=>"+message);
+    	message = message.replace(ODOA,"");
+   	 
+    	int fInx = message.lastIndexOf("+CMGL: ");
+    	try{
+    		if(fInx >= 0){
+    			int sInx = message.indexOf(",",fInx+7);
+        		int index = Integer.parseInt(message.substring(fInx+7,sInx));
+        		
+        		if(index >= 0){
+            		session.write("AT+CMGR="+index+"\r\n");            		
+            		//message = new String((byte[])getMsg(session,10));
+            		message = (String)session.read().getMessage();
+            		log.debug("AT+CMGR="+index+"MESSAGE="+message);
+            		list.add(message);
+        		}
+    		}
+    	}catch(Exception e){
+    		log.error(e,e);
+    		list = null;
+    	}
+
+    	return list;
+	
+    }
+        
+    /**
+     * SMS intialize  Protocol Service 
+     * 
+     * @param session <code>IoSession</code> session
+     * @param target <code>CircuitTarget</code> Circuit Connect Information
+     * @throws Exception
+     */
+    public void initSMS(IoSession session, CircuitTarget target) 
+        throws Exception
+    {
+        log.debug("initSMS Start");
+        String mobileId = target.getMobileId();
+        if(mobileId == null || mobileId.length() < 5)
+        {
+            throw new Exception("Target Mobile ID["+mobileId
+                    +"] is Invalid"); 
+        }
+
+        while(!isSessionOpened) 
+        { 
+            log.debug("initCircuit:: wait session opened"); 
+            try { Thread.sleep(10); } catch(Exception exx) {} 
+        }
+
+        String message = null;
+
+        int callRetry = 3;
+        try { callRetry= Integer.parseInt(
+                FMPProperty.getProperty("protocol.circuit.connect.retry","3"));
+        }catch(Exception exx){}
+
+        int callCnt = 0;
+        for(;;)
+        {
+            callCnt++;
+            try 
+            { 
+                connectSMS(session,target); 
+                log.debug("#### Call CNT["+callCnt+"]");
+                break;
+            }catch(Exception ex)
+            {
+                log.debug("#### Call CNT["+callCnt+"]");
+                log.debug("#### callRetry["+callRetry+"]");
+                if(callCnt >= callRetry){
+                    log.error("##Circuit Call Failed ::"
+                              +ex.getMessage());
+                    throw new Exception(ex.getMessage());
+                } else{
+                    try { Thread.sleep(1000); }catch(Exception ee) {}
+                }
+            }
+        }
+
+
+        try { Thread.sleep(1000); }catch(Exception ex) 
+        {
+        	throw new Exception("Sleep Failed After Calling"); 
+        }
+        
+        //change textmode AT+CMGF=1
+        /*
+        at+CSCS?
+        		at+CSCS?
+        		+CSCS: "GSM"
+
+        		OK
+        		at+csca?
+        		at+csca?
+        		+CSCA: "+46705008600",145
+
+        		OK
+        		at+csms?
+        		at+csms?
+        		+CSMS: 0,1,1,1
+
+        		OK
+        		at+cnmi?
+        		at+cnmi?
+        		+CNMI: 0,0,0,0,1
+
+        		OK
+        		at^SMGO?
+        		at^SMGO?
+        		^SMGO: 0,0
+
+        		OK
+        		AT+CPMS?
+        		AT+CPMS?
+        		+CPMS: "MT",0,40,"MT",0,40,"MT",0,40
+
+        		OK
+        		AT^SSMSS?
+        		AT^SSMSS?
+        		^SSMSS: 0
+
+        		OK
+        		AT+CGSMS?
+        		AT+CGSMS?
+        		+CGSMS: 3
+
+        		OK
+        		AT^SM20?
+        		AT^SM20?
+        		^SM20: 1,1
+
+        		OK
+        		AT+CMGF?
+        		AT+CMGF?
+        		+CMGF: 0
+
+        		OK
+         */
+        														
+        
+        
+    }
+
+	@Override
+	public void sessionCreated(IoSession session) throws Exception {
+		session.getConfig().setUseReadOperation(true);
+        session.getConfig().setIdleTime(IdleStatus.BOTH_IDLE,
+        		IDLE_TIME);
+	}
+
+    @Override
+    public void inputClosed(IoSession session) throws Exception {
+        log.info("### Bye Bye ~ Client session closed from " + session.getRemoteAddress().toString());
+        session.closeNow();  
+    }
+}

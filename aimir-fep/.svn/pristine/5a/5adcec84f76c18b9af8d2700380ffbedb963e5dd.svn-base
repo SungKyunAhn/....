@@ -1,0 +1,67 @@
+cmdGetModelList,100.1.1,get Model List
+cmdGetFunctionList,100.2.1,get OID function list
+cmdReset,101.1.1,reset system
+cmdPoweroff,101.1.2,shutdown system
+cmdDcuInstall,101.1.3,Generate DCU Install event
+cmdGetNetStat,101.2.51,DCU Network statistics
+cmdGetServerConf,101.11.1,cmdGetServerConf
+cmdSetServerConf,101.11.2,cmdSetServerConf
+cmdDeleteServerConf,101.11.3,cmdDeleteServerConf
+cmdAddUserAccount,102.1.1,Add user account
+cmdGetProperty,109.1.1,Get Property
+cmdSetProperty,109.1.2,Set Property
+cmdDeleteProperty,109.1.3,Delete Property
+cmdGetSchedule,109.2.1,Get Schedule
+cmdSetSchedule,109.2.2,Set Schedule
+cmdDeleteSchedule,109.2.3,Delete Schedule
+cmdForceSchedule,109.2.4,cmdForceSchedule
+cmdGetMeteringData,109.11.1,Get Metering Data
+cmdDeleteMeteringData,109.11.2,Delete Metering Data
+cmdGetMeteringDataStatus,109.11.3,Get Metering Data Status
+cmdUploadMeteringData,109.11.4,Upload Metering Data
+cmdCancelUpload,109.11.5,Cancel Upload
+cmdMetering,110.1.1,cmdMetering
+cmdOndemand,110.2.1,cmdOndemand
+cmdReqDlmsOp,110.3.1,cmdReqDlmsOp
+cmdDmdDlmsOp,110.3.2,cmdDmdDlmsOp
+cmdGetMeterList,111.1.1,Search all meter list
+cmdDeleteMeter,111.1.3,Delete Meter all
+cmdGetMeterSharedKey,111.1.4,cmdGetMeterSharedKey
+cmdSetMeterSharedKey,111.1.5,Set Meter SharedKey
+cmdGetMasterModemList,121.1.1,Get Master Modem List
+cmdResetMasterModem,121.1.2,Reset Master Modem
+cmdGetActiveG3NodeList,121.2.1,Get Active G3 Node List
+cmdGetManagedG3ModemList,121.2.2,Get Managed G3 Modem List
+cmdDeleteManagedG3Modem,121.2.3,Delete Managed G3 Modem
+cmdGetCoordiModemList,121.3.1,cmdGetCoordiModemList
+cmdResetCoordinator,121.3.2,cmdResetCoordinator
+cmdGetActiveG3NodeList,121.4.1,cmdGetActiveG3NodeList
+cmdGetManagedG3ModemList,121.4.2,cmdGetManagedG3ModemList
+cmdDeleteManagedG3Modem,121.4.3,cmdDeleteManagedG3Modem
+cmdLeaveManagedSPModem,121.4.4,cmdLeaveManagedSPModem
+cmdAuthorizeSPModem,121.4.5,cmdAuthorizeSPModem
+cmdGetNMSInformation,121.4.6,cmdGetNMSInformation
+cmdSetAuthedSPModemList,121.4.7,cmdSetAuthedSPModemList
+cmdReqNiScan,123.1.1,Req Ni Scan
+cmdReqNiSet,123.1.2,Req Ni Set
+cmdDmdNiGet,123.1.3,Dmd Ni Get
+cmdDmdNiSet,123.1.4,Dmd Ni Set
+cmdReqG3PathDiscovery,123.2.1,Req G3 Path Discovery 
+cmdReqG3RouteDiscovery,123.2.2,cmdReqG3RouteDiscovery
+cmdGetApn,124.1.1,cmdGetApn
+cmdSetApn,124.1.2,cmdSetApn
+cmdDeleteApn,124.1.3,cmdDeleteApn
+cmdGetUpgradRequestList,181.1.1,Get Node Upgrade Request List
+cmdSetUpgradeRequest,181.1.2,Set Upgrade Request
+cmdCancelUpgradeRequest,181.1.3,Cancel Upgrade request
+cmdReqNodeUpgrade,181.2.1,Node Upgrade Request Setting
+cmdReqImagePropagate,181.2.3,Send 3rd-party FW Image
+cmdGetImagePropagateInfo,181.2.4,Get 3rd-party FW Image Information
+cmdReqCertRenewal,181.3.1,Certificate Upgrade Request Setting
+cmdCtrlUpgradeRequest,181.2.2,Crtl Upgrade Request Setting 
+cmdStdGet,199.1.1,OID get
+cmdStdSet,199.1.2,OID set
+cmdStdGetChild,199.1.3,Get Child OID
+cmdAssembleTestStart,200.1.1,Assemble Test Operation
+cmdLogBackup,200.2.1,cmdLogBackup
+cmdGetEvent,103.1.1,cmdGetEvent

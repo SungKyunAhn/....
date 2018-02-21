@@ -1,0 +1,365 @@
+package com.aimir.fep.protocol.fmp.processor;
+
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.jms.MapMessage;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+
+import com.aimir.constants.CommonConstants.ResultStatus;
+import com.aimir.dao.device.MeterDao;
+import com.aimir.dao.device.OperationLogDao;
+import com.aimir.dao.system.CodeDao;
+import com.aimir.fep.command.mbean.CommandGW;
+import com.aimir.fep.meter.AbstractMDSaver;
+import com.aimir.fep.util.DataUtil;
+import com.aimir.fep.util.FMPProperty;
+import com.aimir.fep.util.sms.SendSMS;
+import com.aimir.model.device.CommLog;
+import com.aimir.model.device.Meter;
+import com.aimir.model.device.OperationLog;
+import com.aimir.model.system.Code;
+import com.aimir.model.system.Supplier;
+import com.aimir.util.DateTimeUtil;
+
+/**
+ * Command Processor
+ * 
+ * @author goodjob (goodjob@nuritelecom.com)
+ * @version $Rev: 1 $, $Date: 2015-05-27 15:59:15 +0900 $,
+ */
+public class CmdProcessor extends Processor
+{
+
+    @Autowired
+    private CommandGW command;
+    
+    @Autowired
+    private CodeDao codeDao;
+    
+    @Autowired
+    private OperationLogDao operationLogDao;
+    
+    @Override
+    public int processing(Object obj) throws Exception {
+
+        if(obj instanceof MapMessage){
+            MapMessage map = (MapMessage)obj;
+            String commandName = map.getString("command");
+            
+            if(commandName.equals("cmdDistribution")){
+                
+                String mcuId = map.getString("target");
+                String triggerId = map.getString("tr_id");
+                int equipKind = map.getInt("equipKindCd");
+                String model = map.getString("model");
+                int transferType = map.getInt("transferType");
+                int otaStep = map.getInt("otaStep");
+                int multicastWriteCount = map.getInt("multicastWriteCount");
+                int maxRetryCount = map.getInt("maxRetryCount");                              
+                int otaThreadCount = map.getInt("otaThreadCount");
+                int installType = map.getInt("installType");
+                int oldHwVersion = map.getInt("oldHwVersion");
+                int oldFwVersion = map.getInt("oldFwVersion");
+                int oldBuild = map.getInt("oldBuild");
+                int newHwVersion = map.getInt("newHwVersion");
+                int newFwVersion = map.getInt("newFwVersion");
+                int newBuild = map.getInt("newBuild");                            
+                String binaryURL = map.getString("binaryURL");
+                String binaryMD5 = map.getString("binaryMD5");
+                String diffURL =  map.getString("diffURL");
+                String diffMD5 =  map.getString("diffMD5");
+                List equipIdList = (List)map.getObject("sendArrayEquipList");
+                  
+                command.cmdDistribution(mcuId, 
+                        triggerId, 
+                        equipKind, 
+                        model, 
+                        transferType, 
+                        otaStep, 
+                        multicastWriteCount, 
+                        maxRetryCount, 
+                        otaThreadCount, 
+                        installType, 
+                        oldHwVersion, 
+                        oldFwVersion, 
+                        oldBuild, 
+                        newHwVersion, 
+                        newFwVersion, 
+                        newBuild, 
+                        binaryURL, 
+                        binaryMD5, 
+                        diffURL, 
+                        diffMD5, 
+                        equipIdList);
+            } else if(commandName.equals("relayValveOn")) {
+                log.info("relayValveOn");
+                JpaTransactionManager txManager = null;
+                TransactionStatus txStatus = null;
+                try {
+                    txManager = (JpaTransactionManager) DataUtil.getBean("transactionManager");
+                    txStatus = txManager.getTransaction(null);
+                    ResultStatus status = ResultStatus.FAIL;
+                    String mcuId = map.getString("mcuId");
+                    String mdsId = map.getString("mdsId");
+                    Integer contractId = map.getInt("contractId");
+                    String mobileNo = map.getString("mobileNo");
+                    Boolean smsYn = map.getBoolean("smsYn");
+                    String saverName = map.getString("saverName");
+                    String smsMsg = map.getString("smsMsg");
+
+                    MeterDao meterDao = DataUtil.getBean(MeterDao.class);
+                    Meter meter = meterDao.get(mdsId);
+                    Class clazz = Class.forName(saverName);
+                    AbstractMDSaver saver = (AbstractMDSaver)DataUtil.getBean(clazz);
+                    
+                    String response = saver.relayValveOn(mcuId, mdsId);
+                    
+                    log.info(response);
+                    response = response.toLowerCase();
+                    if (response.contains("success")) {
+                        status = ResultStatus.SUCCESS;
+                    }
+                    
+                    if(status == ResultStatus.SUCCESS) {
+                        log.debug("relayValveOn SUCCESS");
+                        if(smsYn) {
+                            log.info("will send sms");
+                            Map<String,Object> params = new HashMap<String, Object>();
+                            params.put("mobileNo", mobileNo);
+                            params.put("contractId",contractId);
+                            params.put("smsMsg", smsMsg);
+                            SMSNotification(params);
+                        }
+                    }
+    
+                    saveOperationLog(status,mdsId, meter.getMeterType(), meter.getSupplier());
+                    txManager.commit(txStatus);
+                } catch(Exception e) {
+                    log.error(e,e);
+                    if (txManager != null) {
+                        try {
+                            txManager.rollback(txStatus);
+                        }
+                        catch (Exception t) {}
+                    }
+                }
+            } else if(commandName.equals("sendSMS")) {
+                log.info("sendSMS");
+                Integer contractId = map.getInt("contractId");
+                String mobileNo = map.getString("mobileNo");
+                String smsMsg = map.getString("smsMsg");
+                Map<String,Object> params = new HashMap<String, Object>();
+                params.put("mobileNo", mobileNo);
+                params.put("contractId",contractId);
+                params.put("smsMsg", smsMsg);
+                SMSNotification(params);
+            }
+
+        }
+        
+        return 1;
+    }
+    
+	public void processing(Object obj, CommLog commLog) throws Exception {
+
+		if(obj instanceof MapMessage){
+			MapMessage map = (MapMessage)obj;
+			String commandName = map.getString("command");
+			
+			if(commandName.equals("cmdDistribution")){
+				
+				String mcuId = map.getString("target");
+				String triggerId = map.getString("tr_id");
+				int equipKind = map.getInt("equipKindCd");
+				String model = map.getString("model");
+				int transferType = map.getInt("transferType");
+	        	int otaStep = map.getInt("otaStep");
+	        	int multicastWriteCount = map.getInt("multicastWriteCount");
+	        	int maxRetryCount = map.getInt("maxRetryCount");				        	  
+	        	int otaThreadCount = map.getInt("otaThreadCount");
+	        	int installType = map.getInt("installType");
+	        	int oldHwVersion = map.getInt("oldHwVersion");
+	        	int oldFwVersion = map.getInt("oldFwVersion");
+	        	int oldBuild = map.getInt("oldBuild");
+	        	int newHwVersion = map.getInt("newHwVersion");
+	        	int newFwVersion = map.getInt("newFwVersion");
+	        	int newBuild = map.getInt("newBuild");				        	  
+	        	String binaryURL = map.getString("binaryURL");
+	        	String binaryMD5 = map.getString("binaryMD5");
+	        	String diffURL =  map.getString("diffURL");
+	        	String diffMD5 =  map.getString("diffMD5");
+	        	List equipIdList = (List)map.getObject("sendArrayEquipList");
+	        	  
+	  			command.cmdDistribution(mcuId, 
+						triggerId, 
+						equipKind, 
+						model, 
+						transferType, 
+						otaStep, 
+						multicastWriteCount, 
+						maxRetryCount, 
+						otaThreadCount, 
+						installType, 
+						oldHwVersion, 
+						oldFwVersion, 
+						oldBuild, 
+						newHwVersion, 
+						newFwVersion, 
+						newBuild, 
+						binaryURL, 
+						binaryMD5, 
+						diffURL, 
+						diffMD5, 
+						equipIdList);
+			} else if(commandName.equals("relayValveOn")) {
+				log.info("relayValveOn");
+		        JpaTransactionManager txManager = null;
+		        TransactionStatus txStatus = null;
+				try {
+		            txManager = (JpaTransactionManager) DataUtil.getBean("transactionManager");
+		            txStatus = txManager.getTransaction(null);
+					ResultStatus status = ResultStatus.FAIL;
+					String mcuId = map.getString("mcuId");
+					String mdsId = map.getString("mdsId");
+		    		Integer contractId = map.getInt("contractId");
+		    		String mobileNo = map.getString("mobileNo");
+		    		Boolean smsYn = map.getBoolean("smsYn");
+		    		String saverName = map.getString("saverName");
+		    		String smsMsg = map.getString("smsMsg");
+
+		    		MeterDao meterDao = DataUtil.getBean(MeterDao.class);
+		    		Meter meter = meterDao.get(mdsId);
+			        Class clazz = Class.forName(saverName);
+			        AbstractMDSaver saver = (AbstractMDSaver)DataUtil.getBean(clazz);
+			        
+			        String response = saver.relayValveOn(mcuId, mdsId);
+			        
+			        log.info(response);
+			        response = response.toLowerCase();
+			        if (response.contains("success")) {
+			        	status = ResultStatus.SUCCESS;
+	                }
+			        
+			        if(status == ResultStatus.SUCCESS) {
+			        	log.debug("relayValveOn SUCCESS");
+			        	if(smsYn) {
+			        		log.info("will send sms");
+			        		Map<String,Object> params = new HashMap<String, Object>();
+			        		params.put("mobileNo", mobileNo);
+			        		params.put("contractId",contractId);
+			        		params.put("smsMsg", smsMsg);
+			        		SMSNotification(params);
+			        	}
+			        }
+	
+			        saveOperationLog(status,mdsId, meter.getMeterType(), meter.getSupplier());
+					txManager.commit(txStatus);
+				} catch(Exception e) {
+					log.error(e,e);
+		    		if (txManager != null) {
+		    		    try {
+		    		        txManager.rollback(txStatus);
+		    		    }
+		    		    catch (Exception t) {}
+		    		}
+				}
+			} else if(commandName.equals("sendSMS")) {
+				log.info("sendSMS");
+	    		Integer contractId = map.getInt("contractId");
+	    		String mobileNo = map.getString("mobileNo");
+	    		String smsMsg = map.getString("smsMsg");
+        		Map<String,Object> params = new HashMap<String, Object>();
+        		params.put("mobileNo", mobileNo);
+        		params.put("contractId",contractId);
+        		params.put("smsMsg", smsMsg);
+        		SMSNotification(params);
+			}
+
+		}
+	}
+	
+    /**
+     * method name : SMSNotification
+     */
+    private void SMSNotification(Map<String, Object> params) {
+        JpaTransactionManager txManager = null;
+        TransactionStatus txStatus = null;
+        
+        try {
+            txManager = (JpaTransactionManager) DataUtil.getBean("transactionManager");
+            txStatus = txManager.getTransaction(null);
+            String mobileNo = (String)params.get("mobileNo");
+            Integer contractId = (Integer)params.get("contractId");
+            String smsMsg = (String)params.get("smsMsg");
+
+//			Properties prop = new Properties();
+//			prop.load(getClass().getClassLoader().getResourceAsStream("config/fmp.properties"));
+
+            Properties prop = FMPProperty.getProperties();
+			String smsClassPath = prop.getProperty("smsClassPath");
+			SendSMS obj = (SendSMS) Class.forName(smsClassPath).newInstance();
+
+			Method m = obj.getClass().getDeclaredMethod("send", String.class, String.class, Properties.class);
+			String messageId = (String) m.invoke(obj, mobileNo, smsMsg, prop);
+
+			if(!"".equals(messageId)) {
+				log.info("contractId [ "+ contractId +"],	SMS messageId [" + messageId + "]");
+//				contractDao.updateSmsNumber(contractId, messageId);
+			}
+			txManager.commit(txStatus);
+    	} catch (Exception e) {
+    		log.warn(e,e);
+    		txManager.commit(txStatus);
+		}
+    }  
+    
+    private void saveOperationLog(ResultStatus status, String mdsId, Code meterType, Supplier supplier) {
+    	log.info("save OperationLog start");
+        JpaTransactionManager txManager = null;
+        TransactionStatus txStatus = null;
+        try {
+	        txManager = (JpaTransactionManager) DataUtil.getBean("transactionManager");
+	        txStatus = txManager.getTransaction(null);
+	        Code operationCode = codeDao.getCodeIdByCodeObject("8.1.9");
+	        if (operationCode != null) {
+	            String currDateTime = DateTimeUtil.getCurrentDateTimeByFormat("yyyyMMddHHmmss");
+	            OperationLog operationLog = new OperationLog();
+	
+	            operationLog.setOperatorType(1);//operator
+	            operationLog.setOperationCommandCode(operationCode);
+	            operationLog.setYyyymmdd(currDateTime.substring(0,8));
+	            operationLog.setHhmmss(currDateTime.substring(8,14));
+	            operationLog.setYyyymmddhhmmss(currDateTime);
+	            operationLog.setDescription("");
+	            operationLog.setErrorReason(status.name());
+	            operationLog.setResultSrc("");
+	            operationLog.setStatus(status.getCode());
+	            operationLog.setTargetName(mdsId);
+	            operationLog.setTargetTypeCode(meterType);
+	            operationLog.setSupplier(supplier);
+	            operationLogDao.add(operationLog);
+	        }
+	        txManager.commit(txStatus);
+	    	log.info("save OperationLog end");
+        } catch (Exception e) {
+    		log.warn(e,e);
+    		if (txManager != null) {
+    		    try {
+    		        txManager.rollback(txStatus);
+    		    }
+    		    catch (Exception t) {}
+    		}
+		}
+    }
+
+	@Override
+	public void restore() throws Exception {}  
+
+}

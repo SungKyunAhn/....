@@ -1,0 +1,65 @@
+package com.aimir.fep.protocol.rapa;
+
+/**
+ * @author goodjob
+ *
+ */
+public class RAPAConstants {
+
+	/**
+	 * Meter Data Type
+	 */
+	public enum MeterType {
+		LP((byte) 0x00), 
+		BILLING((byte) 0x01),
+		EVENT((byte) 0x02);
+
+		private byte type;
+
+		private MeterType(byte type) {
+			this.type = type;
+		}
+		
+		public byte getMeterTypeCode() {
+			return type;
+		}
+
+
+		public static MeterType getMeterType(byte value) {
+			for (MeterType fc : MeterType.values()) {
+				if (fc.type == value) {
+					return fc;
+				}
+			}
+			return null;
+		}
+	}
+	
+	public enum BillingStatus{
+		REGULAR((byte) 0x01), //0x01:정기검침,
+		MANUAL((byte) 0x02); //0x02:자율검침
+		
+		private byte status;
+		
+		private BillingStatus(byte status){
+			this.status = status;
+		}
+		
+		public byte getStatusCode(){
+			return status;
+		}
+		
+		public static BillingStatus getStatus(byte value) {
+			for (BillingStatus fc : BillingStatus.values()) {
+				if (fc.status == value) {
+					return fc;
+				}
+			}
+			return null;
+		}
+		
+	}
+	 
+
+
+}

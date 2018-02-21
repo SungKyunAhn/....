@@ -1,0 +1,769 @@
+package com.aimir.fep.protocol.fmp.processor;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+
+import javax.management.JMX;
+import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
+
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.aimir.constants.CommonConstants;
+import com.aimir.fep.command.mbean.CommandGWMBean;
+import com.aimir.fep.meter.MeterDataSaverMain;
+import com.aimir.fep.meter.data.MDHistoryData;
+import com.aimir.fep.protocol.fmp.common.SlideWindow;
+import com.aimir.fep.protocol.fmp.datatype.WORD;
+import com.aimir.fep.protocol.fmp.frame.GeneralDataConstants;
+import com.aimir.fep.protocol.fmp.frame.service.DFData;
+import com.aimir.fep.protocol.fmp.frame.service.MDData;
+import com.aimir.fep.protocol.fmp.log.MDLogger;
+import com.aimir.fep.util.DataUtil;
+import com.aimir.fep.util.FMPProperty;
+import com.aimir.fep.util.Hex;
+import com.aimir.model.device.CommLog;
+import com.aimir.util.TimeUtil;
+
+/**
+ * Partial Frame Data Processor
+ *
+ * @author J.S Park (elevas@nuritelecom.com)
+ * @version $Rev: 1 $, $Date: 2009-05-13 15:59:15 +0900 $,
+ */
+public class DFProcessor extends Processor
+{
+    @Autowired
+    private MDLogger mdLogger = null;
+
+    /**
+     * constructor
+     *
+     * @throws Exception
+     */
+    public DFProcessor() throws Exception
+    {
+    }
+
+    private boolean checkMcuId(String mcuId) {
+        if (mcuId != null) {
+            mcuId=mcuId.trim();
+            for(int i = 0; i < mcuId.length(); i++){
+                if(mcuId.charAt(i) < '0' || mcuId.charAt(i) > '9'){
+                    return false;
+                }
+            }
+        }
+        else
+            return false;
+        return true;
+    }
+
+    // send notification
+    private LinkedHashMap<String, ArrayList<String>> saveMeasurementData(MDData data)
+    {
+        MDHistoryData mdHistoryData = new MDHistoryData();
+        mdHistoryData.setMcuId(data.getMcuId());
+        mdHistoryData.setEntryCount(data.getCnt().getValue());
+        mdHistoryData.setMdData(data.getMdData());
+        mdHistoryData.setNameSpace(data.getNS());
+        LinkedHashMap<String, ArrayList<String>> oneEMDataListResult = new LinkedHashMap<String, ArrayList<String>>();;
+        try {
+            oneEMDataListResult= DataUtil.getBean(MeterDataSaverMain.class).save(mdHistoryData, false);
+            log.debug("saveMeasurementData");
+        }
+        catch(Exception ex)
+        {
+            log.error("saveMeasurementData failed"+ex,ex);
+            // mdLogger.writeObject(mdHistoryData);
+        }
+        return oneEMDataListResult;
+    }
+
+    /**
+     * processing Measurement Data Service Data
+     *
+     * @param sdata <code>Object</code> ServiceData
+     */
+    public int processing(Object data) throws Exception
+    {
+        int dataCnt = 0;
+        if (data instanceof DFData) {
+            log.info("SINGLEFRAME[DataFile]");
+            byte[] bx = ((DFData)data).getDfData(); // FrameUtil.unzlib(((DFData)data).getDfData());
+            log.debug(Hex.getHexDump(bx));
+            dataCnt = readMeteringData(bx, ((DFData)data).getNS());
+        }
+        else if (data instanceof String){
+            log.info("MULTIFRAME[SLIDEWINDOW] FILENAME[" + data + "]");
+            dataCnt = readData((String)data, null);
+        }
+        else {
+            log.debug(data.getClass().getName());
+            throw new Exception("Invalid data[" + data.getClass().getName() + "] in Queue");
+        }
+        
+        return dataCnt;
+    }
+    
+    /**
+     * processing Measurement Data Service Data
+     *
+     * @param sdata <code>Object</code> ServiceData
+     */
+    public void processing(Object data, CommLog commLog) throws Exception
+    {
+        commLog.setSvcTypeCode(CommonConstants.getHeaderSvc("D"));
+        commLog.setOperationCode(ProcessorHandler.SERVICE_DATAFILEDATA);
+        commLog.setSuccMeasumentDataCnt(processing(data));
+    }
+
+    private int readMeteringData(byte[] data, String ns) throws Exception
+    {
+        ByteArrayInputStream is = null;
+        int dataCnt = 0;
+        try {
+            is = new ByteArrayInputStream(data);
+            dataCnt = saveData(is, ns);
+        }
+        finally {
+            if (is != null)
+                is.close();
+        }
+        
+        return dataCnt;
+    }
+
+    private int readData(String filename, String ns) throws Exception
+    {
+        FileInputStream is = null;
+        int dataCnt = 0;
+        try {
+            if (filename.lastIndexOf(SlideWindow.COMPRESSTYPE.ZLIB.getName()) != -1 ||
+                    filename.lastIndexOf(SlideWindow.COMPRESSTYPE.GZIP.getName()) != -1)
+                filename = uncompress(filename);
+            
+            is = new FileInputStream(filename);
+            dataCnt = readData(is, ns);
+        }
+        finally {
+            if (is != null)
+                is.close();
+            (new File(filename)).delete();
+        }
+        
+        return dataCnt;
+    }
+
+    private int readData(InputStream is, String ns) throws Exception
+    {
+        byte[] soh = new byte[1];
+        is.read(soh, 0, soh.length);
+        if (soh[0] != (byte)0x5E) {
+            throw new Exception("Invalid frame[" + Hex.decode(soh) + "]");
+        }
+
+        byte[] svc = new byte[1];
+        is.skip(6);
+        is.read(svc, 0, svc.length);
+        int dataCnt = 0;
+        log.info("SVC["+(char)svc[0]+"]");
+        if (svc[0] == GeneralDataConstants.SVC_M 
+        		|| svc[0] == GeneralDataConstants.SVC_S 
+        		|| svc[0] == GeneralDataConstants.SVC_G) {
+            byte[] mcu = new byte[4];
+            // is.skip(pos);
+            is.read(mcu, 0, mcu.length);
+            // pos += mcu.length;
+            DataUtil.convertEndian(mcu);
+            //int mcuId = DataUtil.getIntTo4Byte(mcu);
+            long mcuId = DataUtil.getLongToBytes(mcu);
+            
+            if (!checkMcuId(""+mcuId)) {
+                throw new Exception("MCUID[" + mcuId + "] invalid!");
+            }
+            byte[] bcnt = new byte[2];
+            // is.skip(pos);
+            is.read(bcnt, 0, bcnt.length);
+            DataUtil.convertEndian(bcnt);
+            dataCnt = DataUtil.getIntTo2Byte(bcnt);
+            // pos += bcnt.length;
+            // save
+            // for (int i = 0; i < dataCnt; i++)
+                //saveMeasurementData(is, mcuId, ns);
+            // 2017.07.24 elevas
+            // 아래 함수에서 루프 처리를 하고 있음
+        	saveMeasurementData(is, String.valueOf(mcuId), ns);
+        }
+        else if (svc[0] == GeneralDataConstants.SVC_D) {
+            dataCnt = saveData(is, ns);
+        }
+
+        return dataCnt;
+    }
+
+    private String uncompress(String filename) throws Exception
+    {
+        String datfile = null;
+        // uncompress file
+        if (filename.lastIndexOf(SlideWindow.COMPRESSTYPE.DAT.getName()) == -1) {
+            datfile = filename.substring(0, filename.lastIndexOf(".")+1) +
+            SlideWindow.COMPRESSTYPE.DAT.getName();
+            String[] cmdarray = null;
+            if (filename.lastIndexOf(SlideWindow.COMPRESSTYPE.ZLIB.getName()) != -1) {
+                cmdarray = new String[] {
+                        FMPProperty.getProperty("protocol.uncompress.zlib"),
+                        filename, datfile};
+            }
+            else if (filename.lastIndexOf(SlideWindow.COMPRESSTYPE.GZIP.getName()) != -1) {
+                cmdarray = new String[] {
+                        FMPProperty.getProperty("protocol.uncompress.gzip"),
+                        filename, datfile};
+            }
+            
+            Runtime runtime = Runtime.getRuntime();
+            final Process process = runtime.exec(cmdarray);
+            Thread instream = new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    String line = null;
+                    BufferedReader br = null;
+                    try {
+                        br = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                        while ((line = br.readLine()) != null) {
+                            log.debug(line);
+                            if (line.indexOf("error") != -1){
+                                if(line.indexOf("-1") != -1){
+                                    throw new IOException("Uncompress Error:"+"Usage: uncompress <Compress Filename> <Uncompress Filename>");
+                                }else if(line.indexOf("-2") != -1){
+                                    throw new IOException("Uncompress Error:"+"invalid source file size");
+                                }else if(line.indexOf("-3") != -1){
+                                    throw new IOException("Uncompress Error:"+"cannot open source file");
+                                }else if(line.indexOf("-4") != -1){
+                                    throw new IOException("Uncompress Error:"+"invalid header format");
+                                }else if(line.indexOf("-5") != -1){
+                                    throw new IOException("Uncompress Error:"+"invalid compress type");
+                                }else if(line.indexOf("-6") != -1){
+                                    throw new IOException("Uncompress Error:"+"invalid target size");
+                                }else if(line.indexOf("-7") != -1){
+                                    throw new IOException("Uncompress Error:"+"memory allocation fail");
+                                }else if(line.indexOf("-8") != -1){
+                                    throw new IOException("Uncompress Error:"+"target file memory allocation fail");
+                                }else if(line.indexOf("-9") != -1){
+                                    throw new IOException("Uncompress Error:"+"cannot open target file");
+                                }else if(line.indexOf("-10") != -1){
+                                    throw new IOException("Uncompress Error:"+"cannot make target file");
+                                }else{
+                                    throw new IOException("Uncompress Error:"+line);
+                                }
+                            }
+                        }
+                    }
+                    catch (IOException e) {
+                        log.warn(e, e);
+                    }
+                    finally {
+                        try {
+                            if (br != null)
+                                br.close();
+                        }
+                        catch (IOException e) {}
+                    }
+                }
+                
+            });
+            instream.start();
+            
+            Thread errorstream = new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    String line = null;
+                    BufferedReader br = null;
+                    try {
+                        br = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                        while ((line = br.readLine()) != null) {
+                            log.debug(line);
+                        }
+                    }
+                    catch (IOException e) {
+                        log.warn(e, e);
+                    }
+                    finally {
+                        try {
+                            if (br != null)
+                                br.close();
+                        }
+                        catch (IOException e) {}
+                    }
+                }
+                
+            });
+            errorstream.start();
+            
+            log.debug("Uncompress Process exit value[" + process.waitFor() + "]");
+            
+            
+            File _datfile = new File(datfile);
+            if (_datfile.exists()) {
+                File file = new File(filename);
+                file.delete();
+            }
+        }
+        else {
+            datfile = filename;
+        }
+        return datfile;
+    }
+
+    private int saveMeasurementData(InputStream is, String mcuId, String ns)
+    throws Exception
+    {
+        long sTime = System.currentTimeMillis();
+        ByteArrayOutputStream bos = null;
+        int available = 0;
+
+        //Succ,Fail을 key로 성공, 실패 모뎀 아이디가 담겨져오게됨
+        LinkedHashMap<String, ArrayList<String>> oneEmDataListResult = new LinkedHashMap<String, ArrayList<String>>();
+        //mcu 하나에서 올라온 데이터에 대한 성공, 실패를 모두 포함하는 HashMap
+        LinkedHashSet<String> succMcuResultSet = new LinkedHashSet<String>();
+        //실패 모뎀 집합
+        LinkedHashSet<String> failMcuResultSet = new LinkedHashSet<String>();
+
+        //DB에서 구해온 모뎀 집합과, 성공, 실패 집합을 이용해 구한 온디맨드 대상 모뎀 집합
+        LinkedHashSet<String> onDemandModemSet = new LinkedHashSet<String>();
+        int datacnt;
+        do {
+            byte[] sid = new byte[8];
+            is.read(sid, 0, sid.length);
+
+            byte[] mid = new byte[20];
+            is.read(mid, 0, mid.length);
+
+            byte[] stype = new byte[1];
+            is.read(stype, 0, stype.length);
+
+            byte[] svc = new byte[1];
+            is.read(svc, 0, svc.length);
+
+            byte[] vendor = new byte[1];
+            is.read(vendor, 0, vendor.length);
+
+            byte[] bdatacnt = new byte[2];
+            is.read(bdatacnt, 0, bdatacnt.length);
+            DataUtil.convertEndian(bdatacnt);
+
+            MDData mddata = null;
+            datacnt = DataUtil.getIntTo2Byte(bdatacnt);
+            byte[] blen = null;
+            byte[] bx = null;
+
+            //EMDataList안에 MDList 갯수 만큼 MDList를 하나씩 가지는 EMDataList를 만들어서 저장 로직을 수행하도록 함
+            for (int i = 0; i < datacnt; i++) {
+
+                bos = new ByteArrayOutputStream();
+                bos.write(sid);
+                bos.write(mid);
+                bos.write(stype);
+                bos.write(svc);
+                bos.write(vendor);
+                blen = DataUtil.get2ByteToInt(1);
+                DataUtil.convertEndian(blen);
+                bos.write(blen);
+
+                blen = new byte[2];
+                is.read(blen, 0, blen.length);
+                bos.write(blen);
+                DataUtil.convertEndian(blen);
+
+                int len = DataUtil.getIntTo2Byte(blen);
+                bx = new byte[len];
+                is.read(bx, 0, bx.length);
+                bos.write(bx);
+                bos.flush();
+                bos.close();
+
+                mddata = new MDData(new WORD(1));
+                mddata.setMcuId(""+mcuId);
+                mddata.setMdData(bos.toByteArray());
+                mddata.setNS(ns);
+                oneEmDataListResult=saveMeasurementData(mddata);
+            
+                //응답 결과를 성공 모뎀 집합에 추가
+                if(oneEmDataListResult.get("succ")!=null) {
+                    for(String succModem:oneEmDataListResult.get("succ")) {
+                        succMcuResultSet.add(succModem);
+                    }
+                }else {
+                    log.info("MCU["+mcuId+"] Succ Save Modem is Null!!");
+                }
+                //실패 결과를 실패 모뎀 집합에 추가
+                if(oneEmDataListResult.get("fail")!=null) {
+                    for(String succModem:oneEmDataListResult.get("fail")) {
+                        failMcuResultSet.add(succModem);
+                    }
+                }else {
+                    log.info("MCU["+mcuId+"] Fail Save Modem is Null!!");
+                }
+            }
+
+            available = is.available();
+            log.debug("AVAILABLE[" + available + "]");
+
+        }
+        while (available > 42); //MDData 최소 데이터 길이
+
+        long eTime = System.currentTimeMillis();
+        log.info("MCU["+mcuId+"] - Save Data Count["+((succMcuResultSet!=null ? succMcuResultSet.size():0)+(failMcuResultSet!=null ? failMcuResultSet.size():0))+"] is End Total Duration["+(eTime-sTime)/1000+"]s");
+        //------------------------------------------------
+        //  recoveryOndemand가 true이고 ondemand에 의한 검침 데이터 저장이 아닌 경우 Ondemand 대상 모뎀을 구해
+        //  Ondemand 커맨드를 실행함
+        //------------------------------------------------
+        /*
+        if("true".equals(FMPProperty.getProperty("recoveryOndemand", "false"))){
+            //Ondemand 대상 구하기
+            onDemandModemSet = findOndemandSet(mcuId+"",dbSelectModemSet, succMcuResultSet, failMcuResultSet);
+            //Ondemand 응답으로 온 검침 데이터가 아니고, Odnemad 수행 조건을 만족하는지 체크
+            if(!"true".equals(oneEmDataListResult.get("isOndemand").get(0))) {
+                if(checkOndemandCondition(mcuId+"", dbSelectModemSet, succMcuResultSet, failMcuResultSet, onDemandModemSet)) {
+                    sTime = System.currentTimeMillis();
+                    recoveryOndemand(mcuId+"", onDemandModemSet);
+                    eTime = System.currentTimeMillis();
+                    log.info("MCU["+mcuId+"] - recoveryOndemand Count["+(onDemandModemSet!=null ? onDemandModemSet.size():"0")+"] is End Total Duration["+(eTime-sTime)/1000+"]s");
+                }
+            }else {
+                log.info("MCU["+mcuId+"] - Ondemand Response Data!");
+            }
+        }
+        */
+        
+        return datacnt;
+    }
+
+    /**
+     * Ondemand 대상 구하기 - Modem Type, Model Type에 따라 Ondemand 커맨드가 다를 수 있지만
+     * fep 패키지에서 Meter의 Model 부분을 구해올 수 없으므로
+     * 일단 ZRU인 경우만 걸러서 처리하도록 처리함
+     * ZRU 모뎀에 대해서 (db에서 구한 모뎀 집합 + 실패 집합) - 성공 집합
+     * @param mcuId
+     * @param dbSelectSet
+     * @param succSet
+     * @param failSet
+     * @return
+     * @throws Exception
+     */
+    //TODO - 모뎀 종류, 미터 종류에 상관없이 처리 할 수 있는 로직 추가 필요
+    public LinkedHashSet<String> findOndemandSet(String mcuId, LinkedHashSet<String> dbSelectSet, LinkedHashSet<String> succSet, LinkedHashSet<String> failSet) throws Exception {
+        if(dbSelectSet == null || succSet == null || failSet == null) {
+            throw new Exception("FindOndemandSet - Parameter Don't Have Null!");
+        }
+        log.info("MCU["+mcuId+"] - dbSet["+dbSelectSet.size()+"]: "+dbSelectSet.toString());
+        log.info("MCU["+mcuId+"] - succSet["+succSet.size()+"]: "+succSet.toString());
+        log.info("MCU["+mcuId+"] - failSet["+failSet.size()+"]: "+failSet.toString());
+
+        LinkedHashSet<String> onDemandSet = new LinkedHashSet<String>();
+        onDemandSet.addAll(dbSelectSet);
+        onDemandSet.addAll(failSet);
+        onDemandSet.removeAll(succSet);
+
+        /*
+        LinkedHashSet<String> notEnergyMeter = new LinkedHashSet<String>();
+        for(String modem:onDemandSet) {
+            Modem modemInst = modemDao.get(modem);
+            //----------------------------------
+            //  ZRU 타입만 Ondemand 대상으로 담는다.
+            //----------------------------------
+            if(modemInst.getModemType()!=CommonConstants.ModemType.ZRU) {
+                notEnergyMeter.add(modemInst.getDeviceSerial());
+            }
+        }
+        onDemandSet.removeAll(notEnergyMeter);
+        */
+
+
+        log.info("MCU["+mcuId+"] - onDemandSet["+onDemandSet.size()+"]: "+onDemandSet.toString());
+        LinkedHashSet<String> unRegistSet = new LinkedHashSet<String>();
+        unRegistSet.addAll(succSet);
+        unRegistSet.addAll(failSet);
+        unRegistSet.removeAll(dbSelectSet);
+        log.info("MCU["+mcuId+"] - unRegistSet["+unRegistSet.size()+"]: "+unRegistSet.toString());
+        return onDemandSet;
+    }
+
+    /**
+     * SM110인 경우 Ondemand 수행
+     * @param onDemandModemSet
+     * @throws Exception
+     */
+    //TODO - 모뎀 종류, 미터 종류에 상관없이 처리 할 수 있는 로직 추가 필요
+    public void recoveryOndemand(String mcuId, LinkedHashSet<String> onDemandModemSet) throws Exception {
+        JMXConnector jmxc = null;
+        try {
+            String jmxUrl = FMPProperty.getProperty("fep.jmxrmi","service:jmx:rmi:///jndi/rmi://localhost:1299/jmxrmi");
+            JMXServiceURL url = new JMXServiceURL(jmxUrl);
+            jmxc = JMXConnectorFactory.connect(url);
+            MBeanServerConnection mbsc = jmxc.getMBeanServerConnection();
+            ObjectName objectName = new ObjectName("Service:name=FMPCommandGW");
+
+            CommandGWMBean mbeanProxy = JMX.newMBeanProxy(mbsc, objectName, CommandGWMBean.class, true);
+            int cnt=0;
+            int succCnt=0;
+            int failCnt=0;
+            for(String modem : onDemandModemSet) {
+                try {
+                    cnt++;
+                    mbeanProxy.cmdOnRecoveryDemandMeter(mcuId, modem, "-1", 1, 1);
+                    log.info("MCU["+mcuId+"] : recoveryOndemand["+cnt+"] - MCU["+mcuId+"], Modem["+modem+"] Succ!");
+                    succCnt=++succCnt;
+                } catch (Exception e) {
+                    log.error("MCU["+mcuId+"]: recoveryOndemand["+cnt+"] - MCU["+mcuId+"], Modem["+modem+"] Fail!["+e.getMessage()+"]");
+                    failCnt=++failCnt;
+                }
+            }
+            log.info("MCU["+mcuId+"] : totalRecoveryOndemand - Total["+onDemandModemSet.size()+"] Succ["+succCnt+"] Fail["+failCnt+"]");
+        }
+        catch (Exception e) {
+            log.error(e,e);
+        }
+        finally {
+            try {
+                if (jmxc != null)
+                    jmxc.close();
+            }
+            catch (Exception e){
+                log.error(e,e);
+            }
+        }
+    }
+
+    /**
+     * 검침 데이터 수신 시간, 검침율 등을 조건으로 이용해 Ondemand Command를 내릴지 여부를
+     * 결정해주는 함수
+     * @param dbSet - db에서 조회한 해당 MCU의 모뎀 집합
+     * @param succSet - 검침 성공 모뎀 집합
+     * @param failSet - 검침 실패 모뎀 집합
+     * @param ondemandSet - Ondemand 대상 모뎀 집합
+     * @return
+     */
+    public boolean checkOndemandCondition(String mcuId, LinkedHashSet<String> dbSet, LinkedHashSet<String> succSet, LinkedHashSet<String> failSet, LinkedHashSet<String> ondemandSet) {
+        boolean isActive = false;
+        try {
+            String currYyyymmddhhmmss = TimeUtil.getCurrentTime();
+            Integer mm = Integer.parseInt(currYyyymmddhhmmss.substring(10, 12));
+            if(succSet==null) {
+
+            }else if(dbSet == null) {
+
+            }else {
+                int succRatio = (int)((double)succSet.size()/(double)dbSet.size()*100);
+                //-----------------------------------------------------
+                //  대상 MCU가 모두 성공한 경우는 MCU의 문제라고 판단해 Ondemand를 수행하지 않음
+                //-----------------------------------------------------
+                if(succRatio==0) {
+                    isActive=false;
+                    log.info("MCU["+mcuId+"] - Recovery Ondemand is Not Fired Because Succ Ratio["+succRatio+"]!");
+                }
+                //-----------------------------------------------------
+                //  Ondemand 대상이 특정 갯수 이상이면 MCU가 받으들일 수 있는 한도를 넘으므로 시도하지 않음
+                //-----------------------------------------------------
+                else if(ondemandSet.size()>5) {
+                    isActive=false;
+                    log.info("MCU["+mcuId+"] - Recovery Ondemand is Not Fired Because Ondemand Count["+ondemandSet.size()+"]!");
+                }else {
+                    //---------------------------------------------------
+                    //  0~12, 15~27, 30~42, 45~57 분에 들어온 검침 데이터만 복구 시도
+                    //---------------------------------------------------
+                    if(0<=mm && mm<12) {
+                        isActive=true;
+                    }else if(15<=mm && mm<27) {
+                        isActive=true;
+                    }else if(30<=mm && mm<42) {
+                        isActive=true;
+                    }else if(45<=mm && mm<57) {
+                        isActive=true;
+                    }else {
+                        isActive=false;
+                        log.info("MCU["+mcuId+"] - Recovery Ondemand is Not Fired Because Time is incorrect!");
+                    }
+                }
+            }
+        } catch (ParseException e) {
+            log.error(e,e);
+        }finally {
+            return isActive;
+        }
+    }
+
+    @Test
+    public void test() {
+
+        LinkedHashSet<String> dbSet = new LinkedHashSet<String>();
+        LinkedHashSet<String> succSet = new LinkedHashSet<String>();
+        LinkedHashSet<String> failSet = new LinkedHashSet<String>();
+        dbSet.add("1");
+        dbSet.add("1");
+        dbSet.add("2");
+        dbSet.add("3");
+        dbSet.add("4");
+        dbSet.add("5");
+        dbSet.add("6");
+        dbSet.add("7");
+        dbSet.add("8");
+        dbSet.add("9");
+
+
+        succSet.add("7");
+        succSet.add("8");
+        succSet.add("11");
+
+
+        failSet.add("000D6F00003A35E1");
+        failSet.add("000D6F00001B3712");
+        int succRatio = (int)((double)succSet.size()/(double)dbSet.size()*100);
+        log.info("db["+dbSet.size()+"], succ["+succSet.size()+"]");
+        log.info(succRatio);
+        try {
+            //recoveryOndemand("4", failSet);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private int saveData(InputStream is, String ns)
+    throws Exception
+    {
+        byte[] mcu = new byte[4];
+        is.read(mcu, 0, mcu.length);
+        DataUtil.convertEndian(mcu);
+        //int mcuId = DataUtil.getIntTo4Byte(mcu);
+        long mcuId = DataUtil.getLongToBytes(mcu);
+        log.info("MCUID[" + mcuId + "]");
+
+        byte[] btype = new byte[1];
+        is.read(btype, 0, btype.length);
+        DATA_TYPE type = getDataType(DataUtil.getIntToBytes(btype));
+        log.info(type.toString());
+
+        byte[] bfilename = new byte[32];
+        is.read(bfilename, 0, bfilename.length);
+        String filename = new String(bfilename);
+        log.info("FILENAME[" + filename + "]");
+
+        byte[] blen = new byte[4];
+        is.read(blen, 0, blen.length);
+        DataUtil.convertEndian(blen);
+        long len = DataUtil.getLongToBytes(blen);
+        log.info("FILELEN[" + len + "]");
+
+        int dataCnt = 0;
+        if (type == DATA_TYPE.GENERIC) {
+        }
+        else if (type == DATA_TYPE.MEASUREMENT) {
+            //dataCnt = saveMeasurementData(is, mcuId, ns);
+        	dataCnt = saveMeasurementData(is, String.valueOf(mcuId), ns);
+        }
+        else if (type == DATA_TYPE.SYSTEM) {
+        }
+        else if (type == DATA_TYPE.APPLICATION) {
+        }
+        else if (type == DATA_TYPE.CONFIG) {
+        }
+        
+        return dataCnt;
+    }
+
+    private static DATA_TYPE getDataType(int type)
+    {
+        for (int i = 0; i < DATA_TYPE.values().length; i++) {
+            if (DATA_TYPE.values()[i].getType() == type)
+                return DATA_TYPE.values()[i];
+        }
+        return DATA_TYPE.UNKNOWN;
+    }
+
+    enum DATA_TYPE {
+        GENERIC(0),
+        MEASUREMENT(1),
+        SYSTEM(2),
+        APPLICATION(3),
+        CONFIG(4),
+        UNKNOWN(255);
+
+        private int type;
+
+        DATA_TYPE(int type) {
+            this.type = type;
+        }
+
+        public int getType()
+        {
+            return type;
+        }
+
+        public void setType(int type)
+        {
+            this.type = type;
+        }
+    }
+
+    @Override
+    public void restore() throws Exception {
+
+        mdLogger.init();
+
+        File dir = new File(FMPProperty.getProperty("protocol.slidewindow.dir"));
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        File[] files = dir.listFiles();
+        String filename = null;
+        int i = 1;
+        for (File f : files) {
+            log.info("[" + (i++) + "/" + files.length +"] filename[" + f.getName() + "]");
+            try {
+                filename = f.getAbsolutePath();
+                if (filename.lastIndexOf("dat") != -1 || filename.lastIndexOf("zlib") != -1)
+                    // processorHandler.putServiceData(ProcessorHandler.SERVICE_DATAFILEDATA, f.getAbsolutePath());
+                    readData(f.getAbsolutePath(), null);
+            }
+            catch (Exception e) {
+                log.error(e, e);
+            }
+        }
+        /*
+        int filecnt = 100;
+        if (files.length < filecnt)
+            filecnt = files.length;
+        
+        String filename = null;
+        for (int i = 0; i < filecnt; i++) {
+            try {
+                log.info(files[i].getAbsoluteFile());
+                filename = files[i].getAbsolutePath();
+                
+                if (filename.lastIndexOf(SlideWindow.COMPRESSTYPE.DAT.getName()) != -1)
+                    readData(filename);
+            }
+            catch (Exception e) {
+                log.error(e, e);
+            }
+        }
+        */
+    }
+}

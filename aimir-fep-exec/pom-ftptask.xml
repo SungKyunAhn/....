@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+    
+  <parent>
+    <groupId>com.aimir</groupId>
+    <artifactId>aimir-parent</artifactId>
+    <version>3.0.1</version>
+    <relativePath>../aimir-parent/pom.xml</relativePath>
+  </parent>
+  
+  <groupId>aimir.fep</groupId>
+  <artifactId>aimir-fep-exec</artifactId>
+  <packaging>jar</packaging>
+  <version>3.1.1</version>
+  <description></description>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <tasks>
+            <property name="runtime_classpath" refid="maven.runtime.classpath"/>
+            <echo message="runtime classpath: ${runtime_classpath}"/>
+            <mkdir dir="${basedir}/${fepName}"/>
+            <java dir="${basedir}/${fepName}"
+                  classname="com.aimir.fep.integration.moe.batch.App"
+                  fork="true"
+                  maxmemory="512M"
+                  >
+              <jvmarg value="-server"/>
+              <jvmarg value="-XX:PermSize=128M"/>
+              <jvmarg value="-XX:MaxPermSize=256M"/>
+              <!--<jvmarg value="-agentpath:/home/aimir/jprofiler6/bin/linux-x86/libjprofilerti.so=port=8849"/>-->
+              <sysproperty key="name" value="${fepName}"/>
+              <sysproperty key="file.encoding" value="UTF-8"/>
+              <sysproperty key="jmx.remote.x.server.connection.timeout" value="20000"/>
+              <sysproperty key="jmx.remote.x.client.connection.check.period" value="0"/>
+              <sysproperty key="com.sun.management.jmxremote.authenticate" value="false"/>
+              <sysproperty key="com.sun.management.jmxremote.ssl" value="false"/>
+              <sysproperty key="com.sun.management.jmxremote.ssl.need.client.auth" value="false"/>
+              <sysproperty key="log4j.configuration" value="log4j-ftptask.properties"/>
+              <sysproperty key="javax.net.debug" value="SSL,handshake,data,trustmanager"/>
+              <classpath>
+                <pathelement path=".:${runtime_classpath}"/>
+              </classpath>
+            </java>
+          </tasks>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>${maven-bundle-plugin.version}</version>
+        <extensions>true</extensions>
+      </plugin>
+    </plugins>
+  </build>
+    
+  <dependencies>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>${log4j.version}</version>
+    </dependency> 
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>${commons-logging.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-pool</groupId>
+      <artifactId>commons-pool</artifactId>
+      <version>${commons-pool.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
+      <version>${xercesImpl.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.mina</groupId>
+      <artifactId>mina-core</artifactId>
+      <version>${mina.version}</version>
+      <type>bundle</type>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.mina</groupId>
+      <artifactId>mina-transport-serial</artifactId>
+      <version>${mina.version}</version>
+      <type>bundle</type>
+    </dependency>
+    <dependency>
+      <groupId>concurrent</groupId>
+      <artifactId>concurrent</artifactId>
+      <version>${concurrent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>${commons-collections.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.quartz-scheduler</groupId>
+      <artifactId>quartz</artifactId>
+      <version>${quartz.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.aimir</groupId>
+      <artifactId>aimir-model</artifactId>
+      <version>${aimir.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.aimir</groupId>
+      <artifactId>aimir-fep</artifactId>
+      <version>3.1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-dbcp</groupId>
+      <artifactId>commons-dbcp</artifactId>
+      <version>${commons-dbcp.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>regexp</groupId>
+      <artifactId>regexp</artifactId>
+      <version>${regexp.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+      <version>${commons-beanutils.version}</version>
+      <type>jar</type>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>xalan</groupId>
+      <artifactId>xalan</artifactId>
+      <version>${xalan.version}</version>
+      <type>jar</type>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+      <version>${commons-httpclient.version}</version>
+      <type>jar</type>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjrt</artifactId>
+      <version>${aspectj.version}</version>
+      <type>jar</type>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derbyclient</artifactId>
+      <version>${derbyclient.version}</version>
+      <type>jar</type>
+      <scope>runtime</scope>
+    </dependency>
+    <!-- ORACLE 11g-->
+    <dependency>
+      <groupId>com.oracle</groupId> 
+      <artifactId>ojdbc6</artifactId> 
+      <version>${ojdbc6.version}</version> 
+    </dependency>
+    <!-- SQL Server -->
+    <dependency>
+      <groupId>net.sourceforge.jtds</groupId>
+      <artifactId>jtds</artifactId>
+      <version>${jtds.version}</version>
+    </dependency>
+    <!-- ==================== -->
+    <!--   Spring Framework   -->
+    <!-- ==================== -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>${spring.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-expression</artifactId>
+      <version>${spring.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+      <version>${spring.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-aop</artifactId>
+      <version>${spring.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>${spring.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context-support</artifactId>
+      <version>${spring.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+      <version>${spring.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+      <version>${spring.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-orm</artifactId>
+      <version>${spring.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-oxm</artifactId>
+      <version>${spring.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <version>${spring.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springmodules</groupId>
+      <artifactId>spring-modules-validation</artifactId>
+      <version>0.8</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-support</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>xml-apis</groupId>
+          <artifactId>xml-apis</artifactId>
+        </exclusion>
+      </exclusions>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jms</artifactId>
+      <version>${spring.version}</version>
+      <type>jar</type>
+      <scope>runtime</scope>
+    </dependency>
+    
+    <!-- ============== -->
+    <!--    Hibernate   -->
+    <!-- ============== -->
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+      <version>${hibernate.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <!-- dependency>
+    <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <version>3.0.0.ga</version>
+      <scope>runtime</scope>
+    </dependency -->
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <version>${hibernate.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-ehcache</artifactId>
+      <version>${hibernate.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>c3p0</groupId>
+      <artifactId>c3p0</artifactId>
+      <version>0.9.1.2</version>
+      <scope>runtime</scope>
+    </dependency>
+    
+    <!-- SLF4J Logging API -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib</artifactId>
+      <version>${cglib.version}</version>
+      <type>jar</type>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.jms</groupId>
+      <artifactId>jms</artifactId>
+      <version>${jms.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+       <groupId>org.apache.activemq</groupId>
+       <artifactId>activemq-all</artifactId>
+       <version>${activemq.version}</version>
+	    <exclusions>
+	      <exclusion> 
+	        <groupId>org.slf4j</groupId>
+	        <artifactId>slf4j-log4j12</artifactId>
+	      </exclusion>
+	      <exclusion> 
+	        <groupId>log4j</groupId>
+	        <artifactId>log4j</artifactId>
+	      </exclusion>
+	    </exclusions>    
+    </dependency>
+    <dependency>
+      <groupId>net.sf.json-lib</groupId>
+      <artifactId>json-lib</artifactId>
+      <version>${json-lib.version}</version>
+      <classifier>jdk15</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-aspects</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-asl</artifactId>
+      <version>${jackson-mapper-asl.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>${servlet-api.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- ============= -->
+    <!-- Web Service   -->
+    <!-- ============= -->
+    
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-frontend-jaxws</artifactId>
+      <version>${cxf.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>jaxb-impl</artifactId>
+          <groupId>com.sun.xml.bind</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-transports-http</artifactId>
+      <version>${cxf.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-databinding-aegis</artifactId>
+      <version>${cxf.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>jaxb-impl</artifactId>
+          <groupId>com.sun.xml.bind</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.mariadb.jdbc</groupId>
+      <artifactId>mariadb-java-client</artifactId>
+      <version>${mariadb-java-client.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.jsmpp</groupId>
+      <artifactId>jsmpp</artifactId>
+      <version>${jsmpp.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>${gson.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-catalina</artifactId>
+      <version>${tomcat.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-util</artifactId>
+      <version>${tomcat.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-core</artifactId>
+      <version>${tomcat.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.jolbox</groupId>
+      <artifactId>bonecp</artifactId>
+      <version>0.8.0.RELEASE</version>
+    </dependency>
+    <dependency>
+      <groupId>com.jolbox</groupId>
+      <artifactId>bonecp-spring</artifactId>
+      <version>0.8.0.RELEASE</version>
+    </dependency>
+   <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.8.2</version>
+    </dependency>    
+  </dependencies>  
+  <repositories>
+    <repository>
+      <id>oracle</id>
+      <name>ORACLE JDBC Repository</name>
+      <url>http://maven.jahia.org/maven2</url>
+      </repository>
+  </repositories>
+</project>

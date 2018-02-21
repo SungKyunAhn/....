@@ -1,0 +1,10 @@
+2017-01-09 19:54:32,536 DEBUG [com.aimir.fep.protocol.fmp.server.FMPTrapAdapter.<init>(FMPTrapAdapter.java:58)]  - load FMP MIB Completed
+2017-01-09 19:54:32,555 DEBUG [com.aimir.fep.protocol.fmp.server.IF4NewAdapter.<init>(IF4NewAdapter.java:50)]  - IF4NewAdapter Completed
+2017-01-09 19:57:13,049 DEBUG [com.aimir.fep.protocol.fmp.server.FMPTrapAdapter.<init>(FMPTrapAdapter.java:58)]  - load FMP MIB Completed
+2017-01-09 19:57:13,058 DEBUG [com.aimir.fep.protocol.fmp.server.IF4NewAdapter.<init>(IF4NewAdapter.java:50)]  - IF4NewAdapter Completed
+2017-01-09 19:59:08,441 DEBUG [com.aimir.fep.protocol.fmp.server.FMPTrapAdapter.<init>(FMPTrapAdapter.java:58)]  - load FMP MIB Completed
+2017-01-09 19:59:08,450 DEBUG [com.aimir.fep.protocol.fmp.server.IF4NewAdapter.<init>(IF4NewAdapter.java:50)]  - IF4NewAdapter Completed
+2017-01-09 23:20:15,849 DEBUG [com.aimir.fep.protocol.fmp.server.FMPTrapAdapter.<init>(FMPTrapAdapter.java:58)]  - load FMP MIB Completed
+2017-01-09 23:20:15,864 DEBUG [com.aimir.fep.protocol.fmp.server.IF4NewAdapter.<init>(IF4NewAdapter.java:50)]  - IF4NewAdapter Completed
+2017-01-12 16:42:53,915 DEBUG [com.aimir.fep.protocol.fmp.server.FMPTrapAdapter.<init>(FMPTrapAdapter.java:58)]  - load FMP MIB Completed
+2017-01-12 16:42:53,923 DEBUG [com.aimir.fep.protocol.fmp.server.IF4NewAdapter.<init>(IF4NewAdapter.java:50)]  - IF4NewAdapter Completed

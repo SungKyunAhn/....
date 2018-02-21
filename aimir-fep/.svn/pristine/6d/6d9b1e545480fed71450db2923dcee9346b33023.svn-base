@@ -1,0 +1,9 @@
+eventDcuInstall,OID,0,200.1.0,DCU Install Event
+eventInstallMeter,OID,0,220.1.0,Install meter
+eventJoinNode,OID,0,210.1.0,Join Node Event
+eventSNRInfo,OID,0,210.3.0,SNR info
+eventIpChange,OID,0,200.12.0,DCU IP Change detect
+eventPowerFail,OID,0,200.23.0,DCU Power Fail
+evtLowBattery,OID,0,200.21.0,DCU Low Battery
+evtOtaStart,OID,0,223.1.0,OTA Start
+evtOtaEnd,OID,0,223.2.0,OTA End

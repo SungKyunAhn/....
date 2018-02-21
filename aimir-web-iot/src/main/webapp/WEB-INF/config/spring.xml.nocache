@@ -1,0 +1,219 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.2.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
+        
+    <!--<context:property-placeholder location="command.properties"/>-->
+	<context:property-placeholder location="classpath:jdbc.properties"/>
+    <!-- Configurer that replaces ${...} placeholders with values from a properties file -->
+    <!--
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+    -->
+    <!--
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="maxTotal" value="10"/>
+        <property name="maxIdle" value="10"/>
+        <property name="maxWaitMillis" value="3000"/>
+    </bean>
+    
+    <bean id="auditDataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="maxTotal" value="10"/>
+        <property name="maxIdle" value="10"/>
+        <property name="maxWaitMillis" value="3000"/>
+    </bean>
+    -->
+    
+    <!-- 
+    <bean id="dataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+        <property name="driverClass" value="${jdbc.driverClassName}"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="idleConnectionTestPeriodInMinutes" value="5"/>
+        <property name="idleMaxAgeInMinutes" value="10"/>
+        <property name="maxConnectionsPerPartition" value="20"/>
+        <property name="minConnectionsPerPartition" value="10"/>
+        <property name="partitionCount" value="1"/>
+        <property name="acquireIncrement" value="2"/>
+        <property name="statementsCacheSize" value="100"/>
+    </bean>
+
+    <bean id="auditDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+        <property name="driverClass" value="${jdbc.driverClassName}"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="idleConnectionTestPeriodInMinutes" value="5"/>
+        <property name="idleMaxAgeInMinutes" value="10"/>
+        <property name="maxConnectionsPerPartition" value="20"/>
+        <property name="minConnectionsPerPartition" value="10"/>
+        <property name="partitionCount" value="1"/>
+        <property name="acquireIncrement" value="2"/>
+        <property name="statementsCacheSize" value="100"/>
+    </bean>
+     -->
+
+    <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+        <property name="poolName" value="springHikariCP" />
+        <property name="dataSourceClassName" value="${jdbc.driverClassName}" />
+        <property name="maximumPoolSize" value="${jdbc.maximumSize}" />
+        <property name="minimumIdle" value="${jdbc.minimumIdleSize}"/>
+        <property name="idleTimeout" value="30000" />
+    
+        <property name="dataSourceProperties">
+            <props>
+                <prop key="url">${jdbc.url}</prop>
+                <prop key="user">${jdbc.username}</prop>
+                <prop key="password">${jdbc.password}</prop>
+            </props>
+        </property>
+    </bean>
+    
+    <!-- HikariCP configuration -->
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <constructor-arg ref="hikariConfig" />
+    </bean>
+    
+    <bean id="auditDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <constructor-arg ref="hikariConfig" />
+    </bean>
+    
+    <!-- Audit Log Support Hibernate Session Factory -->
+    <bean id="auditSessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="auditDataSource" />
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+                <prop key="hibernate.format_sql">true</prop>
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.bytecode.use_reflection_optimizer">false</prop>
+                <prop key="hibernate.use_sql_comments">false</prop>
+                <prop key="hibernate.hbm2ddl.auto">false</prop>
+                <prop key="hibernate.connection.autocommit">false</prop>
+            </props>
+        </property>
+        <property name="annotatedClasses">
+            <list>
+                <value>com.aimir.model.system.AuditLog</value>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="auditLogInterceptor" class="com.aimir.audit.AuditLogInterceptor">
+        <property name="transactionManager" ref="auditTransactionManager"/>
+    </bean>
+    
+    <!-- Transaction manager for a single Hibernate SessionFactory (alternative to JTA) -->
+    <bean id="auditTransactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="auditSessionFactory"/>
+    </bean>
+    
+    <!-- Annotation Support Hibernate Session Factory -->
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="entityInterceptor" ref="auditLogInterceptor"/>
+        <property name="dataSource" ref="dataSource" />
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+                <!--  <prop key="hibernate.default_schema">${jdbc.username}</prop>oracle only-->
+                <prop key="hibernate.format_sql">true</prop>
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.bytecode.use_reflection_optimizer">true</prop>
+                <prop key="hibernate.use_sql_comments">false</prop>
+                <!--<prop key="hibernate.hbm2ddl.auto">create-drop</prop>-->
+                <!--<prop key="hibernate.hbm2ddl.auto">create</prop>-->
+                <!--<prop key="hibernate.hbm2ddl.auto">validate</prop>-->
+                <prop key="hibernate.hbm2ddl.auto">false</prop>
+                <prop key="hibernate.connection.autocommit">false</prop>
+                <!-- 0:none, 1:read_uncommitted, 2:read_committed, 4:repeatable_read, 8:serializable -->
+                <prop key="hibernate.connection.isolation">1</prop>
+                <!--<prop key="hibernate.query.substitutions">Y</prop>-->
+                <prop key="hibernate.cache.use_query_cache">false</prop>
+                <prop key="hibernate.cache.use_second_level_cache">false</prop>
+                <!--<prop key="hibernate.cache.use_second_level_cache">true</prop>-->
+                <!--<prop key="hibernate.cache.use_second_level_cache">org.hibernate.cache.EhCacheProvider</prop>-->
+                <!-- Turn batching off for better error messages under PostgreSQL>-->
+                <!--prop key="hibernate.jdbc.batch_size">0</prop-->
+            </props>
+        </property>
+        <property name="packagesToScan">
+            <list>
+                <value>com.aimir.cms.model</value>
+                <value>com.aimir.model.*</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- Transaction manager for a single Hibernate SessionFactory (alternative to JTA) -->
+    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+    
+    <bean id="sessionContextFactory" class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
+    	<property name="targetBeanName" value="sessionContext" />
+    </bean>
+    
+    <!-- Activates scanning of @Autowired -->            
+    <context:annotation-config/>
+
+    <!-- Scans for @Repository, @Service -->
+    <context:component-scan base-package="com.aimir">
+        <context:exclude-filter type="regex" expression="com\.aimir\.fep\..*"/>
+    </context:component-scan>
+    
+    <!-- Enable @Transactional support -->
+    <tx:annotation-driven />
+
+    <!-- Enable @AspectJ support -->
+    <aop:aspectj-autoproxy/>
+    
+    <!--  MBeans Server
+    <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean"/>
+    
+    this bean needs to be eagerly pre-instantiated in order for the exporting to occur;
+    this means that it must not be marked as lazily initialized
+    
+    <bean id="mbeanExporter" class="org.springframework.jmx.export.MBeanExporter">
+        <property name="server" ref="mbeanServer"/>
+    </bean>
+    
+    <bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
+        <property name="port" value="${jmxrmi.server.port}"/>
+    </bean>
+     -->
+     
+    <!-- 
+    <bean id="serverConnector" class="org.springframework.jmx.support.ConnectorServerFactoryBean">
+        <property name="server" ref="mbeanServer"/>
+        <property name="objectName" value="connector:name=rmi"/>
+        <property name="serviceUrl" value="service:jmx:rmi://localhost/jndi/rmi://127.0.0.1:2199/server"/>
+    </bean>
+     -->
+     
+    <!-- <bean id="meterEventLink" class="com.aimir.fep.meter.link.BulkMeterEventLink"></bean> -->
+    
+
+</beans>

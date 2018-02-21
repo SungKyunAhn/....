@@ -1,0 +1,49 @@
+package com.aimir.fep.protocol.rapa;
+
+public class SUBLPCurrentMeterDataFrame {
+
+	byte[] itime = new byte[7];	// 수집시의 dcu - 00:00:00:00:00:00:00 (년:월:일:주:시:분:초) 7byte
+	byte[] mtime = new byte[7];	// 검침정보 발생일자  
+	byte[] ap = new byte[4];	// 유효전력량
+	
+	private String strITime;
+	private String strMTime;
+	private double apVal;
+	
+	public byte[] getItime() {
+		return itime;
+	}
+	public void setItime(byte[] itime) {
+		this.itime = itime;
+	}
+	public byte[] getMtime() {
+		return mtime;
+	}
+	public void setMtime(byte[] mtime) {
+		this.mtime = mtime;
+	}
+	public byte[] getAp() {
+		return ap;
+	}
+	public void setAp(byte[] ap) {
+		this.ap = ap;
+	}
+	public String getStrITime() {
+		return strITime;
+	}
+	public void setStrITime(String strITime) {
+		this.strITime = strITime;
+	}
+	public String getStrMTime() {
+		return strMTime;
+	}
+	public void setStrMTime(String strMTime) {
+		this.strMTime = strMTime;
+	}
+	public double getApVal() {
+		return apVal;
+	}
+	public void setApVal(double apVal) {
+		this.apVal = apVal;
+	}
+}

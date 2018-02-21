@@ -1,0 +1,70 @@
+package com.aimir.fep.protocol.rapa;
+
+/**
+ * 
+ * class SUBLPDataFrame.java
+ *
+ * @author ky.yoon@nuritelecom.com
+ * @version 1.0 $Date: 2016. 11. 16.
+ */
+public class SUBLPDataFrame {
+
+	byte[] itime = new byte[7];	// 검침정보 수집시의 dcu 시간
+	byte[] mtime = new byte[7];	// 해당검침정보 발생일자, 시간
+	byte[] fap = new byte[4];	// 유효전력량 LP
+	byte[] wc = new byte[4];	// 결선체결 확인 LP
+	
+	private String strITime;
+	private String strMTime;
+	private double fapVal;
+	private double wcVal;
+	
+	public byte[] getItime() {
+		return itime;
+	}
+	public void setItime(byte[] itime) {
+		this.itime = itime;
+	}
+	public byte[] getMtime() {
+		return mtime;
+	}
+	public void setMtime(byte[] mtime) {
+		this.mtime = mtime;
+	}
+	public byte[] getFap() {
+		return fap;
+	}
+	public void setFap(byte[] fap) {
+		this.fap = fap;
+	}
+	public byte[] getWc() {
+		return wc;
+	}
+	public void setWc(byte[] wc) {
+		this.wc = wc;
+	}
+	public String getStrITime() {
+		return strITime;
+	}
+	public void setStrITime(String strITime) {
+		this.strITime = strITime;
+	}
+	public String getStrMTime() {
+		return strMTime;
+	}
+	public void setStrMTime(String strMTime) {
+		this.strMTime = strMTime;
+	}
+	public double getFapVal() {
+		return fapVal;
+	}
+	public void setFapVal(double fapVal) {
+		this.fapVal = fapVal;
+	}
+	public double getWcVal() {
+		return wcVal;
+	}
+	public void setWcVal(double wcVal) {
+		this.wcVal = wcVal;
+	}
+}

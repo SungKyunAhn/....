@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:int="http://www.springframework.org/schema/integration"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/integration
+        http://www.springframework.org/schema/integration/spring-integration.xsd
+        ">
+        
+  	<context:property-placeholder location="classpath:config/fmp.properties"/>
+  	
+  	<bean id="entityManagerFactory" 
+	    class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean ">
+	    <property name="persistenceXmlLocation" value="classpath:config/persistence.xml" /> 
+	    <property name="dataSource" ref="dataSource" /> 
+	    <property name="persistenceUnitName" value="eclipselink.jpa" /> 
+	    <property name="jpaDialect" ref="jpaDialect" /> 
+	    <property name="jpaVendorAdapter" ref="jpaVendorAdapter" /> 
+	         
+	    <property name="loadTimeWeaver"> 
+	        <bean class="org.springframework.instrument.classloading.SimpleLoadTimeWeaver " /> 
+	    </property> 
+	</bean> 
+	
+	<bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
+    <!-- <property name="databasePlatform" value="org.eclipse.persistence.platform.database.DerbyPlatform" /> -->
+    <property name="databasePlatform" value="org.eclipse.persistence.platform.database.OraclePlatform" />
+    <property name="showSql" value="true" />
+  	</bean>
+  
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+        <property name="poolName" value="springHikariCP" />
+        <property name="dataSourceClassName" value="${jdbc.driverClassName}" />
+        <property name="maximumPoolSize" value="${jdbc.maximumSize}" />
+        <property name="minimumIdle" value="${jdbc.minimumIdleSize}"/>
+        <property name="autoCommit" value="false"/>
+        <property name="idleTimeout" value="30000" />
+    
+        <property name="dataSourceProperties">
+            <props>
+                <prop key="url">${jdbc.url}</prop>
+                <prop key="user">${jdbc.username}</prop>
+                <prop key="password">${jdbc.password}</prop>
+            </props>
+        </property>
+    </bean>
+    
+    <!-- HikariCP configuration -->
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <constructor-arg ref="hikariConfig" />
+    </bean>
+	
+	<bean id="jpaDialect" 
+	class="org.springframework.orm.jpa.vendor.EclipseLinkJpaDialect " /> 
+	
+	<bean 
+	class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor "/>  
+	
+    
+</beans>

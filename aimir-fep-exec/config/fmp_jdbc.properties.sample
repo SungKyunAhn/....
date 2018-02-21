@@ -1,0 +1,44 @@
+#Example JDBC Configuration
+#0:none, 1:read_uncommitted, 2:read_committed, 4:repeatable_read, 8:serializable 
+hibernate.connection.isolation=1
+
+# Java DB
+# jdbc.driverClassName=org.apache.derby.jdbc.ClientDriver
+# hibernate.dialect=org.hibernate.dialect.DerbyDialect
+# jdbc.url=jdbc:derby://localhost:1527//home/aimir/javadb1
+# jdbc.username=aimir
+# jdbc.password=aimirdb
+
+# ORACLE DB
+# jdbc.driverClassName=oracle.jdbc.driver.OracleDriver
+# hibernate.dialect=org.hibernate.dialect.Oracle10gDialect
+# jdbc.url=jdbc:oracle:thin:@localhost:1521:ORCL
+# jdbc.username=aimir
+# jdbc.password=aimirdb
+
+# MS SQL
+# jdbc.driverClassName=net.sourceforge.jtds.jdbc.Driver
+# hibernate.dialect=org.hibernate.dialect.SQLServerDialect
+# jdbc.url=jdbc:jtds:sqlserver://localhost:1433/aimirdb
+# jdbc.username=aimir
+# jdbc.password=aimirdb
+
+# MariaDB
+#jdbc.driverClassName=org.mariadb.jdbc.Driver
+#jdbc.url=jdbc:mysql://187.1.10.58:3306/aimirdb
+#jdbc.username=aimir
+#jdbc.password=aimir
+#hibernate.dialect=org.hibernate.dialect.MySQLDialect
+#hibernate.connection.driver_class=net.sf.hajdbc.sql.Driver
+#hibernate.connection.url=jdbc:mysql://187.1.10.58:3306/aimirdb
+#hibernate.connection.username=aimir
+#hibernate.connection.password=aimir
+#==========================================================
+
+# Example Setup JDBC Configuration
+#jdbc.driverClassName=oracle.jdbc.driver.OracleDriver
+#hibernate.dialect=org.hibernate.dialect.Oracle10gDialect
+#jdbc.url=jdbc:oracle:thin:@localhost:1521:orcl
+#jdbc.username=aimir
+#jdbc.password=aimir
+#hibernate.hbm2ddl.auto=update

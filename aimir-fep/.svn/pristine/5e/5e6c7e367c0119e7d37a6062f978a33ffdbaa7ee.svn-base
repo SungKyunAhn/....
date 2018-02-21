@@ -1,0 +1,420 @@
+package com.aimir.fep.protocol.rapa.parser;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import org.apache.commons.codec.binary.Base64;
+
+import com.aimir.fep.meter.parser.MeterDataParser;
+import com.aimir.fep.protocol.rapa.BillDumpPacket;
+import com.aimir.fep.protocol.rapa.BillingFrame;
+import com.aimir.fep.protocol.rapa.EventDumpPacket;
+import com.aimir.fep.protocol.rapa.EventFrame;
+import com.aimir.fep.protocol.rapa.LPDumpPacket;
+import com.aimir.fep.protocol.rapa.LPFrame;
+import com.aimir.fep.protocol.rapa.MessageBody;
+import com.aimir.fep.protocol.rapa.RAPAConstants;
+import com.aimir.fep.protocol.rapa.SUBBillDataFrame;
+import com.aimir.fep.protocol.rapa.RAPAConstants.MeterType;
+
+import com.aimir.fep.protocol.rapa.SUBLPCurrentMeterDataFrame;
+import com.aimir.fep.protocol.rapa.SUBLPDataFrame;
+import com.aimir.fep.util.Bcd;
+import com.aimir.fep.util.Hex;
+import com.aimir.fep.util.Util;
+import com.aimir.util.TimeUtil;
+
+/** 
+ * class RapaMeter.java
+ *
+ * @author ky.yoon@nuritelecom.com
+ * @version 1.0 $Date: 2016. 11. 16.
+ */
+public class RapaMeter extends MeterDataParser implements java.io.Serializable {
+	
+	private MeterType meterType;
+	private byte[] rawData = null; 
+	private MessageBody messageBody = null;
+	private String sclId;
+	private String locTargetDevice;
+	
+	@Override
+	public byte[] getRawData() {
+		return this.rawData;
+	}
+
+	@Override
+	public int getLength() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public MessageBody getMessageBody() {
+		return messageBody;
+	}
+
+	public void setMessageBody(MessageBody messageBody) {
+		this.messageBody = messageBody;
+	}
+	
+	public String getSclId() {
+		return sclId;
+	}
+
+	public void setSclId(String sclId) {
+		this.sclId = sclId;
+	}
+	
+	public String getLocTargetDevice() {
+		return locTargetDevice;
+	}
+
+	public void setLocTargetDevice(String locTargetDevice) {
+		this.locTargetDevice = locTargetDevice;
+	}
+
+	@Override
+	public void parse(byte[] data) throws Exception {
+		
+		ByteBuffer byteBuffer = ByteBuffer.wrap(Arrays.copyOfRange(data, 0, data.length));
+		this.rawData = data;
+		
+		byte[] dumpCnt = new byte[2];
+		byteBuffer.get(dumpCnt);
+		
+		MessageBody messageBody = null;
+		
+		// meter type 별 파싱
+		switch(getMeterType()) {
+			case LP :				
+				messageBody = dumpPacketLP(dumpCnt, byteBuffer.slice());				
+				break;
+			case BILLING :				
+				messageBody = dumpPacketBilling(dumpCnt, byteBuffer.slice());				
+				break;
+			case EVENT :				
+				messageBody = dumpPacketEvent(dumpCnt, byteBuffer.slice());				
+				break;	
+			default :	
+				break;
+		}
+		
+		this.setMessageBody(messageBody);
+	}
+
+	@Override
+	public Double getMeteringValue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public LinkedHashMap<?, ?> getData() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getFlag() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setFlag(int flag) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public MeterType getMeterType() {
+		return meterType;
+	}
+
+	public void setMeterType(MeterType meterType) {
+		this.meterType = meterType;
+	}
+
+	/**
+	 * dumpPacketLP : 현재검침 파싱
+	 * @param dumpCnt
+	 * @param packet
+	 */
+	private LPFrame dumpPacketLP(byte[] dumpCnt, ByteBuffer packet) {
+		
+		ByteBuffer message = packet;
+		
+		LPFrame lpFrame = new LPFrame();
+		lpFrame.setCount(dumpCnt);
+		
+		List<LPDumpPacket>  listDumpPacket = new ArrayList<LPDumpPacket>(); // dump packet
+		
+		for(short i = 0; i < getHexToShort(dumpCnt); i++) {
+			
+			LPDumpPacket dp = new LPDumpPacket();
+			
+			List<SUBLPCurrentMeterDataFrame> subDumpPacket = new ArrayList<SUBLPCurrentMeterDataFrame>(); // sub dump packet
+			List<SUBLPDataFrame> subLPPacket = new ArrayList<SUBLPDataFrame>(); // sub lp packet
+			
+			message.get(dp.getMid()); // 11byte
+			message.get(dp.getdCount());	//2byte
+			message.get(dp.getlCount());	//2byte
+			
+			dp.setMeterId(new String(dp.getMid()));
+			dp.setdCountVal(getHexToShort(dp.getdCount()));
+			dp.setlCountVal(getHexToShort(dp.getlCount()));
+			
+			for(short d = 0; d < dp.getdCountVal(); d++) { //sub dump packet
+				
+				SUBLPCurrentMeterDataFrame sdp = new SUBLPCurrentMeterDataFrame();
+				
+				//파싱
+				message.get(sdp.getItime());
+				message.get(sdp.getMtime());
+				message.get(sdp.getAp());
+				
+				//형변환
+				sdp.setStrITime(getBCDTime(sdp.getItime()));
+				sdp.setStrMTime(getBCDTime(sdp.getMtime()));
+				sdp.setApVal(getHexToInt(sdp.getAp()));
+					
+				subDumpPacket.add(sdp);
+			}
+			
+			for(short l = 0; l < getHexToShort(dp.getlCount()); l++) { //sub lp packet
+				
+				SUBLPDataFrame sdp = new SUBLPDataFrame();
+				
+				//파싱
+				message.get(sdp.getItime());
+				message.get(sdp.getMtime());
+				message.get(sdp.getFap());
+				message.get(sdp.getWc());
+				
+				//형변환
+				sdp.setStrITime(getBCDTime(sdp.getItime()));
+				sdp.setStrMTime(getBCDTime(sdp.getMtime()));
+				sdp.setFapVal(getHexToInt(sdp.getFap()));
+				sdp.setWcVal(getHexToInt(sdp.getWc()));
+			
+				subLPPacket.add(sdp);
+			}
+			
+			dp.setSubLPCurrentMeterDataFrameList(subDumpPacket);
+			dp.setSubLPDataFrameList(subLPPacket);
+			
+			listDumpPacket.add(dp);
+			
+		} // end for dump packet
+		
+		lpFrame.setSclId(getSclId());
+		lpFrame.setLocTargetDevice(getLocTargetDevice());
+		lpFrame.setLPDumpPacketList(listDumpPacket);
+		
+		return lpFrame;
+	}
+	
+	/**
+	 * dumpPacketBilling : 정기검침 파싱 (빌링)
+	 * @param dumpCnt
+	 * @param packet
+	 */
+	private BillingFrame dumpPacketBilling(byte[] dumpCnt, ByteBuffer packet) {
+		
+		ByteBuffer message = packet;
+		
+		BillingFrame billingFrame = new BillingFrame();
+		billingFrame.setCount(dumpCnt);
+		
+		List<BillDumpPacket> billDumpPacketList = new ArrayList<BillDumpPacket>(); // dump packet
+		
+		for(short i = 0; i < getHexToShort(dumpCnt); i++) {
+			
+			BillDumpPacket dp = new BillDumpPacket();
+			
+			List<SUBBillDataFrame> subDumpPacket = new ArrayList<SUBBillDataFrame>(); // sub dump packet
+			
+			message.get(dp.getMid());
+			message.get(dp.getdCount());
+			
+			dp.setMeterId(new String(dp.getMid()));
+			dp.setdCountVal(getHexToShort(dp.getdCount()));
+			
+			for(short d = 0; d < getHexToShort(dp.getdCount()); d++) { //sub dump packet
+				
+				SUBBillDataFrame sdp = new SUBBillDataFrame();
+				
+				//파싱
+				message.get(sdp.getItime());
+				message.get(sdp.getMtime());
+				message.get(sdp.getSap());
+				message.get(sdp.getStatus());
+				
+				//형변환
+				sdp.setStrITime(getBCDTime(sdp.getItime()));
+				sdp.setStrMTime(getBCDTime(sdp.getMtime()));
+				sdp.setSapVal(getHexToInt(sdp.getSap()));
+									
+				subDumpPacket.add(sdp);
+			}	
+			
+			dp.setSubBillDataFrame(subDumpPacket);
+			billDumpPacketList.add(dp);			
+		}
+		
+		billingFrame.setSclId(getSclId());		
+		billingFrame.setLocTargetDevice(getLocTargetDevice());
+		billingFrame.setBillDumpPacketList(billDumpPacketList);
+		
+		return billingFrame;
+	}
+	
+	/**
+	 * dumpPacketEvent : 정전/복전 이벤트 파싱
+	 * @param dumpCnt
+	 * @param packet
+	 */
+	private EventFrame dumpPacketEvent(byte[] dumpCnt, ByteBuffer packet) {
+		
+		ByteBuffer message = packet;
+		
+		EventFrame eventFrame = new EventFrame();
+		eventFrame.setCount(dumpCnt);
+		
+		List<EventDumpPacket> eventDumpPacketList = new ArrayList<EventDumpPacket>(); // dump packet
+		
+		for(short i = 0; i < getHexToShort(dumpCnt); i++) {
+			
+			EventDumpPacket dp = new EventDumpPacket();
+			
+			// 파싱
+			message.get(dp.getMid());
+			message.get(dp.getItime());
+			message.get(dp.getMtime());
+			message.get(dp.getReserved());
+			message.get(dp.getCtime());
+			
+			// 형변환
+			dp.setMeterId(new String(dp.getMid()));
+			dp.setStrITime(getBCDTime(dp.getItime()));
+			dp.setStrMTime(getBCDTime(dp.getMtime()));
+			dp.setStrCTime(getBCDTime(dp.getCtime()));
+			dp.setReservedVal(getHexToInt(dp.getReserved()));
+				
+			eventDumpPacketList.add(dp);
+		}
+		
+		eventFrame.setSclId(getSclId());				
+		eventFrame.setLocTargetDevice(getLocTargetDevice());
+		
+		eventFrame.setEventDumpPacketList(eventDumpPacketList);		
+		
+		return eventFrame;
+	}
+	
+	/**
+	 * getHexToInt
+	 * hex(4byte) -> int
+	 * @param hexValue
+	 * @return
+	 */
+	private int getHexToInt(byte[] hexValue) {
+		
+		return ByteBuffer.wrap(Arrays.copyOfRange(hexValue, 0, hexValue.length)).getInt();
+	}
+	
+	/**
+	 * getHexToShort
+	 * hex(2byte) -> short
+	 * @param hexValue
+	 * @return
+	 */
+	private short getHexToShort(byte[] hexValue) {
+		
+		return ByteBuffer.wrap(Arrays.copyOfRange(hexValue, 0, hexValue.length)).getShort();
+	}
+	
+	/**
+	 * getBCDTime
+	 * bcd(7byte) time -> stirng 
+	 * @param bcd
+	 * @return
+	 */
+	private String getBCDTime(byte[] bcdTime) {
+		
+		StringBuffer strBCDTime = new StringBuffer();
+		String appender = "";
+		for(int i = 0; i < bcdTime.length; i++) {
+			
+			appender = (i==0) ? "20" : "";
+			strBCDTime.append(appender + Util.frontAppendNStr('0', Integer.toHexString(bcdTime[i]), 2));
+		}
+			
+		return strBCDTime.toString();
+	}
+	
+	// test용  지우기
+	private byte[] getReportFrame(String message) {
+		
+		byte[] data = Base64.decodeBase64(message.getBytes());
+		ByteBuffer byteBuffer = ByteBuffer.wrap(Arrays.copyOfRange(data, 0, data.length-2));
+		byteBuffer.order(ByteOrder.BIG_ENDIAN);
+		
+		byte sof = byteBuffer.get(); // 1byte
+		byte frameType = byteBuffer.get(); // 1byte
+		byte frameOption = byteBuffer.get(); // 1byte
+		short messageLength = byteBuffer.getShort(); // 2byte
+		byte meter_type = byteBuffer.get(); // 1byte
+		
+		System.out.println("messageLength : " + messageLength);
+		
+		ByteBuffer ReportFrame = byteBuffer.slice();		
+		System.out.println(ReportFrame.remaining());
+		
+		byte[] reportFrameByteArray = new byte[ReportFrame.remaining()];
+		ReportFrame.get(reportFrameByteArray);
+		
+		setMeterType(MeterType.getMeterType(meter_type));
+		
+		return reportFrameByteArray;
+	}
+	
+	// test용  지우기
+	public static void main(String[] args) {
+		
+		// String message = "qwAAATgAAAMwMjE3MTU1NjA0MQAAAAQWEBECI1kFAAEUBQgAAACp4+0/TMzNFhARAiNZBQABFAUHAAAAqd3eP0euFBYQEQIjWQUAARQFBgAAAKnX3j9MzM0WEBECI1kFAAEUBQUAAACp0fY/TMzNMjQxNzAwMjM2NjQAAAAEFhARAiNZEBYQEQIjAAAAqO+IP3/0YhYQEQIjWRAWEBECIgAAAKjodD9/7SEWEBECI1kQFhARAiEAAACo4XA/f974FhARAiNZEBYQEQIgAAAAqNqDP3/ZTjAyMTcxNTU2MDgwAAAABBYQEQIjWRcWEBECIwAAAHKDHD8rhR8WEBECI1kXFhARAiIAAAByfwg/K4UfFhARAiNZFxYQEQIhAAAAcnr3Pyj1wxYQEQIjWRcWEBECIAAAAHJ26j8o9cO8Sw==";
+		
+		// String message = "qwAAAGoAAAEwMjE3MTY1MjA2OAAAAAQWEBECI1kFFhARAiMAAAAMeBk/aPXDFhARAiNZBRYQEQIiAAAADHakP2j1wxYQEQIjWQUWEBECIQAAAAx1Lz9o9cMWEBECI1kFFhARAiAAAAAMc7k/aPXDffo= ";
+		
+		// String message = "qwAAACQAAAE1NjE3OTAwODc4NQABAAAWEBIDAAARFhASAwAABgAluSkhUQ==";
+		
+		// String message = "qwAAANEAAAIwMjE3MTQ1MDkxMQAAAAQWEBECI1kFFhARAiMAAADvKvY/czMzFhARAiNZBRYQEQIiAAAA7yZ5P3MzMxYQEQIjWQUWEBECIQAAAO8iGD9wo9cWEBECI1kFFhARAiAAAADvHcU/czMzMzkxNzA2NjA3MTUAAAAEFhARAiNZEBYQEQIjAAACG2/9P4AAABYQEQIjWRAWEBECIgAAAhtlpT+AAAAWEBECI1kQFhARAiEAAAIbWx0/gAAAFhARAiNZEBYQEQIgAAACG1DBP4AAAM8E";
+		
+		// String message = "qwAAAGoAAAEwMjE3MTY1MjMxOAAAAAQWEBECFEUFFhARAhQAAAAQ5Y4/FHrhFhARAhRFBRYQEQITAAAAEOPhPwzMzRYQEQIURQUWEBECEgAAABDiNz8R64UWEBECFEUFFhARAhEAAAAQ4IM/FHrhZQk=";
+		// String message = "qwAAANEAAAIwNjE3MDA2ODIzMwAAAAQWEBECFEUFFhARAhQAAADP7e8/gAAAFhARAhRFBRYQEQITAAAAz+lSP4AAABYQEQIURQUWEBECEgAAAM/kmj+AAAAWEBECFEUFFhARAhEAAADP3/w/gAAAMDIxNzE1NTYzODIAAAAEFhARAhRFERYQEQIUAAAAU6TePyuFHxYQEQIURREWEBECEwAAAFOiCz8o9cMWEBECFEURFhARAhIAAABTnys/K4UfFhARAhRFERYQEQIRAAAAU5xUPyuFH2pI";
+		
+		// String message = "qwAAAGoAAAE1NjE3OTAwNzM0NwAAAAQWEBECFEUFFhARAhQAAABMRM4/dcKPFhARAhRFBRYQEQITAAAATEHcP3XCjxYQEQIURQUWEBECEgAAAEw+2j91wo8WEBECFEUFFhARAhEAAABMO/A/dcKPxwQ=";
+		
+		String message = "qwAAACQAAAEwMjE3MTM0OTY0MwABAAAWERUCAjACFhEVAgIpWABf3tIiOQ==";
+		
+		RapaMeter rm = new RapaMeter();
+		byte[] data = rm.getReportFrame(message);
+		
+		try {
+			rm.parse(data);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+}

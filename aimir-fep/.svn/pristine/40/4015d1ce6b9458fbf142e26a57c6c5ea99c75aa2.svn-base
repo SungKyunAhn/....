@@ -1,0 +1,19 @@
+#### SORIA Spring properties ###
+#hibernate.dialect=org.hibernate.dialect.Oracle10gDialect
+#jdbc.databasePlatform=org.eclipse.persistence.platform.database.OraclePlatform
+#jdbc.generateDdl=true
+#jdbc.showSql=false
+#jdbc.driverClassName=oracle.jdbc.pool.OracleDataSource
+#jdbc.url=jdbc:oracle:thin:@valed01-scan.valider.local:1521/DEV.HES.VALIDER.NO
+#jdbc.username=aimir
+#jdbc.password=mLHibVwTJKxoxgdPUUmL
+
+### 111 DEV Server Spring properties ###
+hibernate.dialect=org.hibernate.dialect.Oracle10gDialect
+jdbc.databasePlatform=org.eclipse.persistence.platform.database.OraclePlatform
+jdbc.generateDdl=true
+jdbc.showSql=true
+jdbc.driverClassName=oracle.jdbc.pool.OracleDataSource
+jdbc.url=jdbc:oracle:thin:@172.16.10.111:1521:orcl
+jdbc.username=aimir
+jdbc.password=aimir

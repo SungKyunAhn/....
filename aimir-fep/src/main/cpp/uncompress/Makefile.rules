@@ -1,0 +1,25 @@
+# Configuration File
+
+ifeq ($(DEBUG),1)
+DBG=DEBUG=1
+else
+DBG=
+endif
+
+# x86 Linux
+CROSS_CPU		=
+CROSS_OS		=
+CROSS_NAME		=
+CROSS_COMPILE	= 
+SYSINCPATH  	=
+SYSLIBPATH  	=
+GPIOFLAG		= 0
+
+CC              = $(CROSS_COMPILE)gcc
+CPP             = $(CROSS_COMPILE)g++
+LD              = $(CROSS_COMPILE)ld
+AR              = $(CROSS_COMPILE)ar
+RANLIB          = $(CROSS_COMPILE)ranlib
+STRIP           = $(CROSS_COMPILE)strip
+ECHO            = /bin/echo
+

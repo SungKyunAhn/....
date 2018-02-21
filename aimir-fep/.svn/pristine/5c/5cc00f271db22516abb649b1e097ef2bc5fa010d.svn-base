@@ -1,0 +1,133 @@
+package com.aimir.fep.protocol.snmp;
+
+import java.net.InetSocketAddress;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.management.MBeanRegistration;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
+import org.apache.mina.core.service.IoAcceptor;
+import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.aimir.fep.util.DataUtil;
+
+@Service
+public class SnmpManagerAdapter implements SnmpManagerAdapterMBean, MBeanRegistration {
+    private static Logger logger = LoggerFactory.getLogger(SnmpManagerAdapter.class);
+
+    public final static String ADAPTER_DOMAIN = "Adapter";
+    private ObjectName objectName = null;
+    private String name;
+
+    @Autowired
+    private SnmpProtocolHandler protocolHandler;
+
+    String[] states = { "Stopped", "Stopping", "Starting", "Started", "Failed", "Destroyed" };
+    private final int STOPPED = 0;
+    private final int STOPPING = 1;
+    private final int STARTING = 2;
+    private final int STARTED = 3;
+    private final int FAILED = 4;
+    private final int DESTROYED = 5;
+    private int state = STOPPED;
+
+    private int PORT = 162;
+    private IoAcceptor acceptor = null;
+
+    public SnmpManagerAdapter(){
+        protocolHandler = DataUtil.getBean(SnmpProtocolHandler.class);
+
+        ExecutorService executor = Executors.newCachedThreadPool();
+        acceptor = new NioDatagramAcceptor(executor);
+
+        logger.debug("load SNMP Adapter Completed");
+    }
+
+    @Override
+    public void start() throws Exception {
+        logger.debug("{} :: start ", objectName);
+        try {
+            state = STARTING;
+
+            acceptor.setDefaultLocalAddress(new InetSocketAddress(PORT));
+            acceptor.setHandler(protocolHandler);
+            acceptor.getFilterChain().addLast(name, new ProtocolCodecFilter(new SnmpCodecFactory()));
+            logger.info("SNMPCodecFactory add to {}", name);
+            acceptor.bind();
+
+            logger.info("SNMP Adapter Listening on port {}", PORT);
+
+            state = STARTED;
+
+        } catch (Exception ex) {
+            logger.error("objectName[{}] start failed", objectName);
+            state = STOPPED;
+            throw ex;
+        }
+    }
+
+    @Override
+    public void stop() {
+        logger.debug("{} stop", objectName);
+        state = STOPPING;
+
+        acceptor.unbind();
+
+        state = STOPPED;
+    }
+
+    @Override
+    public String getName() {
+        return objectName.toString();
+    }
+
+    @Override
+    public String getState() {
+        return states[state];
+    }
+
+    @Override
+    public int getPort() {
+        return PORT;
+    }
+
+    public void setPort(int port) {
+        this.PORT = port;
+    }
+
+
+    @Override
+    public ObjectName preRegister(MBeanServer server, ObjectName obName) throws Exception {
+        objectName = obName;
+        if (objectName == null) {
+            objectName = new ObjectName(server.getDefaultDomain() + ":service=" + this.getClass().getName());
+        }
+
+        this.name = objectName.toString();
+        return objectName;
+    }
+
+    @Override
+    public void postRegister(Boolean registrationDone) {
+    	//..
+    }
+
+    @Override
+    public void preDeregister() throws Exception {
+    	//..
+    }
+
+    @Override
+    public void postDeregister() {
+    	//..
+    }
+
+
+}

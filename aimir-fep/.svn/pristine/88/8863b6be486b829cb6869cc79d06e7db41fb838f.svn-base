@@ -1,0 +1,371 @@
+package com.aimir.fep.meter.parser;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.aimir.fep.meter.data.LPData;
+import com.aimir.fep.meter.parser.DLMSKepcoTable.LPComparator;
+import com.aimir.fep.meter.parser.EMnVCompensatorTable.EMnVCompensatorCommonTable;
+import com.aimir.fep.meter.parser.EMnVCompensatorTable.EMnVDefaultCompensatorTable;
+import com.aimir.fep.meter.parser.EMnVCompensatorTable.EMnVDefaultCompensatorVariable.DEFAULT_COMPENSATOR_CODE;
+import com.aimir.fep.protocol.emnv.exception.EMnVSystemException;
+import com.aimir.fep.protocol.emnv.frame.EMnVConstants;
+import com.aimir.fep.protocol.emnv.frame.EMnVConstants.EMnVCompensatorVendorModelType;
+import com.aimir.fep.protocol.emnv.frame.EMnVConstants.EMnVCompensatorVendorType;
+import com.aimir.fep.protocol.emnv.frame.EMnVConstants.EMnVMeteringDataType;
+import com.aimir.fep.util.DataUtil;
+import com.aimir.fep.util.Hex;
+import com.aimir.util.DateTimeUtil;
+import com.aimir.util.TimeUtil;
+
+/**
+ * @author innnbang
+ *
+ */
+
+public class EMnVCompensator extends MeterDataParser implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
+	private static Logger log = LoggerFactory.getLogger(ModbusEMnVDefault.class);
+	private EMnVMeteringDataType meteringDataType; // Billing or Load Profile
+	private LPData[] lpData = null;
+	private EMnVCompensatorVendorType vendorType;
+	private EMnVCompensatorVendorModelType modelType;
+	private int portNumber = -1;  // defalut = -1;
+	private String stationId;
+	private int toatalLPCount;
+
+	Map<String, Object> dataMap;
+	LinkedHashMap<DEFAULT_COMPENSATOR_CODE, Map<String, Object>> result = new LinkedHashMap<DEFAULT_COMPENSATOR_CODE, Map<String, Object>>();
+
+	@Override
+	public void parse(byte[] data) throws Exception {
+		log.info("    ");
+		log.info("    ");
+		log.info("    ");
+		log.info("################ Default Compensator 로그확인 시작 #########################");
+		log.info("EMnVCompensator parse:[{}] [{}]", meteringDataType != null ? meteringDataType.name() : "", Hex.decode(data));
+
+		int pos = 0;
+		toatalLPCount = ( data.length - EMnVConstants.COMPENSATOR_PORT_NUM_LEN - EMnVConstants.COMPENSATOR_VENDOR_TYPE_LEN 
+				    -EMnVConstants.COMPENSATOR_MODEL_LEN - EMnVConstants.COMPENSATOR_STATION_BYTE_LEN) 
+				    /(EMnVConstants.COMPENSATOR_DATA_TIME_LEN + EMnVConstants.COMPENSATOR_UNCORRECTED_ACCUMULATION_LEN
+					+ EMnVConstants.COMPENSATOR_CORRECTED_ACCUMULATION_LEN + EMnVConstants.COMPENSATOR_PRESSURE_LEN
+					+ EMnVConstants.COMPENSATOR_TEMPERATURE_LEN + EMnVConstants.COMPENSATOR_CORRECTION_FACTOR_LEN );
+
+		// Port Number
+		byte[] portNumber_byte = new byte[EMnVConstants.COMPENSATOR_PORT_NUM_LEN];
+		System.arraycopy(data, pos, portNumber_byte, 0, portNumber_byte.length);
+		portNumber = Integer.parseInt(Hex.getHexDump(portNumber_byte).trim());
+		pos += EMnVConstants.COMPENSATOR_PORT_NUM_LEN;
+		log.info("[PROTOCOL][COMPENSATOR] PORT_NUM(1byte):[{}] ==> HEX=[{}]", portNumber, Hex.decode(portNumber_byte));
+
+		// Vendor Type
+		byte[] vendorType_byte = new byte[EMnVConstants.COMPENSATOR_VENDOR_TYPE_LEN];
+		System.arraycopy(data, pos, vendorType_byte, 0, vendorType_byte.length);
+		vendorType = EMnVCompensatorVendorType.getItem(vendorType_byte[0]);
+		pos += EMnVConstants.COMPENSATOR_VENDOR_TYPE_LEN;
+		log.info("[PROTOCOL][COMPENSATOR] VENDOER_TYPE(1byte):[{}] ==> HEX=[{}]", vendorType.getDesc(), Hex.decode(vendorType_byte));
+
+		// Model
+		byte[] model_byte = new byte[EMnVConstants.COMPENSATOR_MODEL_LEN];
+		System.arraycopy(data, pos, model_byte, 0, model_byte.length);
+
+		// 벤더와 모델이 추가되면 수정
+		switch (vendorType) {
+		case GMC:
+			modelType = EMnVCompensatorVendorModelType.DEFAULT;
+			break;
+		default:
+			break;
+		}
+
+		pos += EMnVConstants.COMPENSATOR_MODEL_LEN;
+		log.info("[PROTOCOL][COMPENSATOR] MODEL(2byte):[{}] ==> HEX=[{}]", modelType.getDesc(), Hex.decode(model_byte));
+
+		// Station id
+		byte[] station_byte = new byte[EMnVConstants.COMPENSATOR_STATION_BYTE_LEN];
+		System.arraycopy(data, pos, station_byte, 0, station_byte.length);
+		stationId = Hex.getHexDump(station_byte).trim();
+		pos += EMnVConstants.COMPENSATOR_STATION_BYTE_LEN;
+		log.info("[PROTOCOL][COMPENSATOR] STATION_BYTE(1byte):[{}] ==> HEX=[{}]", stationId, Hex.decode(station_byte));
+
+		EMnVDefaultCompensatorTable mTable = new EMnVDefaultCompensatorTable();
+		dataMap = mTable.setData(pos, data, toatalLPCount); 
+
+		log.debug("### COMPENSATOR_DEFAULT_CODE TOTAL ==> {}", dataMap.toString());
+
+		setCompensatorInfo();
+	}
+
+	private Map<String, Object> setMCodeResult(DEFAULT_COMPENSATOR_CODE mCode) throws EMnVSystemException {
+		Map<String, Object> mMap = new HashMap<String, Object>();
+
+		switch (mCode) {
+		case UNCORRECTED_ACCUMULATION:
+			switch (vendorType) {
+			case GMC:
+				mMap.put("UNIT_CONST", DEFAULT_COMPENSATOR_CODE.UNCORRECTED_ACCUMULATION.getUnitConst());
+				mMap.put("UNIT", DEFAULT_COMPENSATOR_CODE.UNCORRECTED_ACCUMULATION.getUnit());
+				break;
+			default:
+				break;
+			}
+		break;
+		case CORRECTED_ACCUMULATION:
+			switch (vendorType) {
+			case GMC:
+				mMap.put("UNIT_CONST", DEFAULT_COMPENSATOR_CODE.CORRECTED_ACCUMULATION.getUnitConst());
+				mMap.put("UNIT", DEFAULT_COMPENSATOR_CODE.CORRECTED_ACCUMULATION.getUnit());
+				break;
+			default:
+				break;
+			}
+		break;
+		
+		case PRESSURE:
+			switch (vendorType) {
+			case GMC:
+				mMap.put("UNIT_CONST", DEFAULT_COMPENSATOR_CODE.PRESSURE.getUnitConst());
+				mMap.put("UNIT", DEFAULT_COMPENSATOR_CODE.PRESSURE.getUnit());
+				break;
+			default:
+				break;
+			}
+		break;
+		
+		case TEMPERATURE:
+			switch (vendorType) {
+			case GMC:
+				mMap.put("UNIT_CONST", DEFAULT_COMPENSATOR_CODE.TEMPERATURE.getUnitConst());
+				mMap.put("UNIT", DEFAULT_COMPENSATOR_CODE.TEMPERATURE.getUnit());
+				break;
+			default:
+				break;
+			}
+		break;
+		
+		case CORRECTION_FACTOR:
+			switch (vendorType) {
+			case GMC:
+				mMap.put("UNIT_CONST", DEFAULT_COMPENSATOR_CODE.CORRECTION_FACTOR.getUnitConst());
+				mMap.put("UNIT", DEFAULT_COMPENSATOR_CODE.CORRECTION_FACTOR.getUnit());
+				break;
+			default:
+				break;
+			}
+		break;
+		
+		case DATE:
+			mMap.put("UNIT_CONST", null);
+			mMap.put("UNIT", null);
+			break;
+		default:
+			break;
+		}
+
+		log.debug("Compensator Unit Setting. VendorType = " + vendorType + ", UnitType = " + mCode + ", UnitConst = " + mMap.get("UNIT_CONST") + ", Unit = " + mMap.get("UNIT"));
+		return mMap;
+	}
+
+	public void setCompensatorInfo() {
+		try {
+			// 온압보정기 아이디 생성
+			String meterId = getCreateCompensatorId();
+			meter.setMdsId(meterId);
+			meter.setModemPort(portNumber);
+
+			// 현재 시간을 미터시간으로 설정함.
+			meterTime = TimeUtil.getCurrentTime().substring(0, 12);
+		} catch (Exception e) {
+			log.error("ERROR - ", e);
+		}
+	}
+
+	/**
+	 * 온압보정기 아이디 생성 ~!! 모뎀아이디 + "-" + 제조사코드 + Station Address
+	 * 
+	 * @return
+	 */
+	public String getCreateCompensatorId() {
+		String modemId = meter.getModem().getDeviceSerial();
+		String venderId = String.format("%02d", vendorType.getValue());
+		String compensatorId = modemId + "-" + venderId + stationId;
+
+		log.info("MDSID = {}, modem id = {}, vendor id = {}, station id = {}", new Object[] { compensatorId, modemId, venderId, stationId });
+
+		return compensatorId;
+	}
+
+	/**
+	 * System.out.println() 으로 HEX 출력.
+	 * 
+	 * @param data
+	 * @param tPos
+	 * @param showLength
+	 */
+	public void printHexByteString(byte[] data, int tPos, int showLength) {
+		int loggingLenth = (data.length - tPos) < showLength ? data.length - tPos : showLength;
+
+		byte[] logging = new byte[showLength];
+		System.arraycopy(data, tPos, logging, 0, loggingLenth);
+		log.info("### SHOW HEX POS[" + tPos + "] 부터 " + loggingLenth + "byte ==> " + Hex.getHexDump(logging));
+	}
+
+	public void postParse() {
+		setLPData();
+	}
+
+	public LPData[] getLPData() {
+		return lpData;
+	}
+
+	public void setLPData() {
+		try {
+			Map<String, LPData> lpDataMap = new HashMap<String, LPData>();
+			Map<String, Object> mCodeMap = null;
+			double uncorrectedAccumulation = 0.0;
+			double correctedAccumulation = 0.0;
+			double pressure = 0.0;
+			double temperature = 0.0;
+			double correctionFactor = 0.0;
+			
+			// 일단 출력 주파수를 lp로 지정한다. 차후 아닐경우 수정할것.
+			Double lp = 0.0;
+			Double lpValue = 0.0;
+			LPData lpEl = null;
+
+			EMnVCompensatorCommonTable commonTable = new EMnVCompensatorCommonTable();
+
+			for (int i = 0; i < toatalLPCount; i++) {
+				/*
+				 *  비보정적산
+				 */
+				mCodeMap = setMCodeResult(DEFAULT_COMPENSATOR_CODE.UNCORRECTED_ACCUMULATION); //수정필요
+				if (mCodeMap != null) {
+					uncorrectedAccumulation = (double) (Integer) dataMap.get(DEFAULT_COMPENSATOR_CODE.UNCORRECTED_ACCUMULATION.name() + "-" + i);
+					if (mCodeMap.get("UNIT_CONST") != null) {
+						log.debug("UNCORRECTED_ACCUMULATION_RAWVALUE = " + uncorrectedAccumulation + ""
+								+ ", UNIT_CONST=" + Double.parseDouble((String) mCodeMap.get("UNIT_CONST")) 
+								+ ", Value = " + uncorrectedAccumulation * Double.parseDouble((String) mCodeMap.get("UNIT_CONST")));
+						uncorrectedAccumulation = uncorrectedAccumulation * Double.parseDouble((String) mCodeMap.get("UNIT_CONST"));
+						lpValue = uncorrectedAccumulation;
+					}
+				}
+				/*
+				 *  보정적산
+				 */
+				mCodeMap = setMCodeResult(DEFAULT_COMPENSATOR_CODE.CORRECTED_ACCUMULATION);
+				if (mCodeMap != null) {
+					correctedAccumulation = (double) (Integer) dataMap.get(DEFAULT_COMPENSATOR_CODE.CORRECTED_ACCUMULATION.name() + "-" + i);
+					lp = correctedAccumulation;
+					if (mCodeMap.get("UNIT_CONST") != null) {
+						log.debug("CORRECTED_ACCUMULATION_RAWVALUE = " + correctedAccumulation + ""
+								+ ", UNIT_CONST=" + Double.parseDouble((String) mCodeMap.get("UNIT_CONST")) 
+								+ ", Value = " + correctedAccumulation * Double.parseDouble((String) mCodeMap.get("UNIT_CONST")));
+						correctedAccumulation = correctedAccumulation * Double.parseDouble((String) mCodeMap.get("UNIT_CONST"));
+						lpValue = correctedAccumulation;
+					}
+				}
+				/*
+				 *  압력
+				 */
+				mCodeMap = setMCodeResult(DEFAULT_COMPENSATOR_CODE.PRESSURE);
+				if (mCodeMap != null) {
+					pressure = (double) (Integer) dataMap.get(DEFAULT_COMPENSATOR_CODE.PRESSURE.name() + "-" + i);
+					if (mCodeMap.get("UNIT_CONST") != null) {
+						log.debug("PRESSURE_RAWVALUE = " + pressure + ""
+								+ ", UNIT_CONST=" + Double.parseDouble((String) mCodeMap.get("UNIT_CONST")) 
+								+ ", Value = " + pressure * Double.parseDouble((String) mCodeMap.get("UNIT_CONST")));
+						pressure = pressure * Double.parseDouble((String) mCodeMap.get("UNIT_CONST"));
+					}
+				}
+				/*
+				 *  온도
+				 */
+				mCodeMap = setMCodeResult(DEFAULT_COMPENSATOR_CODE.TEMPERATURE);
+				if (mCodeMap != null) {
+					temperature = (double) (Integer) dataMap.get(DEFAULT_COMPENSATOR_CODE.TEMPERATURE.name() + "-" + i);
+					if (mCodeMap.get("UNIT_CONST") != null) {
+						log.debug("TEMPERATURE_RAWVALUE = " + temperature + ""
+								+ ", UNIT_CONST=" + Double.parseDouble((String) mCodeMap.get("UNIT_CONST")) 
+								+ ", Value = " + temperature * Double.parseDouble((String) mCodeMap.get("UNIT_CONST")));
+						temperature = temperature * Double.parseDouble((String) mCodeMap.get("UNIT_CONST"));
+					}
+				}
+				/*
+				 *  보정계수
+				 */
+				mCodeMap = setMCodeResult(DEFAULT_COMPENSATOR_CODE.CORRECTION_FACTOR);
+				if (mCodeMap != null) {
+					correctionFactor = (double) (Integer) dataMap.get(DEFAULT_COMPENSATOR_CODE.CORRECTION_FACTOR.name() + "-" + i);
+					if (mCodeMap.get("UNIT_CONST") != null) {
+						log.debug("CORRECTION_FACTOR_RAWVALUE = " + correctionFactor + ""
+								+ ", UNIT_CONST=" + Double.parseDouble((String) mCodeMap.get("UNIT_CONST")) 
+								+ ", Value = " + correctionFactor * Double.parseDouble((String) mCodeMap.get("UNIT_CONST")));
+						correctionFactor = correctionFactor * Double.parseDouble((String) mCodeMap.get("UNIT_CONST"));
+					}
+				}
+				// Data Time
+				String dataTime = (String) dataMap.get(DEFAULT_COMPENSATOR_CODE.DATE.name() + "-" + i);
+
+				lpEl = new LPData(commonTable.resetLpTime(DateTimeUtil.getCalendar(dataTime)), lp, lpValue);
+				lpEl.setCh(new Double[] { uncorrectedAccumulation, correctedAccumulation, pressure, temperature, correctionFactor});
+
+				lpDataMap.put(lpEl.getDatetime(), lpEl);
+			}
+
+			lpData = lpDataMap.values().toArray(new LPData[0]);
+			Arrays.sort(lpData, LPComparator.TIMESTAMP_ORDER);
+
+			log.info("######################## LpData.length:" + lpData.length);
+		} catch (Exception e) {
+			log.error("ERROR-", e);
+		}
+	}
+
+	@Override
+	public byte[] getRawData() {
+		return null;
+	}
+
+	@Override
+	public int getLength() {
+		return 0;
+	}
+
+	@Override
+	public Double getMeteringValue() {
+		return null;
+	}
+
+	@Override
+	public String toString() {
+		return null;
+	}
+
+	@Override
+	public LinkedHashMap<?, ?> getData() {
+		return null;
+	}
+
+	@Override
+	public int getFlag() {
+		return 0;
+	}
+
+	@Override
+	public void setFlag(int flag) {
+		meteringDataType = EMnVMeteringDataType.getItem(DataUtil.getByteToInt(flag));
+	}
+
+	public String getMeterID() {
+		return this.meter.getMdsId();
+	}
+
+}

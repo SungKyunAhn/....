@@ -1,0 +1,42 @@
+cmdGetModelList,100.1.1,get Model List
+cmdGetFunctionList,100.2.1,get OID function list
+cmdMcuReset,101.1.1,reset system
+cmdMcuShutdown,101.1.2,shutdown system
+cmdAddUserAccount,102.1.1,Add user account
+cmdGetProperty,109.1.1,Get Property
+cmdSetProperty,109.1.2,Set Property
+cmdDeleteProperty,109.1.3,Delete Property
+cmdGetSchedule,109.2.1,Get Schedule
+cmdSetSchedule,109.2.2,Set Schedule
+cmdDeleteSchedule,109.2.3,Delete Schedule
+cmdExecuteSchedule,109.2.4,Delete Schedule
+cmdGetMeteringData,109.11.1,Get Metering Data
+cmdDeleteMeteringData,109.11.2,Delete Metering Data
+cmdGetMeteringDataStatus,109.11.3,Get Metering Data Status
+cmdUploadMeteringData,109.11.4,Upload Metering Data
+cmdCancelUpload,109.11.5,Cancel Upload
+cmdMeteringByModem,110.1.1,metering by modem
+cmdOnDemandByMeter,110.2.1,metering by meter
+cmdCreateTunnel,110.4.1,Create Bypass Tunnel
+cmdDeleteTunnel,110.4.2,Delete Bypass Tunnel
+cmdGetMeterList,111.1.1,Search all meter list
+cmdDeleteMeter,111.1.3,Delete Meter all
+cmdGetMasterModemList,121.1.1,Get Master Modem List
+cmdResetMasterModem,121.1.2,Reset Master Modem
+cmdGetActiveG3NodeList,121.2.1,Get Active G3 Node List
+cmdGetManagedG3ModemList,121.2.2,Get Managed G3 Modem List
+cmdDeleteManagedG3Modem,121.2.3,Delete Managed G3 Modem
+cmdReqNiScan,123.1.1,Req Ni Scan
+cmdReqNiSet,123.1.2,Req Ni Set
+cmdDmdNiGet,123.1.3,Dmd Ni Get
+cmdDmdNiSet,123.1.4,Dmd Ni Set
+cmdReqG3PathDiscovery,123.2.1,Req Ge Path Discovery 
+cmdGetUpgradRequestList,181.1.1,Get Node Upgrade Request List
+cmdSetUpgradeRequest,181.1.2,Set Upgrade Request
+cmdCancelUpgradeRequest,181.1.3,Cancel Upgrade request
+cmdReqNodeUpgrade,181.2.1,Upgrade Request Setting
+cmdCtrlUpgradeRequest,181.2.2,Set Status On Request ID
+cmdStdGet,199.1.1,OID get
+cmdStdSet,199.1.2,OID set
+cmdStdGetChild,199.1.3,Get Child OID
+cmdAssembleTestStart,200.1.1,Assemble Test Operation

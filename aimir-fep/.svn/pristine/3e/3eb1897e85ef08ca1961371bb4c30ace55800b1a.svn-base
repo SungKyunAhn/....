@@ -1,0 +1,495 @@
+package com.aimir.fep.tool;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.hibernate.criterion.Projection;
+import org.hibernate.criterion.Projections;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+
+import com.aimir.dao.device.MCUDao;
+import com.aimir.dao.device.ModemDao;
+import com.aimir.fep.command.mbean.CommandGW;
+import com.aimir.fep.util.DataUtil;
+import com.aimir.fep.util.MD5Sum;
+import com.aimir.util.Condition;
+import com.aimir.util.Condition.Restriction;
+
+public class DeviceFirmwareDistribution {
+    public static void main(String[] args) {
+        String binaryPath = args[0];
+        String binaryUrl = "http://" + args[1] + ":8085/ota/";
+        
+        ApplicationContext ctx = new ClassPathXmlApplicationContext(new String[]{"/config/spring.xml"}); 
+        DataUtil.setApplicationContext(ctx);
+        
+        BufferedReader in = null;
+        String type = null;
+        do {
+            System.out.println("Device Type");
+            System.out.println("   0 : Conentrator");
+            System.out.println("   1 : Modem");
+            System.out.println("   2 : Coordinator");
+            System.out.println("   3 : Meter");
+        
+            try {
+                System.out.print("select number => ");
+                in = new BufferedReader(new InputStreamReader(System.in));
+                type = in.readLine();
+                System.out.println("Type[" + type + "]");
+            }
+            catch (IOException e) {}
+        }
+        while (!"".equals(type) && type != null && !(type.equals("0") || 
+                type.equals("1") || type.equals("2") || type.equals("3")));
+        
+        String model = "";
+        if (type.equals("1")) {
+            do {
+                System.out.println("Model");
+                System.out.println("   0 : GE");
+                System.out.println("   1 : Kamstrup");
+                System.out.println("   2 : Aidon");
+                
+                try {
+                    System.out.print("select number => ");
+                    in = new BufferedReader(new InputStreamReader(System.in));
+                    model = in.readLine();
+                    System.out.println("Model[" + model + "]");
+                }
+                catch (IOException e) {}
+            }
+            while (!"".equals(model) && model != null && 
+                    !(model.equalsIgnoreCase("0") || model.equalsIgnoreCase("1") || 
+                            model.equalsIgnoreCase("2")));
+            
+            if (model.equals("0")) model = "GE";
+            else if (model.equals("1")) model = "KAMSTRUP";
+            else if (model.equals("2")) model = "AIDON";
+        }
+        
+        String oldHwVer = "1.0";
+        String oldSwVer = "1.0";
+        String oldSwRevision = "";
+        
+        if (type.equals("0")) {
+            System.out.println("wait for minutes to get version of mcu");
+            MCUDao mcuDao = DataUtil.getBean(MCUDao.class);
+            JpaTransactionManager txmanager = DataUtil.getBean(JpaTransactionManager.class);
+            TransactionStatus txstatus = null;
+            
+            try {
+                txmanager.setDefaultTimeout(-1);
+                txstatus = txmanager.getTransaction(null);
+                List<Projection> projections = new ArrayList<Projection>();
+                projections.add(Projections.groupProperty("sysHwVersion").as("hwVersion"));
+                projections.add(Projections.groupProperty("sysSwVersion").as("swVersion"));
+                projections.add(Projections.groupProperty("sysSwRevision").as("swRevision"));
+                
+                List<Map<String, Object>> vers = mcuDao.findByConditionsAndProjections(null, projections);
+                txmanager.commit(txstatus);
+                
+                int num = 0;
+                
+                do {
+                    try {
+                        for (int i = 0; i < vers.size(); i++) {
+                            System.out.println(i + ":hwVer[" + vers.get(i).get("hwVersion") + 
+                                    "] swVer[" + vers.get(i).get("swVersion") + 
+                                    "] build[" + vers.get(i).get("swRevision") + "]");
+                        }
+                        System.out.print("select number => ");
+                        in = new BufferedReader(new InputStreamReader(System.in));
+                        num = Integer.parseInt(in.readLine());
+                        
+                        if (num < vers.size()) {
+                            oldHwVer = (String)vers.get(num).get("hwVersion");
+                            oldSwVer = (String)vers.get(num).get("swVersion");
+                            oldSwRevision = (String)vers.get(num).get("swRevision");
+                            
+                            System.out.print("HwVer[" + oldHwVer + "] SwVer[" + oldSwVer + "] Build[" + oldSwRevision + "] right? (y/N) ");
+                            in = new BufferedReader(new InputStreamReader(System.in));
+                            String right = in.readLine();
+                            
+                            if (right.equalsIgnoreCase("y"))
+                                break;
+                        }
+                    }
+                    catch (NumberFormatException e) {}
+                }
+                while (true);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                if (txstatus != null) txmanager.rollback(txstatus);
+            }
+        }
+        else if (type.equals("1")) {
+            System.out.println("wait for minutes to get version of modem");
+            ModemDao modemDao = DataUtil.getBean(ModemDao.class);
+            JpaTransactionManager txmanager = DataUtil.getBean(JpaTransactionManager.class);
+            TransactionStatus txstatus = null;
+            
+            try {
+                txmanager.setDefaultTimeout(-1);
+                txstatus = txmanager.getTransaction(null);
+                List<Projection> projections = new ArrayList<Projection>();
+                projections.add(Projections.groupProperty("hwVer").as("hwVersion"));
+                projections.add(Projections.groupProperty("fwVer").as("swVersion"));
+                projections.add(Projections.groupProperty("fwRevision").as("swRevision"));
+                
+                List<Map<String, Object>> vers = modemDao.findByConditionsAndProjections(null, projections);
+                txmanager.commit(txstatus);
+                
+                int num = 0;
+                
+                do {
+                    try {
+                        for (int i = 0; i < vers.size(); i++) {
+                            System.out.println(i + ":hwVer[" + vers.get(i).get("hwVersion") + 
+                                    "] swVer[" + vers.get(i).get("swVersion") + 
+                                    "] build[" + vers.get(i).get("swRevision") + "]");
+                        }
+                        System.out.print("select number => ");
+                        in = new BufferedReader(new InputStreamReader(System.in));
+                        num = Integer.parseInt(in.readLine());
+                        
+                        if (num < vers.size()) {
+                            oldHwVer = (String)vers.get(num).get("hwVersion");
+                            oldSwVer = (String)vers.get(num).get("swVersion");
+                            oldSwRevision = (String)vers.get(num).get("swRevision");
+                            
+                            System.out.print("HwVer[" + oldHwVer + "] SwVer[" + oldSwVer + "] Build[" + oldSwRevision + "] right? (y/N) ");
+                            in = new BufferedReader(new InputStreamReader(System.in));
+                            String right = in.readLine();
+                            
+                            if (right.equalsIgnoreCase("y"))
+                                break;
+                        }
+                    }
+                    catch (NumberFormatException e) {}
+                }
+                while (true);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                if (txstatus != null) txmanager.rollback(txstatus);
+            }
+        }
+        
+        String newHwVer = "1.0";
+        String newSwVer = "1.0";
+        String newSwRevision = "";
+        
+        do {
+            try {
+                System.out.print("input new HwVer => ");
+                in = new BufferedReader(new InputStreamReader(System.in));
+                newHwVer = in.readLine();
+                Double.parseDouble(newHwVer);
+                
+                System.out.print("NewHwVer[" + newHwVer + "] right? (y/N) ");
+                in = new BufferedReader(new InputStreamReader(System.in));
+                String right = in.readLine();
+                
+                if (right.equalsIgnoreCase("y"))
+                    break;
+            }
+            catch (Exception e) {}
+        }
+        while (true);
+        
+        do {
+            try {
+                System.out.print("input new SwVer => ");
+                in = new BufferedReader(new InputStreamReader(System.in));
+                newSwVer = in.readLine();
+                Double.parseDouble(newSwVer);
+                
+                System.out.print("NewSwVer[" + newSwVer + "] right? (y/N) ");
+                in = new BufferedReader(new InputStreamReader(System.in));
+                String right = in.readLine();
+                
+                if (right.equalsIgnoreCase("y"))
+                    break;
+            }
+            catch (Exception e) {}
+        }
+        while (true);
+        
+        do {
+            try {
+                System.out.print("input new Build => ");
+                in = new BufferedReader(new InputStreamReader(System.in));
+                newSwRevision = in.readLine();
+                Integer.parseInt(newSwRevision);
+                
+                System.out.print("NewBuild[" + newSwRevision + "] right? (y/N) ");
+                in = new BufferedReader(new InputStreamReader(System.in));
+                String right = in.readLine();
+                
+                if (right.equalsIgnoreCase("y"))
+                    break;
+            }
+            catch (Exception e) {}
+        }
+        while (true);
+        
+        String binaryFile = null;
+        String binaryMD5 = null;
+        do {
+            try {
+                System.out.print("input binary file => ");
+                in = new BufferedReader(new InputStreamReader(System.in));
+                binaryFile = in.readLine();
+                File file = new File(binaryPath + File.separator + binaryFile);
+                
+                if (!file.exists()) {
+                    System.out.println("file doesn't exist");
+                    continue;
+                }
+                
+                if (!file.getPath().equals(binaryPath)) {
+                    file.renameTo(new File(binaryPath + File.separator + binaryFile));
+                    binaryFile = file.getName();
+                }
+                
+                System.out.println("wait to check file for some minutes");
+                binaryMD5 = MD5Sum.getFileMD5Sum(file);
+                
+                break;
+            }
+            catch (Exception e) {}
+        }
+        while (true);
+        
+        try {
+            if (type.equals("0")) System.out.println("MCU");
+            else if (type.equals("1")) {
+                System.out.println("Modem Model[" + model + "]");
+            }
+            else if (type.equals("2")) System.out.println("Coordinator");
+            else if (type.equals("3")) System.out.println("Meter");
+            
+            System.out.println("Old HwVer[" + oldHwVer + "] SwVer[" + oldSwVer + "] Build[" + oldSwRevision + "]");
+            System.out.println("New HwVer[" + newHwVer + "] SwVer[" + newSwVer + "] Build[" + newSwRevision + "]");
+            System.out.println("BinaryFile[" + binaryFile + "]");
+            System.out.print("are you ready? (y/N) ");
+            in = new BufferedReader(new InputStreamReader(System.in));
+            String right = in.readLine();
+            
+            if (right.equalsIgnoreCase("y")) {
+                binaryUrl = binaryUrl + binaryFile;
+                // old hw, sw, build 정보를 이용하여 type에 해당하는 집중기 정보를 가져온다.
+                // 쓰레드로 실행한다.
+                JpaTransactionManager txmanager = DataUtil.getBean(JpaTransactionManager.class);
+                TransactionStatus txstatus = null;
+                List<String> mcuIds = new ArrayList<String>();
+                try {
+                    txmanager.setDefaultTimeout(-1);
+                    txstatus = txmanager.getTransaction(null);
+                    Set<Condition> conditions = new HashSet<Condition>();
+                    List<Projection> projections = new ArrayList<Projection>();
+                    if (type.equals("0")) {
+                        MCUDao mcuDao = DataUtil.getBean(MCUDao.class);
+                        
+                        conditions.add(new Condition("sysHwVersion", new Object[]{oldHwVer}, null, Restriction.EQ));
+                        conditions.add(new Condition("sysSwVersion", new Object[]{oldSwVer}, null, Restriction.EQ));
+                        conditions.add(new Condition("sysSwRevision", new Object[]{oldSwRevision}, null, Restriction.EQ));
+                        projections.add(Projections.property("sysID").as("mcuId"));
+                        
+                        List<Map<String, Object>> mcus = mcuDao.findByConditionsAndProjections(conditions, projections);
+                        txmanager.commit(txstatus);
+                        
+                        for (Map<String, Object> m : mcus) {
+                            if (!mcuIds.contains((String)m.get("mcuId")))
+                                mcuIds.add((String)m.get("mcuId"));
+                        }
+                    }
+                    else if (type.equals("1")) {
+                        ModemDao modemDao = DataUtil.getBean(ModemDao.class);
+                        
+                        conditions.add(new Condition("mcu", new Object[]{"m"}, null, Restriction.ALIAS));
+                        conditions.add(new Condition("hwVer", new Object[]{oldHwVer}, null, Restriction.EQ));
+                        conditions.add(new Condition("fwVer", new Object[]{oldSwVer}, null, Restriction.EQ));
+                        conditions.add(new Condition("fwRevision", new Object[]{oldSwRevision}, null, Restriction.EQ));
+                        projections.add(Projections.property("m.sysID").as("mcuId"));
+                        
+                        List<Map<String, Object>> mcus = modemDao.findByConditionsAndProjections(conditions, projections);
+                        txmanager.commit(txstatus);
+                        
+                        for (Map<String, Object> m : mcus) {
+                            if (!mcuIds.contains((String)m.get("mcuId")))
+                                mcuIds.add((String)m.get("mcuId"));
+                        }
+                    }
+                    
+                    System.out.println("mcu size[" + mcuIds.size() + "]");
+                    Thread.sleep(1000);
+                    if(mcuIds != null && mcuIds.size() > 0) {
+                        ThreadPoolExecutor executor = new ThreadPoolExecutor(10, 10, 1, TimeUnit.HOURS, new LinkedBlockingQueue());
+                        
+                        String triggerId = null;
+                        for (String mcuId : mcuIds) {
+                            Thread.sleep(100);
+                            triggerId = System.currentTimeMillis() + "";
+                            executor.execute(new OTAThread1(mcuId, triggerId, type, model, oldHwVer, oldSwVer, oldSwRevision,
+                                    newHwVer, newSwVer, newSwRevision, binaryUrl, binaryMD5));
+                        }
+                        try {
+                            executor.shutdown();
+                            while (!executor.isTerminated()) {
+                            }
+                        }
+                        catch (Exception e) {}
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        System.exit(0);
+    }
+}
+
+class OTAThread1 implements Runnable {
+    private String mcuId;
+    private String triggerId;
+    private String type;
+    private String model;
+    private String oldHwVer;
+    private String oldSwVer;
+    private String oldRevision;
+    private String newHwVer;
+    private String newSwVer;
+    private String newRevision;
+    private String binaryUrl;
+    private String binaryMD5;
+    
+    public OTAThread1(String mcuId, String triggerId, String type, String model,
+            String oldHwVer, String oldSwVer, String oldRevision,
+            String newHwVer, String newSwVer, String newRevision,
+            String binaryUrl, String binaryMD5) {
+        this.mcuId = mcuId;
+        this.triggerId = triggerId;
+        this.type = type;
+        this.model = model;
+        this.oldHwVer = oldHwVer;
+        this.oldSwVer = oldSwVer;
+        this.oldRevision = oldRevision;
+        this.newHwVer = newHwVer;
+        this.newSwVer = newSwVer;
+        this.newRevision = newRevision;
+        this.binaryUrl = binaryUrl;
+        this.binaryMD5 = binaryMD5;
+    }
+
+    @Override
+    public void run() {
+        CommandGW gw = DataUtil.getBean(CommandGW.class);
+        List<String> equipIdList = new ArrayList<String>();
+        if (type.equals("1")) {
+            ModemDao modemDao = DataUtil.getBean(ModemDao.class);
+            JpaTransactionManager txmanager = DataUtil.getBean(JpaTransactionManager.class);
+            TransactionStatus txstatus = null;
+            try {
+                txmanager.setDefaultTimeout(-1);
+                txstatus = txmanager.getTransaction(null);
+                Set<Condition> conditions = new HashSet<Condition>();
+                conditions.add(new Condition("mcu", new Object[]{"m"}, null, Restriction.ALIAS));
+                conditions.add(new Condition("m.sysID", new Object[]{mcuId}, null, Restriction.EQ));
+                List<Projection> projections = new ArrayList<Projection>();
+                projections.add(Projections.property("deviceSerial").as("modemId"));
+                List<Map<String, Object>> modems = modemDao.findByConditionsAndProjections(conditions, projections);
+                txmanager.commit(txstatus);
+                
+                for (Map<String, Object> m : modems) {
+                    equipIdList.add((String)m.get("modemId"));
+                }
+            }
+            catch (Exception e) {
+                if (txstatus != null) txmanager.rollback(txstatus);
+            }
+        }
+        
+        try {
+            gw.cmdDistribution(mcuId, triggerId, Integer.parseInt(type), model, 0, 1, 1, 10, 1, 0, 
+                    getIntVersion(oldHwVer), 
+                    getIntVersion(oldSwVer),
+                    getIntBuild(oldRevision),
+                    getIntVersion(newHwVer),
+                    getIntVersion(newSwVer),
+                    getIntBuild(newRevision),
+                    binaryUrl, binaryMD5, "", "", equipIdList);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public int getIntVersion(String strVer) throws Exception
+    {
+        int intVer = 0;
+        Pattern pattern = Pattern.compile("[0-9\\.]+");
+        Matcher matcher = pattern.matcher(strVer);
+        String ver[] = new String[] {};
+        if (matcher.matches())
+        {
+            if (strVer.contains("."))
+            {
+                ver = strVer.split("\\.");
+            }
+            else
+            {
+                ver = new String[] { strVer, "0" };
+            }
+            intVer = ((Integer.parseInt(ver[0]) & 0xff) << 8)+ (Integer.parseInt(ver[1]) & 0xff);
+        }
+        else
+        {
+            throw new Exception("Parameter Is Not CorrectFormat Format");
+        }
+        return intVer;
+    }
+
+    public int getIntBuild(String strVer) throws Exception
+    {
+        
+        if(strVer.startsWith("B")|| strVer.startsWith("b")){
+            strVer = strVer.replaceAll("B", "");
+            strVer = strVer.replaceAll("b", "");
+        }
+        int intVer = 0;
+        Pattern pattern = Pattern.compile("[0-9]+");
+        Matcher matcher = pattern.matcher(strVer);
+        if (matcher.matches())
+        {
+            intVer = Integer.parseInt(strVer);
+        }
+        else
+        {
+            throw new Exception("Parameter Is Not Number Format");
+        }
+        return intVer;
+    }
+}

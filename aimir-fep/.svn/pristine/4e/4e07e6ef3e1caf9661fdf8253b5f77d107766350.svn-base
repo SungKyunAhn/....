@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    MCU and MCUVar Default Configuration Data (MCU, etc.)
+-->
+<DefaultConfiguration>
+    <configuration class="MCU">
+        <property name="sysName" type="string"></property>
+        <property name="sysType" type="int"></property>
+        <property name="sysPhoneNumber" type="string"></property>
+        <property name="sysUpTime" type="long"></property>
+        <property name="sysEtherType" type="int"></property>
+        <property name="sysMobileType" type="int"></property>
+        <property name="sysMobileMode" type="int"></property>
+    </configuration>
+    
+    <configuration class="MCUVar">
+        <property name="varMemoryCriticalRate" type="int"></property>
+        <property name="varFlashCriticalRate" type="int"></property>
+        <property name="varEnableAutoReset" type="boolean">false</property>
+        <property name="varAutoResetCheckInterval" type="int"></property>
+        <property name="varEnableCommLog" type="boolean">true</property>
+        <property name="varCommLogSaveDay" type="int"></property>
+        <property name="varEventLogSaveDay" type="int"></property>
+        <property name="varMeterLogSaveDay" type="int"></property>
+        <property name="varDataSaveDay" type="int"></property>
+        <property name="varSysTempMonInterval" type="int"></property>
+        <property name="varSysPowerOffDelay" type="int"></property>
+        <property name="varEnableMeterErrorRecovery" type="boolean">true</property>
+        <property name="varEnableMobileStaticLog" type="boolean">true</property>
+        <property name="varEnableAutoUpload" type="boolean">true</property>
+        <property name="varEnableAutoRegister" type="boolean"></property>
+        <!--
+        <property name="secondChannelId" type="string"></property>
+        <property name="secondPanId" type="string"></property>
+        -->
+        <property name="varEnableAutoTimeSync" type="boolean"></property>
+        <property name="varAutoTimeSyncInterval" type="int"></property>
+        <property name="varMeterDayMask" type="mask">all</property>
+        <property name="varMeterHourMask" type="mask">all</property>
+        <property name="varRecoveryDayMask" type="mask">all</property>
+        <property name="varRecoveryHourMask" type="mask">all</property>
+        <property name="varRecoveryStartMin" type="int">35</property>
+        <property name="varMeterStartMin" type="string"></property>
+        <property name="varMeterUploadCycleType" type="int">1</property>
+        <property name="varMeterUploadCycle" type="int"></property>
+        <property name="varMeterUploadStartHour" type="int"></property>
+        <property name="varMeterUploadStartMin" type="int"></property>
+    </configuration>
+</DefaultConfiguration>

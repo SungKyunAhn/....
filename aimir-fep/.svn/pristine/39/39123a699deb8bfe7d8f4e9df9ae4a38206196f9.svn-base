@@ -1,0 +1,276 @@
+smi,OID,3,1.0.0,SMI
+smiEntry,OID,3,1.1.0,SMI Variable
+unknownEntry,BYTE,0,1.2.0,unsigned char
+boolEntry,BOOL,1,1.3.0,unsigned char
+byteEntry,BYTE,1,1.4.0,unsigned char
+wordEntry,WORD,2,1.5.0,unsigned short
+uintEntry,UINT,4,1.6.0,unsigned int
+charEntry,CHAR,1,1.7.0,signed char
+shortEntry,SHORT,2,1.8.0,signed short
+intEntry,INT,4,1.9.0,signed int
+oidEntry,OID,3,1.10.0,Object ID (3 Bytes)
+oidDot1,BYTE,1,1.10.1,ID 1
+oidDot2,BYTE,1,1.10.2,ID 2
+oidDot3,BYTE,1,1.10.3,ID 3
+stringEntry,OCTET,0,1.11.0,String
+streamEntry,OCTET,0,1.12.0,Data Stream
+opaqueEntry,OPAQUE,0,1.13.0,Structure
+eui64Entry,HEX,8,1.14.0,SINK/SENSOR ID
+Ids,OCTET[1],8,1.14.1,8 Byte Binary Stream
+ipEntry,IPADDR,4,1.15.0,IP Address
+ipDot1,BYTE,1,1.15.1,IP 1
+ipDot2,BYTE,1,1.15.2,IP 2
+ipDot3,BYTE,1,1.15.3,IP 3
+ipDot4,BYTE,1,1.15.4,IP 4
+timeEntry,TIMESTAMP,7,1.16.0,yyyymmddhhMMss
+timeYear,WORD,2,1.16.1,year
+timeMon,BYTE,1,1.16.2,month
+timeDay,BYTE,1,1.16.3,day
+timeHour,BYTE,1,1.16.4,hour
+timeMin,BYTE,1,1.16.5,minute
+timeSec,BYTE,1,1.16.6,second
+dayEntry,TIMEDATE,4,1.17.0,yyyymmdd
+dayYear,WORD,2,1.17.1,year
+dayMon,BYTE,1,1.17.2,month
+dayDay,BYTE,1,1.17.3,day
+ip6Entry,IP6ADDR,16,1.18.0,IPv6 Address
+ipHex1,OCTET,2,1.18.1,IP Hexadecimal 1
+ipHex2,OCTET,2,1.18.2,IP Hexadecimal 2
+ipHex3,OCTET,2,1.18.3,IP Hexadecimal 3
+ipHex4,OCTET,2,1.18.4,IP Hexadecimal 4
+ipHex5,OCTET,2,1.18.5,IP Hexadecimal 5
+ipHex6,OCTET,2,1.18.6,IP Hexadecimal 6
+ipHex7,OCTET,2,1.18.7,IP Hexadecimal 7
+ipHex8,OCTET,2,1.18.8,IP Hexadecimal 8
+macEntry,MACADDR,6,1.19.0,MAC Address
+macOctet1,BYTE,1,1.19.1,MAC Octet 1
+macOctet2,BYTE,1,1.19.2,MAC Octet 2
+macOctet3,BYTE,1,1.19.3,MAC Octet 3
+macOctet4,BYTE,1,1.19.4,MAC Octet 4
+macOctet5,BYTE,1,1.19.5,MAC Octet 5
+macOctet6,BYTE,1,1.19.6,MAC Octet 6
+system,OID,0,2.0.0,Concentrator Registry values
+sysEntry,OPAQUE,0,2.1.0,Concentrator Registry values
+sysID,UINT,4,2.1.1,DCU ID
+sysType,UINT,4,2.1.2,DCU Type
+sysName,OCTET,64,2.1.3,DCU Name
+sysLocation,OCTET,64,2.1.4,DCU Location
+sysContact,OCTET,64,2.1.5,DCU manager
+sysModel,OCTET,32,2.1.6,DCU HW Model Name
+sysHwVersion,WORD,2,2.1.7,DCU HW Version
+sysHwBuild,BYTE,1,2.1.8,DCU HW Build Number
+sysSwVersion,WORD,2,2.1.9,DCU SW Version (upper Byte : Major lower Byte : Minor)
+sysSwBuild,UINT,4,2.1.10,DCU SW Build Number
+sysPort,UINT,4,2.1.11,DCU Listen port number
+sysSerialNumber,OCTET,8,2.1.12,DCU Serial Number (Unique Value)
+sysMAC,MACADDR,6,2.1.13,DCU Mac Address
+sysStatusEntry,OPAQUE,0,2.2.0,Concentrator Current Status
+sysUptime,UINT,4,2.2.1,time after Boot-up 
+sysTime,TIMESTAMP,7,2.2.2,DCU Current Time
+sysTimeZone,SHORT,2,2.2.3,DCU Timezone (+720 ~ -720)
+sysTemperature,INT,4,2.2.4,(T * pow(10 2))
+sysState,WORD,2,2.2.5, Normal 0 Error
+sysNetworkUptime,UINT,4,2.2.6,time(second) after Network up 
+sysServerEntry,OPAQUE,0,2.3.0,Server name
+svrName,OCTET,32,2.3.1,E76ASCII code : 0-9 a-z A-Z  ‘_’ (under bar)
+svrAddr,OCTET,256,2.3.2,Server Address
+svrDataPort,UINT,4,2.3.3,Server Data Port
+svrDataProtocol,WORD,2,2.3.4,Server Application Protocol – Data (table 5)
+svrAlarmPort,UINT,4,2.3.5,Server Alarm Port
+svrAlarmProtocol,WORD,2,2.3.6,Server Application Protocol – Alarm (table 5)
+svrBackupPort,UINT,4,2.3.7,Server Backup Port
+svrBackupProtocol,WORD,2,2.3.8,Server Application Protocol – Backup (table 5)
+svrAuthPort,UINT,4,2.3.9,Server Authentication Port
+svrAuthProtocol,WORD,2,2.3.10,Server Application Protocol – Authentication (table 5)
+sysRevisionEntry,OPAQUE,0,2.4.0,System revision
+revOs,OCTET,32,2.4.1,OS revision - uname -r- cat /proc/sys/kernel/osrelease
+revRom,OCTET,32,2.4.2,ROM image revision - cat /info/version | sed -e 's/.*ramdisk [v]*\(.*\)/\1/'
+revPkgName,OCTET,32,2.4.3,Application package name
+revPkgVersion,OCTET,16,2.4.4,Application package version
+revPkgBuild,UINT,4,2.4.5,Application package commit count
+revPkgCommit,OCTET,8,2.4.6,Application package abbrev-commit string
+sysNetworkEntry,OPAQUE,0,2.5.0,Network configuration
+ntwType,BYTE,1,2.5.1,Network type (0: static 1: DHCP 3: PPP)
+ntwApnName,OCTET,32,2.5.2,Mobile APN Name - 2.5.1 ntwType->3
+ntwState,WORD,2,2.5.3,Network status (table 6)
+ntwGateway,UINT,4,2.5.4,Network Gateway
+ntwEthIp,UINT,4,2.5.5,Ethernet IP address
+ntwEthSubnetMask,UINT,4,2.5.6,Ethernet subnet mask
+ntwEthPhy,MACADDR,6,2.5.7,Ethernet physical address
+ntwEthIpv6,IP6ADDR,16,2.5.8,Ethernet IPv6 address
+ntwPppIp,UINT,4,2.5.9,PPP IP address
+ntwPppSubnetMask,UINT,4,2.5.10,PPP subnet mask
+ntwPppIpv6,IP6ADDR,16,2.5.11,IPv6 Address
+sysNetStatEntry,OPAQUE,0,2.6.0,Network statistics
+nstName,OCTET,16,2.6.1,Interface name
+nstCollisions,UINT,4,2.6.2,nstCollisions
+nstMulticast,UINT,4,2.6.3,nstMulticast
+nstRxBytes,UINT,4,2.6.4,nstRxBytes
+nstRxCompressed,UINT,4,2.6.5,nstRxCompressed
+nstRxCrcErrors,UINT,4,2.6.6,nstRxCrcErrors
+nstRxDropped,UINT,4,2.6.7,nstRxDropped
+nstRxErrors,UINT,4,2.6.8,nstRxErrors
+nstRxFifoErrors,UINT,4,2.6.9,nstRxFifoErrors
+nstRxFrameErrors,UINT,4,2.6.10,nstRxFrameErrors
+nstRxLengthError,UINT,4,2.6.11,nstRxLengthError
+nstMissedErrors,UINT,4,2.6.12,nstMissedErrors
+nstRxOverErrors,UINT,4,2.6.13,nstRxOverErrors
+nstRxPackets,UINT,4,2.6.14,nstRxPackets
+nstTxAbortedErrors,UINT,4,2.6.15,nstTxAbortedErrors
+nstTxBytes,UINT,4,2.6.16,nstTxBytes
+nstTxCarrierErrors,UINT,4,2.6.17,nstTxCarrierErrors
+nstTxCompressed,UINT,4,2.6.18,nstTxCompressed
+nstTxDropped,UINT,4,2.6.19,nstTxDropped
+nstTxErrors,UINT,4,2.6.20,nstTxErrors
+nstTxFifoErrors,UINT,4,2.6.21,nstTxFifoErrors
+nstTxHeartbeatErrors,UINT,4,2.6.22,nstTxHeartbeatErrors
+nstTxPackets,UINT,4,2.6.23,nstTxPackets
+nstTxWindowErrors,UINT,4,2.6.24,nstTxWindowErrors
+sysMobileEntry,OPAQUE,0,2.7.0,Mobile Interface Information
+miType,BYTE,1,2.7.1,1:CDMA 2:LTE 3:GSM 4:GPRS
+miId,OCTET,16,2.7.2,GSN/ESN Number
+miIMEI,OCTET,16,2.7.3,SIM CARD NUMBER
+miNumber,OCTET,20,2.7.4,Phone Number
+miMode,BYTE,1,2.7.5,1:CSD 2:Packet 3:Always On
+miApnName,OCTET,32,2.7.6,APN Name
+miApnId,OCTET,20,2.7.7,APN ID
+miApnPwd,OCTET,20,2.7.8,APN Password
+miMISISDN,OCTET,16,2.7.9,Mobile MIS ISDN
+miIP,IPADDR,4,2.7.10,Mobile IPv4 Address
+miAccessTech,BYTE,1,2.7.11,Access Technology : GSM(0) GSM-Compact(1) UTRAN(2) GSM-w/EGPRS(3) UTRAN-w/HSDPA(4) UTRAN-w/HSUPA(5) UTRAN-w/HSDPA-and-HSUPA(6) E-UTRAN(7)
+miRacLacCell,BYTE,10,2.7.12,RAC/LAC/CELL ID
+miOperator,OCTET,16,2.7.13,Operator
+miConnStatus,BYTE,1,2.7.14,Connection Status( 0:Disconnected 1:Connected)
+miCsq,BYTE,1,2.7.12,CSQ Value
+sysAuthEntry,OPAQUE,0,2.8.0,Authentication Information values
+authName,OCTET,32,2.8.1,Authentication Name
+authAddr,OCTET,256,2.8.2,Authentication Server IP address
+authPort,UINT,4,2.8.3,Authentication Port number
+authTimeout,UINT,4,2.8.4,Authentication wait timeout default 15m
+authRetryCount,UINT,4,2.8.5,Authentication retry count
+authCertPath,OCTET,256,2.8.6,Authentication certification path
+authCACert,OCTET,256,2.8.7,CA Certification file name
+authClientCert,OCTET,256,2.8.8,Client Certification file name
+authClientKey,OCTET,256,2.8.9,Client ECC Private Key Certification file name
+sysSecEntry,OPAQUE,0,2.9.0,Security Information values
+secTLSName,OCTET,32,2.9.1,DCU TLS Interface protocol
+secTLSPort,UINT,1,2.9.2,DCU TLS Listen port number
+secTLSVersion,BYTE,1,2.9.3,DCU TLS Version
+secDTLSName,OCTET,32,2.9.4,DCU DTLS interface protocol
+secDTLSPort,UINT,4,2.9.5,DCU DTLS Listen port number
+secDTLSVersion,BYTE,1,2.9.6,DCU DTLS Version
+secCertPath,OCTET,256,2.9.7,TLS/DTLS Certification path
+secCACert,OCTET,256,2.9.8,TLS/DTLS CA Certification file name
+secServerCert,OCTET,256,2.9.9,TLS/DTLS Client Certification file name
+secServerKey,OCTET,256,2.9.10,TLS/DTLS ECC Private Key Certification file name
+Environment,OID,0,3.0.0,Environments
+enableMask,OPAQUE,0,3.1.0,Enable/Disable Mask
+enableDebug,BOOL,1,3.1.1,Debugging check(default false)
+enableNetworkTest,BOOL,1,3.1.2,op.mode.network.survey
+enableAssembleTest,BOOL,1,3.1.3,op.mode.test.assemble
+enableCertificateTest,BOOL,1,3.1.4,op.mode.test.certificate
+Environment,OID,0,3.0.0,Environments
+envValues,OPAQUE,0,3.2.0,Environment values
+varMaxConnectionPoolSize,BYTE,1,3.2.1,perf.thread.metering.max
+varEventSeverity,BYTE,1,3.2.2,Event filtering severity. 
+varLogMaxDay,WORD,2,3.2.3,repository.store.log
+varDataMaxDay,WORD,2,3.2.4,repository.store.data
+OTA,OID,0,9.0.0,Firmware upgrade
+otaConfEntry,OPAQUE,0,9.1.0,Firmware upgrade configuration
+sysID,UINT,4,9.1.1,DCU ID
+sysType,UINT,4,2.1.2,DCU Type (table 3)
+sysName,OCTET,64,2.1.3,DCU sysName
+sysLocation,OCTET,64,2.1.4,DCU Location
+sysContact,OCTET,64,2.1.5,DCU sysContact
+sysModel,OCTET,32,2.1.6,DCU HW Model Name
+sysHwVersion,WORD,2,2.1.7,DCU HW Version (upper Byte : Major lower Byte : Minor)
+sysHwBuild,BYTE,1,2.1.8,DCU HW Build Number
+sysSwVersion,WORD,2,2.1.9,DCU SW Version (upper Byte : Major lower Byte : Minor)
+sysSwRevision,UINT,4,2.1.10,DCU SW Build Number
+sysPort,UINT,4,2.1.11,DCU Listen port number
+metering,OID,0,10.0.0,Metering Data
+meterDataEntry,OPAQUE,0,10.1.0,Metering Data
+mdModemId,HEX,8,10.1.1,Modem Id
+mdMeterId,OCTET,20,10.1.2,Meter Id
+mdModemType,BYTE,1,10.1.3,Modem Type 
+mdServiceType,BYTE,1,10.1.4,Service Type 
+mdVendor,BYTE,1,10.1.5,Meter Vendor 
+mdDataCount,WORD,2,10.1.6,Metering data count
+mdLength,WORD,2,10.1.7,Metering data length  +  mdTime length(7)
+mdTime,TIMESTAMP,7,10.1.8,Metering time
+mdData,OCTET,0,10.1.9,Metering data
+meter,OID,0,21.0.0,Meter Data
+meterDataEntry,OPAQUE,0,21.1.0,Meter Data Entry
+meterId,OCTET,20,21.1.1,Meter Id
+meterModel,OCTET,20,21.1.2,Meter model
+meterVendor,OCTET,3,21.1.3,Meter Vendor 
+meterType,BYTE,1,21.1.4,Meter Type 
+meterPhase,BYTE,1,21.1.5,Meter phase (electricity only)
+meterModemId,HEX,8,21.1.6,Modem Id
+meterModemShortId,WORD,2,21.1.7,Network short Id (Not Used SP)
+meterModemStatus,BOOL,1,21.1.8,Network status(true: online off: offline)
+meterInstallTime,TIMESTAMP,7,21.1.9,Install time stamp
+materLastMetering,TIMESTAMP,7,21.1.10,Metering success time stamp
+meterLastFail,TIMESTAMP,7,21.1.11,Metering fail time stamp
+meterFailReason,INT,4,21.1.12,Metering fail reason
+meterBillingTime,TIMESTAMP,7,21.1.13,Billing time stamp
+meterRelayStatus,BYTE,1,21.1.14,Relay status(0:Unknown 1:Close 2:Open 3:Reconnect)
+modem,OID,0,31.0.0,Modem Data
+masterModemEntry,OPAQUE,0,31.1.0,Master modem Entry
+masterId,BYTE,1,31.1.1,Master modem ID (unique index)
+masterType,WORD,2,31.1.2,Master Modem Type 
+masterVendor,OCTET,4,31.1.3,Master Modem Vendor 
+masterG3Entry,OPAQUE,0,31.2.0,G3 master modem Entry
+mG3Id,BYTE,1,31.2.1,Master Modem ID
+mG3PanId,WORD,2,31.2.2,PAN ID
+mG3TxDataPacketCount,UINT,4,31.2.3,TX data packet count
+mG3RxDataPacketCount,UINT,4,31.2.4,RX data packet count
+mG3TxCmdPacketCount,UINT,4,31.2.5,TX command packet count
+mG3RxDataPacketCount,UINT,4,31.2.6,RX command packet count
+mG3CsmaFailCount,UINT,4,31.2.7,CSMA fail count
+mG3CsmaCollisionCount,UINT,4,31.2.8,CSMA collision count
+mG3TxBroadcastCount,UINT,4,31.2.9,TX Broadcast count
+mG3MulticastCount,UINT,4,31.2.10,RX Broadcast count
+mG3BadCrcCount,UINT,4,31.2.11,Bad CRC count
+modemG3Entry,OPAQUE,0,31.3.0,G3 modem Entry
+moG3Id,HEX,8,31.3.1,Modem HEX ID
+moG3ShortId,WORD,2,31.3.2,Modem Short ID (Not Active node-> 0)
+moG3NodeKind,OCTET,20,31.3.3,moG3NodeKind
+moG3NoOfMeters,WORD,2,31.3.4,moG3NoOfMeters
+moG3FwVer,WORD,2,31.3.5,moG3FwVer
+moG3FwBuild,WORD,2,31.3.6,moG3FwBuild
+moG3HwVer,WORD,2,31.3.7,moG3HwVer
+moG3Status,BOOL,1,31.3.8,moG3Status
+moG3LastOnLine,TIMESTAMP,7,31.3.9,moG3LastOnLine
+moG3LastOffLine,TIMESTAMP,7,31.3.10,moG3LastOffLine
+moG3Install,TIMESTAMP,7,31.3.11,moG3Install
+CoordinatorSPEntry,OPAQUE,0,31.4.0,Coordinator modem Information Entry
+coModemId,HEX,8,31.4.1,Coordinator HEX ID
+coNetworkChannel,BYTE,1,31.4.2,(MHz) 
+coPanID,WORD,2,31.4.3,PAN ID
+coNetworkKey,OCTET,16,31.4.4,NetworkKey
+coRFPower,CHAR,1,31.4.4,RF TxPower
+modemSPEntry,OPAQUE,0,31.5.0,modem Entry
+moSPId,HEX,8,31.5.1,Modem HEX ID
+moSPType,BYTE,1,31.5.2,Modem Type(0x21)
+moSPResetTime,BYTE,1,31.5.2,Modem Reset Time(0~23 0xFF : No Reset)
+moSPNodeKind,OCTET,20,31.5.3,Modem Node Kind String
+moSPFwVer,WORD,2,31.5.4,moSPFwVer
+moSPFwBuild,WORD,2,31.5.5,moSPFwBuild
+moSPHwVer,WORD,2,31.5.6,moSPHwVer
+moSPStatus,BOOL,1,31.5.7,0:Off-Line   1:On-Line
+moSPMode,BOOL,1,31.5.8,0:Push      1:Poll
+moSPLastOnLine,TIMESTAMP,7,31.5.9,moSPLastOnLine
+moSPLastOffLine,TIMESTAMP,7,31.5.10,moSPLastOffLine
+moSPInstall,TIMESTAMP,7,31.5.11,moSPInstall
+moSPParentId,HEX,8,31.5.12,Parent Node EUI ID
+moSPRSSI,CHAR,1,31.5.13,RSSI
+modemSPNMSEntry,OPAQUE,0,31.6.0,modem NMS Information Entry
+moSPId,HEX,8,31.6.1,Modem HEX ID
+moSPParentNodeId,HEX,8,31.6.2,Parent Modem HEX ID
+moSPRssi,BYTE,1,31.6.3,RSSI
+moSPLQI,BYTE,1,31.6.4,LQI
+moSPEtx,WORD,2,31.6.5,ETX
+moSPCpuUsage,BYTE,1,31.6.6,CPU Usage (%)
+moSPMemoryUsage,BYTE,1,31.6.7,Memory Usage (%)
+moSPTxDataPacketSize,UINT,4,31.6.8,Total Size of TX Data Packets

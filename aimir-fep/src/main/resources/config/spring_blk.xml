@@ -1,0 +1,241 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:int="http://www.springframework.org/schema/integration"
+    xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/integration
+        http://www.springframework.org/schema/integration/spring-integration.xsd
+        http://www.springframework.org/schema/data/mongo
+        http://www.springframework.org/schema/data/mongo/spring-mongo.xsd
+        http://www.springframework.org/schema/util 
+		http://www.springframework.org/schema/util/spring-util-3.1.xsd
+        ">
+        
+  <context:property-placeholder location="classpath:config/fmp_queue.properties" order="3" ignore-unresolvable="true"/>
+  <context:property-placeholder location="classpath:config/fmp_jdbc.properties" order="3" ignore-unresolvable="true"/>
+
+  <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+    <property name="poolName" value="springHikariCP" />
+    <property name="dataSourceClassName" value="${jdbc.driverClassName}" />
+    <property name="maximumPoolSize" value="${jdbc.maximumSize}" />
+    <property name="minimumIdle" value="${jdbc.minimumIdleSize}"/>
+    <property name="idleTimeout" value="30000" />
+    
+    <property name="dataSourceProperties">
+      <props>
+        <prop key="url">${jdbc.url}</prop>
+        <prop key="user">${jdbc.username}</prop>
+        <prop key="password">${jdbc.password}</prop>
+      </props>
+    </property>
+  </bean>
+    
+  <!-- HikariCP configuration -->
+  <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+    <constructor-arg ref="hikariConfig" />
+  </bean>
+    
+  <!-- Necessary to get the entity manager injected into the factory bean -->
+  <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
+    
+  <bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+    <!-- <property name="databasePlatform" value="org.eclipse.persistence.platform.database.DerbyPlatform" /> -->
+    <property name="databasePlatform" value="org.eclipse.persistence.platform.database.OraclePlatform" />
+    <property name="showSql" value="true" />
+  </bean>
+  
+  <!-- Entity Manager Factory  -->
+  <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+    <!-- <property name="persistenceXmlLocation" value="classpath:config/persistence.xml" />
+    <property name="jpaDialect" ref="jpaDialect" />-->
+    <property name="dataSource" ref="dataSource" />
+    <property name="packagesToScan" value="com.aimir.model, com.aimir.cms.model"/>
+    <property name="jpaVendorAdapter">
+      <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"/>
+    </property>
+    <property name="jpaProperties">
+      <props>
+        <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+        <!--  <prop key="hibernate.default_schema">${jdbc.username}</prop>oracle only-->
+        <prop key="hibernate.format_sql">true</prop>
+        <prop key="hibernate.show_sql">false</prop>
+        <prop key="hibernate.bytecode.use_reflection_optimizer">true</prop>
+        <prop key="hibernate.use_sql_comments">false</prop>
+        <!--<prop key="hibernate.hbm2ddl.auto">create-drop</prop>-->
+        <!--<prop key="hibernate.hbm2ddl.auto">create</prop>-->
+        <!--<prop key="hibernate.hbm2ddl.auto">validate</prop>-->
+        <prop key="hibernate.hbm2ddl.auto">none</prop>
+        <prop key="hibernate.connection.autocommit">false</prop>
+        <!-- 0:none, 1:read_uncommitted, 2:read_committed, 4:repeatable_read, 8:serializable -->
+        <prop key="hibernate.connection.isolation">1</prop>
+        <!--<prop key="hibernate.query.substitutions">Y</prop>-->
+        <!--<prop key="hibernate.cache.use_second_level_cache">true</prop>-->
+        <!--<prop key="hibernate.cache.use_second_level_cache">org.hibernate.cache.EhCacheProvider</prop>-->
+        <!-- Turn batching off for better error messages under PostgreSQL>-->
+        <!--prop key="hibernate.jdbc.batch_size">0</prop-->
+      </props>
+    </property>
+  </bean>
+  
+  <!-- Transaction manager for a single Hibernate SessionFactory (alternative to JTA) -->
+  <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+    <property name="entityManagerFactory" ref="entityManagerFactory"/>
+  </bean>
+    
+  <bean id="persistenceExceptionTranslationPostProcessor"
+    class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+    
+  <bean id="sessionContextFactory" class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
+    <property name="targetBeanName" value="sessionContext" />
+  </bean>
+    
+  <!-- Activates scanning of @Autowired -->            
+  <context:annotation-config/>
+  
+  <!-- Enable @Transactional support -->
+  <tx:annotation-driven />
+
+  <!-- Enable @AspectJ support -->
+  <aop:aspectj-autoproxy/>
+    
+  <!--  MBeans Server
+  <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean"/>
+    
+   this bean needs to be eagerly pre-instantiated in order for the exporting to occur;
+   this means that it must not be marked as lazily initialized
+    
+  <bean id="mbeanExporter" class="org.springframework.jmx.export.MBeanExporter">
+    <property name="server" ref="mbeanServer"/>
+  </bean>
+    
+  <bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
+    <property name="port" value="${jmxrmi.server.port}"/>
+  </bean>
+   -->
+     
+  <!-- 
+  <bean id="serverConnector" class="org.springframework.jmx.support.ConnectorServerFactoryBean">
+    <property name="server" ref="mbeanServer"/>
+    <property name="objectName" value="connector:name=rmi"/>
+    <property name="serviceUrl" value="service:jmx:rmi://localhost/jndi/rmi://127.0.0.1:2199/server"/>
+  </bean>
+  -->
+    
+  <!-- 이벤트 알람을 Topic으로 사용하지 않고 Queue로 변경한다. Topic이 ActiveMQ MBean 브라우저 -->
+  <bean id="eventTopic" class="org.apache.activemq.command.ActiveMQTopic">
+    <constructor-arg value="AiMiR.Event"/>
+  </bean>
+    
+  <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+    <property name="brokerURL" value="${activemq.broker.url}" />
+    <property name="trustAllPackages" value="true"/>
+  </bean>
+
+  <bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
+    <property name="connectionFactory" ref="activeMQConnectionFactory"/>
+  </bean>
+  
+  <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+    <property name="configuration" ref="jmsConfig"/>
+  </bean>
+
+  <bean id="activeJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <property name="connectionFactory" ref="activeMQConnectionFactory"/>
+    <property name="explicitQosEnabled" value="true"/>
+    <property name="timeToLive" value="0"/>
+  </bean>
+   
+  <!-- Mongo 3.0 config --> 
+  <!-- Seeds -->
+  <bean id="mongoSeedListID" class="java.util.ArrayList">
+    <constructor-arg>
+      <list>
+      	<ref bean="mongoSeedlID" />
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="mongoSeedlID" class="com.mongodb.ServerAddress">
+    <constructor-arg type="java.lang.String" name="host" value="${jdbc.mongo.host}" />
+    <constructor-arg type="int" name="port" value="${jdbc.mongo.port}" />
+  </bean>
+
+  <!-- Credentials -->
+  <bean id="mongoCredentialListID" class="java.util.ArrayList">
+    <constructor-arg>
+      <list>
+      	<ref bean="mongoCredentialID" />
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="mongoCredentialID" class="com.mongodb.MongoCredential">
+    <constructor-arg name="mechanism" value = "#{T(com.mongodb.AuthenticationMechanism).SCRAM_SHA_1}" />
+    <constructor-arg type="java.lang.String" name="userName" value="${jdbc.mongo.username}" />
+    <constructor-arg type="java.lang.String" name="source" value="${jdbc.mongo.db.name}" />
+    <constructor-arg type="char[]" name="password" value="${jdbc.mongo.password}" />
+  </bean>
+
+  <!-- MongoClient -->
+  <bean id="mongoClientID" class="com.mongodb.MongoClient">
+    <constructor-arg ref="mongoSeedListID" />
+    <constructor-arg ref="mongoCredentialID"  />
+  </bean>
+
+  <!-- MongoDbFactory -->
+  <bean id="simpleMongoDbFactoryID" class="org.springframework.data.mongodb.core.SimpleMongoDbFactory">
+    <constructor-arg ref="mongoClientID" />
+    <constructor-arg name="databaseName" value="${jdbc.mongo.db.name}" />
+  </bean>
+
+  <!-- MongoTemplate -->
+  <bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+    <constructor-arg ref="simpleMongoDbFactoryID" />
+  </bean>
+  
+  <!-- Mongo 2.0 config -->
+<!--  <bean id="mongoOptions" class="com.mongodb.MongoOptions">
+    <property name="fsync" value="true"/>
+    <property name="connectionsPerHost" value="10"/> 
+    <property name="threadsAllowedToBlockForConnectionMultiplier" value="100"/>
+  </bean>
+  
+  <bean id="mongoFactory" class="org.springframework.data.mongodb.core.MongoFactoryBean">
+    <property name="host" value="${jdbc.mongo.host}" />
+    <property name="port" value="${jdbc.mongo.port}" /> 
+    <property name="mongoOptions" ref="mongoOptions" />
+    <property name="writeConcern">
+    	<util:constant static-field="com.mongodb.WriteConcern.SAFE" ></util:constant>
+    </property> 
+  </bean>
+	
+  <bean id="mongoCredentials" class="org.springframework.data.authentication.UserCredentials">
+    <constructor-arg name="username" value="${jdbc.mongo.username}" />
+    <constructor-arg name="password" value="${jdbc.mongo.password}" />
+  </bean>
+	
+	<bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+		<constructor-arg ref="mongoFactory" />
+		<constructor-arg name="databaseName" value="iot" />
+		<constructor-arg name="userCredentials" ref="mongoCredentials"></constructor-arg>
+	</bean>
+   
+	<bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+		<constructor-arg ref="mongoFactory" />
+		<constructor-arg name="databaseName" value="iot" />
+		<constructor-arg name="userCredentials" ref="mongoCredentials"></constructor-arg>
+	</bean>
+
+</beans>

@@ -1,0 +1,23 @@
+#Example JDBC Configuration
+#0:none, 1:read_uncommitted, 2:read_committed, 4:repeatable_read, 8:serializable 
+hibernate.connection.isolation=1
+
+####################### VIETNAM - EVN Deploy ###########
+## Vietnam-EVN : DCC#01_Comm. Server M - 111.222.333.444
+#jdbc.driverClassName=oracle.jdbc.driver.OracleDriver
+#hibernate.dialect=org.hibernate.dialect.Oracle10gDialect
+#jdbc.url=jdbc:oracle:thin:@111.222.333.444:1521:aimir
+#jdbc.username=aimir
+#jdbc.password=aimiramm
+#hibernate.hbm2ddl.auto=update
+#hibernate.show_sql=false
+#####################################################
+
+################## VIETNAM - EVN DEV #####################
+jdbc.driverClassName=oracle.jdbc.driver.OracleDriver
+hibernate.dialect=org.hibernate.dialect.Oracle10gDialect
+jdbc.url=jdbc:oracle:thin:@172.16.25.245:1521:orcl
+jdbc.username=aimir
+jdbc.password=aimiramm
+hibernate.hbm2ddl.auto=update
+hibernate.show_sql=true

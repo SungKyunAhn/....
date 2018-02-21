@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/integration
+        http://www.springframework.org/schema/integration/spring-integration.xsd
+        ">
+
+	<import resource="spring.xml" />
+
+	<!-- Process -->
+	<!-- <bean id="alarmProcessor" class="com.aimir.fep.protocol.fmp.processor.AlarmProcessor"/> -->
+	<bean id="mdProcessor" class="com.aimir.fep.protocol.fmp.processor.MDProcessor" />
+	<!-- <bean id="ndProcessor" class="com.aimir.fep.protocol.fmp.processor.NDProcessor"/> -->
+	<bean id="dfProcessor" class="com.aimir.fep.protocol.fmp.processor.DFProcessor" />
+	<!-- <bean id="plcProcessor" class="com.aimir.fep.protocol.fmp.processor.PLCProcessor"/> -->
+	<bean id="eventProcessor" class="com.aimir.fep.protocol.fmp.processor.EventProcessor" />
+	<bean id="eventProcessor_1_2" class="com.aimir.fep.protocol.fmp.processor.EventProcessor_1_2" />
+	<bean id="commLogProcessor" class="com.aimir.fep.protocol.fmp.processor.CommLogProcessor" />
+	<!-- <bean id="amuMdProcessor" class="com.aimir.fep.protocol.fmp.processor.AMUMDProcessor"/> -->
+	<!-- <bean id="amuEventProcessor" class="com.aimir.fep.protocol.fmp.processor.AMUEventProcessor"/> -->
+	<!-- <bean id="amuEventProcessor" class="com.aimir.fep.protocol.fmp.processor.AMUEventProcessor"/> -->
+
+	<!-- ============================================== -->
+	<!-- Processor Logger -->
+	<!-- ============================================== -->
+	<bean id="kafkaListener" class="com.aimir.fep.protocol.fmp.processor.KafkaListener" />
+
+	<bean id="eventLogger" class="com.aimir.fep.protocol.fmp.log.EventLogger"
+		init-method="init">
+		<property name="logDirName" value="db/event" />
+		<property name="backupDirName" value="db/event/backup" />
+	</bean>
+
+	<!-- <bean id="alarmLogger" class="com.aimir.fep.protocol.fmp.log.AlarmLogger" 
+		init-method="init"> <property name="queueName" value="AiMiR.Alarm"/> <property 
+		name="logDirName" value="db/alarm"/> <property name="backupDirName" value="db/alarm/backup"/> 
+		<property name="activeAlarmName" value="/queue/smoke/alarm"/> <property name="activeCallbackName" 
+		value="/queue/smoke/alarm"/> </bean> -->
+
+	<bean id="mdLogger" class="com.aimir.fep.protocol.fmp.log.MDLogger"
+		init-method="init">
+		<property name="logDirName" value="db/md" />
+		<property name="backupDirName" value="db/md/backup" />
+	</bean>
+
+	<!-- <bean id="ndLogger" class="com.aimir.fep.protocol.fmp.log.NDLogger" 
+		init-method="init"> <property name="logDirName" value="db/nd"/> <property 
+		name="backupDirName" value="db/nd/backup"/> </bean> -->
+
+	<bean id="commLogger" class="com.aimir.fep.protocol.fmp.log.CommLogger"
+		init-method="init">
+		<!-- 큐를 사용하게 되면 주석을 해제한다. <property name="jmsTemplate" ref="activeJmsTemplate"/> 
+			<property name="queueName" value="LogQueue"/> -->
+		<property name="logDirName" value="db/comm" />
+		<property name="backupDirName" value="db/comm/backup" />
+	</bean>
+
+	<!-- <bean id="amuMdLogger" class="com.aimir.fep.protocol.fmp.log.AMUMDLogger" 
+		init-method="init"> <property name="logDirName" value="db/amu"/> <property 
+		name="backupDirName" value="db/amu/backup"/> </bean> -->
+
+	<!-- <bean id="alarmListener" class="com.aimir.fep.protocol.fmp.log.AlarmLogger"> 
+		<property name="activeCallbackName" value="/queue/smoke/alarm"/> </bean> -->
+
+	<bean id="mdProcessorContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="activeMQConnectionFactory" />
+		<property name="destinationName" value="${ServiceData.MDData}" />
+		<property name="messageListener" ref="mdProcessor" />
+		<property name="concurrentConsumers" value="${jms.concurrent.consumers.md}" />
+		<property name="maxConcurrentConsumers" value="${jms.concurrent.consumers.md}" />
+	</bean>
+
+	<bean id="dfProcessorContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="activeMQConnectionFactory" />
+		<property name="destinationName" value="${ServiceData.DFData}" />
+		<property name="messageListener" ref="dfProcessor" />
+		<property name="concurrentConsumers" value="${jms.concurrent.consumers.df}" />
+		<property name="maxConcurrentConsumers" value="${jms.concurrent.consumers.df}" />
+	</bean>
+
+	<!-- <bean id="plcProcessorContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer"> 
+		<property name="connectionFactory" ref="activeMQConnectionFactory"/> <property 
+		name="destinationName" value="${ServiceData.PLCData)"/> <property name="messageListener" 
+		ref="plcProcessor"/> <property name="concurrentConsumers" value="${jms.concurrent.consumers}"/> 
+		<property name="maxConcurrentConsumers" value="${jms.concurrent.consumers}"/> 
+		</bean> -->
+
+	<bean id="eventProcessorContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="activeMQConnectionFactory" />
+		<property name="destinationName" value="${ServiceData.EventData}" />
+		<property name="messageListener" ref="eventProcessor" />
+		<property name="concurrentConsumers" value="${jms.concurrent.consumers.event}" />
+		<property name="maxConcurrentConsumers" value="${jms.concurrent.consumers.event}" />
+	</bean>
+
+	<bean id="eventProcessorContainer_1_2"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="activeMQConnectionFactory" />
+		<property name="destinationName" value="${ServiceData.EventData_1_2}" />
+		<property name="messageListener" ref="eventProcessor_1_2" />
+		<property name="concurrentConsumers" value="${jms.concurrent.consumers.event}" />
+		<property name="maxConcurrentConsumers" value="${jms.concurrent.consumers.event}" />
+	</bean>
+
+	<bean id="commLogProcessorContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="activeMQConnectionFactory" />
+		<property name="destinationName" value="${LogData.CommLogData}" />
+		<property name="messageListener" ref="commLogProcessor" />
+		<property name="concurrentConsumers" value="${jms.concurrent.consumers.commlog}" />
+		<property name="maxConcurrentConsumers" value="${jms.concurrent.consumers.commlog}" />
+	</bean>
+
+	<!-- Restore Schedule -->
+	<bean id="dfRestoreJob"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="com.aimir.fep.schedule.job.DFRestoreJob" />
+	</bean>
+
+	<bean id="dfRestoreTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="dfRestoreJob" />
+		<property name="cronExpression" value="${restore.trigger.df}" />
+		<!-- <property name="startDelay" value="5000"/> <property name="repeatInterval" 
+			value="10000"/> -->
+	</bean>
+
+	<bean id="mdRestoreJob"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="com.aimir.fep.schedule.job.MDRestoreJob" />
+	</bean>
+
+	<bean id="mdRestoreTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="mdRestoreJob" />
+		<property name="cronExpression" value="${restore.trigger.md}" />
+		<!-- <property name="startDelay" value="5000"/> <property name="repeatInterval" 
+			value="10000"/> -->
+	</bean>
+
+	<bean id="commLogRestoreJob"
+		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="com.aimir.fep.schedule.job.CommLogRestoreJob" />
+	</bean>
+
+	<bean id="commLogRestoreTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="commLogRestoreJob" />
+		<property name="cronExpression" value="0 0 * * * ?" />
+		<!-- <property name="startDelay" value="5000"/> <property name="repeatInterval" 
+			value="3600000"/> -->
+	</bean>
+
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="dfRestoreTrigger" />
+				<ref bean="mdRestoreTrigger" />
+				<!-- <ref bean="commLogRestoreTrigger"/> -->
+			</list>
+		</property>
+	</bean>
+
+</beans>

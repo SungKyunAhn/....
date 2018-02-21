@@ -1,0 +1,296 @@
+/**
+ * 
+ */
+package com.aimir.fep.protocol.nip.frame;
+
+/**
+ * @author simhanger
+ *
+ */
+public class NIFrameConstants {
+	private final byte[] START_FLAG = new byte[] { (byte) 0x51, (byte) 0xF8 };
+
+	public enum NIAttributeId {
+		  ResetModem(new byte[] { (byte) 0x00, (byte) 0x01 })
+		, UploadMeteringData(new byte[] { (byte) 0x00, (byte) 0x02 })
+		, FactorySetting(new byte[] { (byte) 0x00, (byte) 0x03 })
+		, RecoveryPulseLoadProfileData(new byte[] { (byte) 0x00, (byte) 0x04 })
+		, ReAuthenticate(new byte[] { (byte) 0x00, (byte) 0x05 })
+		, WatchdogTest(new byte[] { (byte) 0x00, (byte) 0x08 })
+		, RealTimeMetering(new byte[] { (byte) 0x00, (byte) 0x0A })
+		, ModemInformation(new byte[] { (byte) 0x10, (byte) 0x01 })
+		, NB_PLCInformation(new byte[] { (byte) 0x10, (byte) 0x02 })
+		, ModemStatus(new byte[] { (byte) 0x10, (byte) 0x04 })
+		, MeterInformation(new byte[] { (byte) 0x10, (byte) 0x05 })
+		, ModemEventLog(new byte[] { (byte) 0x10, (byte) 0x06 })
+		, ModemTime(new byte[] { (byte) 0x20, (byte) 0x01 })
+		, ModemResetTime(new byte[] { (byte) 0x20, (byte) 0x02 })
+		, ModemMode(new byte[] { (byte) 0x20, (byte) 0x03 })
+		, ModemMode_GET(new byte[] { (byte) 0x20, (byte) 0x03 })
+		, MeterTimesync(new byte[] { (byte) 0x20, (byte) 0x04 })
+		, MeteringInterval(new byte[] { (byte) 0x20, (byte) 0x05 })
+		, MeteringInterval_GET(new byte[] { (byte) 0x20, (byte) 0x05 })
+		, ModemTXPower(new byte[] { (byte) 0x20, (byte) 0x08 })
+		, KeepAliveMessageInterval(new byte[] { (byte) 0x20, (byte) 0x09 })
+		, ActiveKeepTime(new byte[] { (byte) 0x20, (byte) 0x0A })
+		, NetworkScanInterval(new byte[] { (byte) 0x20, (byte) 0x0B })
+		, Form_JoinNetwork(new byte[] { (byte) 0x20, (byte) 0x0C })
+		, NetworkSpeed(new byte[] { (byte) 0x20, (byte) 0x0D })
+		, NetworkJoinTimeout(new byte[] { (byte) 0x20, (byte) 0x0E })
+        , ModemIpInformation(new byte[] { (byte)0x20, (byte) 0x0F })
+        , ModemIpInformation_GET(new byte[] { (byte)0x20, (byte) 0x0F })
+        , ModemPortInformation(new byte[] { (byte)0x20, (byte) 0x10 })
+        , ModemPortInformation_GET(new byte[] { (byte)0x20, (byte) 0x10 })
+		, Alarm_EventCommandON_OFF(new byte[] { (byte) 0x20, (byte) 0x11 })
+		, Alarm_EventCommandON_OFF_GET(new byte[] { (byte) 0x20, (byte) 0x11 })
+		, MeterBaud(new byte[] { (byte) 0x20, (byte) 0x12 })
+		, MeterBaud_GET(new byte[] { (byte) 0x20, (byte) 0x12 })
+		, TransmitFrequency(new byte[] { (byte) 0x20, (byte) 0x13 })
+		, TransmitFrequency_GET(new byte[] { (byte) 0x20, (byte) 0x13 })
+		, RetryCount(new byte[] { (byte) 0x20, (byte) 0x14 })
+		, RetryCount_GET(new byte[] { (byte) 0x20, (byte) 0x14 })
+		, SnmpTrapOnOff(new byte[] { (byte) 0x20, (byte) 0x15 })
+		, SnmpTrapOnOff_GET(new byte[] { (byte) 0x20, (byte) 0x15 })
+		, RawROMAccess(new byte[] { (byte) 0x20, (byte) 0x16 })
+		, RawROMAccess_GET(new byte[] { (byte) 0x20, (byte) 0x16 })
+		, NB_PLCTMR(new byte[] { (byte) 0x20, (byte) 0x06 })
+		, NB_PLCModulation(new byte[] { (byte) 0x20, (byte) 0x07 })
+		, MeterLoadprofileinterval(new byte[] { (byte) 0x30, (byte) 0x01 })
+		, SelfReadscript(new byte[] { (byte) 0x30, (byte) 0x02 })
+		, SingleActionSchedule(new byte[] { (byte) 0x30, (byte) 0x03 })
+		, RecoveryMetering(new byte[] { (byte) 0x30, (byte) 0x04 })
+		, OBISListup(new byte[] { (byte) 0x40, (byte) 0x01 })
+		, OBISAdd(new byte[] { (byte) 0x40, (byte) 0x02 })
+		, OBISRemove(new byte[] { (byte) 0x40, (byte) 0x03 })
+		, OBISListChange(new byte[] { (byte) 0x40, (byte) 0x04 })
+		, KEPCOOBISNewList(new byte[] { (byte) 0x40, (byte) 0x05 })
+		, KEPCOOBISListVersion(new byte[] { (byte) 0x40, (byte) 0x06 })
+		, TestConfiguration(new byte[] { (byte) 0x50, (byte) 0x01 })
+		, TestDataUpload(new byte[] { (byte) 0x50, (byte) 0x02 })
+		, CoordinatorInformation(new byte[] { (byte) 0xA0, (byte) 0x01 })
+		, NetworkPermit(new byte[] { (byte) 0xA0, (byte) 0x02 })
+		, BootloaderJump(new byte[] { (byte) 0xA0, (byte) 0x03 })
+		, CoordinatorBootup(new byte[] { (byte) 0xA0, (byte) 0x04 })
+		, NetworkIPv6Prefix(new byte[] { (byte) 0xA0, (byte) 0x05 })
+		, APN(new byte[] { (byte) 0xB7, (byte) 0x06 })
+		, AcceptJoin(new byte[] { (byte) 0xC0, (byte) 0x01 })
+		, AcceptLeave(new byte[] { (byte) 0xC0, (byte) 0x02 })
+		, JoinBackoffTimer(new byte[] { (byte) 0xC0, (byte) 0x03 })
+		, AuthBackoffTimer(new byte[] { (byte) 0xC0, (byte) 0x04 })
+		, MeterSharedKey(new byte[] { (byte) 0xC0, (byte) 0x05 })
+		, NullBypassOpen(new byte[] { (byte) 0xC1, (byte) 0x01 })
+		, NullBypassClose(new byte[] { (byte) 0xC1, (byte) 0x02 })
+		, ROMRead(new byte[] { (byte) 0xC2, (byte) 0x01 })
+		, GatheringDataAction(new byte[] { (byte) 0xC2, (byte) 0x02 })
+		, GatheringDataPoll(new byte[] { (byte) 0xC2, (byte) 0x03 })
+		, ParentNodeInfo(new byte[] { (byte) 0xC3, (byte) 0x01 })
+		, HopCount(new byte[] { (byte) 0xC3, (byte) 0x02 })
+		, HopNeighborList(new byte[] { (byte) 0xC3, (byte) 0x03 })
+		, ChildNodeList(new byte[] { (byte) 0xC3, (byte) 0x04 })
+		, NodeAuthorization(new byte[] { (byte) 0xC3, (byte) 0x05 })
+		;
+		
+		private byte[] code;
+
+		NIAttributeId(byte[] code) {
+			this.code = code;
+		}
+
+		public byte[] getCode() {
+			return this.code;
+		}
+
+		public static NIAttributeId getItem(String name) {
+			for (NIAttributeId fc : NIAttributeId.values()) {
+				if (fc.name().equals(name)) {
+					return fc;
+				}
+			}
+			return null;
+		}
+
+		public static NIAttributeId getItem(byte[] code) {
+			for (NIAttributeId fc : NIAttributeId.values()) {
+				if (fc.getCode()[0] == code[0] && fc.getCode()[1] == code[1]) {
+					return fc;
+				}
+			}
+			return null;
+		}
+	}
+
+	public enum CommandFlow {
+		Request((byte) 0x00), Response_Trap((byte) 0x80), //한전
+		Response((byte) 0xC0);//Soria
+		private byte code;
+
+		CommandFlow(byte code) {
+			this.code = code;
+		}
+
+		public byte getCode() {
+			return this.code;
+		}
+	}
+
+	public enum NetworkType {
+		Sub1Ghz((byte) 0x00, 9), NB_PLC((byte) 0x01, 3), Zigbee((byte) 0x02, 0), // 2016.06.09 현재 : 값없음
+		MBB((byte) 0x03, 6), Ethernet((byte) 0x04, 6), Sub1Ghz_SORIA((byte) 0x05, 17);
+
+		private byte code;
+		private int statusLength;
+
+		NetworkType(byte code, int statusLength) {
+			this.code = code;
+			this.statusLength = statusLength;
+		}
+
+		public byte getCode() {
+			return this.code;
+		}
+
+		public int getStatusLength() {
+			return this.statusLength;
+		}
+
+		public static NetworkType getItem(byte value) {
+			for (NetworkType fc : NetworkType.values()) {
+				if (fc.code == value) {
+					return fc;
+				}
+			}
+			return null;
+		}
+	}
+
+	public enum FrameControl_Pending {
+		LastFrame((byte) 0x00), MultiFrame((byte) 0x80);
+
+		private byte code;
+
+		FrameControl_Pending(byte code) {
+			this.code = code;
+		}
+
+		public byte getCode() {
+			return this.code;
+		}
+
+		public static FrameControl_Pending getItem(byte value) {
+			for (FrameControl_Pending fc : FrameControl_Pending.values()) {
+				if (fc.code == value) {
+					return fc;
+				}
+			}
+			return null;
+		}
+
+	}
+
+	public enum FrameControl_Ack {
+		None((byte) 0x00), Ack((byte) 0x01), Task((byte) 0x02);
+
+		private byte code;
+
+		FrameControl_Ack(byte code) {
+			this.code = code;
+		}
+
+		public byte getCode() {
+			return this.code;
+		}
+
+		public static FrameControl_Ack getItem(byte value) {
+			for (FrameControl_Ack fc : FrameControl_Ack.values()) {
+				if (fc.code == value) {
+					return fc;
+				}
+			}
+			return null;
+		}
+	}
+
+	public enum FrameOption_NetworkStatus {
+		None((byte) 0x00), Include((byte) 0x40);
+
+		private byte code;
+
+		FrameOption_NetworkStatus(byte code) {
+			this.code = code;
+		}
+
+		public byte getCode() {
+			return this.code;
+		}
+
+		public static FrameOption_NetworkStatus getItem(byte value) {
+			for (FrameOption_NetworkStatus fc : FrameOption_NetworkStatus.values()) {
+				if (fc.code == value) {
+					return fc;
+				}
+			}
+			return null;
+		}
+	}
+
+	public enum FrameOption_Type {
+		Ack((byte) 0x00), Bypass((byte) 0x01), Metering((byte) 0x02), Command((byte) 0x03), Firmware((byte) 0x04), AlarmEvent((byte) 0x05), MeterEvent((byte) 0x06);
+
+		private byte code;
+
+		FrameOption_Type(byte code) {
+			this.code = code;
+		}
+
+		public byte getCode() {
+			return this.code;
+		}
+
+		public static FrameOption_Type getItem(byte value) {
+			for (FrameOption_Type fc : FrameOption_Type.values()) {
+				if (fc.code == value) {
+					return fc;
+				}
+			}
+			return null;
+		}
+
+	}
+
+	public enum FrameOption_AddressType {
+		None((byte) 0x00), Source((byte) 0x10), Destination((byte) 0x20), SrcDest((byte) 0x30);
+
+		private byte code;
+
+		FrameOption_AddressType(byte code) {
+			this.code = code;
+		}
+
+		public byte getCode() {
+			return this.code;
+		}
+
+		public static FrameOption_AddressType getItem(byte value) {
+			for (FrameOption_AddressType fc : FrameOption_AddressType.values()) {
+				if (fc.code == value) {
+					return fc;
+				}
+			}
+			return null;
+		}
+	}
+
+	public enum CommandType {
+		Get((byte) 0x01), Set((byte) 0x02), Trap((byte) 0x03);
+
+		private byte code;
+
+		CommandType(byte code) {
+			this.code = code;
+		}
+
+		public byte getCode() {
+			return this.code;
+		}
+	}
+}

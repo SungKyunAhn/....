@@ -1,0 +1,29 @@
+cmdResetModem,100.1.1,Reset Modem
+cmdUploadMeteringData,100.2.1,Upload Metering Data
+cmdFactorySetting,100.3.1,Factory Setting
+cmdReadModemConfiguration,101.1.1,Read Modem Configuration
+cmdIdentifyDevice,101.2.1,Identify Modem-Meter
+cmdSetTime,102.1.1,Set Time
+cmdModemResetInterval,102.2.1,Set Modem Reset Interval
+cmdSetMeteringInterval,102.3.1,Set Metering Interval
+cmdSetServerIpPort,103.1.1,Set Server IP and Port
+cmdSetApn,103.2.1,Set APN Information
+cmdOBISListUp,104.1.1,OBIS list up
+cmdOBISAdd,104.2.1,OBIS add
+cmdOBISRemove,104.3.1,OBIS remove
+cmdOBISListChange,104.4.1,OBIS list change
+cmdSetBypassStart,105.1.1,Null Bypass Start
+cmdOTAStart,106.1.1,Upgrade Start
+cmdSendImage,106.2.1,Send Image
+cmdOTAEnd,106.3.1,Upgrade End
+cmdOndemandMetering,107.1.1,On-demand Metering 
+cmdOnDemandByMeter,107.1.1,On-demand Metering 
+cmdOnDemandMeter,107.1.1,On-demand Metering 
+cmdRelayStatus,107.2.1,Get State
+cmdRelayDisconnect,107.3.1,Relay Disconnect
+cmdRelayReconnect,107.4.1,Relay Reconnect
+cmdMeterTimeSync,107.5.1,Meter Timesync
+cmdCurrentValuesMetering,107.6.1,Current values Metering
+cmdGetRelayStatus,107.7.1,Get Relay Status
+cmdReadModemEventLog,108.1.1,Read Event Log
+cmdGetMeterStatus,107.2.1,Get Meter Status

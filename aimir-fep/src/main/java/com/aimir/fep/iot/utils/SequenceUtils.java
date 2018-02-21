@@ -1,0 +1,41 @@
+package com.aimir.fep.iot.utils;
+
+public class SequenceUtils {
+	public enum SeqType{ ACCESS_CONTROL_POLICY, REMOTE_CSE, AE, GROUP, CONTAINER, CONTENT_INSTANCE, LOCATION_POLICY, SUBSCRIPTION, MGMT_OBJ, MGMT_CMD, EXEC_INSTANCE, NODE, MMP_API_CALL_LOG_TBL, MMP_LOG_MSG_TBL, MMP_VERT_CONTENT_TBL, VERT_DEVICE, VERT_CONTAINER, VERT_MGMTOBJ, VERT_TID, SOFTWARE, DEVICE_INFO, FIRMWARE, MEMORY, BATTERY, REBOOT, SUBSCRIPTION_PENDING,EVENT_LOG};
+	public enum MovType{ UP , DOWN };
+	
+	public enum SEQ_PREFIX {
+		
+		CSE_BASE("CB"),
+		NODE("ND"),
+		FIRMWARE("FW"),
+		EVENT_LOG("EL"),
+		SOFTWARE("SW"), 
+		MEMORY("MM"), 
+		BATTERY("BT"), 
+		REBOOT("RB"), 
+		DEVICE_INFO("DI"), 
+		ACCESS_CONTROL_POLICY("AP"),
+		REMOTE_CSE("RC"),
+		CONTAINER("CT"), 
+		CONTENT_INSTANCE("CI"), 
+		MGMT_CMD("MC"), 
+		EXEC_INSTANCE("EI"), 
+		AE("AE"), 
+		SUBSCRIPTION("SS"), 
+		LOCATION_POLICY("LP"), 
+		GROUP(("GP")),
+		MMP_API_CALL_LOG_TBL(("CL"))
+		; 
+		
+		private final String id;
+		
+		SEQ_PREFIX(String id) {
+			this.id = id;
+		}
+		
+		public String getValue() {
+			return id;
+		}
+	}
+}

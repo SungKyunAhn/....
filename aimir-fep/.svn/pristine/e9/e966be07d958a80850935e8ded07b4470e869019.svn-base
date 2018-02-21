@@ -1,0 +1,137 @@
+smiEntry,OID,3,1.1.0,SMI Variable
+unknownEntry,BYTE,0,1.2.0,unsigned char
+boolEntry,BOOL,1,1.3.0,unsigned char
+byteEntry,BYTE,1,1.4.0,unsigned char
+wordEntry,WORD,2,1.5.0,unsigned short
+uintEntry,UINT,4,1.6.0,unsigned int
+charEntry,CHAR,1,1.7.0,signed char
+shortEntry,SHORT,2,1.8.0,signed short
+intEntry,INT,4,1.9.0,signed int
+oidEntry,OID,3,1.10.0,Object ID (3 Bytes)
+oidDot1,BYTE,1,1.10.1,ID 1
+oidDot2,BYTE,1,1.10.2,ID 2
+oidDot3,BYTE,1,1.10.3,ID 3
+stringEntry,STRING,0,1.11.0,String
+streamEntry,STREAM,0,1.12.0,Data Stream
+opaqueEntry,OPAQUE,0,1.13.0,Structure
+eui64Entry,HEX,8,1.14.0,SINK-SENSOR ID
+Ids,STREAM,8,1.14.1,8 byte binary stream
+ipEntry,IPADDR,4,1.15.0,IP Address
+ipDot1,BYTE,1,1.15.1,IP 1
+ipDot2,BYTE,1,1.15.2,IP 2
+ipDot3,BYTE,1,1.15.3,IP 3
+ipDot4,BYTE,1,1.15.4,IP 4
+timeEntry,TIMESTAMP,7,1.16.0,yyyymmddhhMMss
+timeYear,WORD,2,1.16.1,year
+timeMon,BYTE,1,1.16.2,month
+timeDay,BYTE,1,1.16.3,day
+timeHour,BYTE,1,1.16.4,hour
+timeMin,BYTE,1,1.16.5,minute
+timeSec,BYTE,1,1.16.6,second
+dayEntry,TIMEDATE,4,1.17.0,yyyymmdd
+dayYear,WORD,2,1.17.1,year
+dayMon,BYTE,1,1.17.2,month
+dayDay,BYTE,1,1.17.3,day
+ip6Entry,IP6ADDR,16,1.18.0,IPv6 Address
+ipHex1,STREAM,2,1.18.1,IP Hexadecimal 1
+ipHex2,STREAM,2,1.18.2,IP Hexadecimal 2
+ipHex3,STREAM,2,1.18.3,IP Hexadecimal 3
+ipHex4,STREAM,2,1.18.4,IP Hexadecimal 4
+ipHex5,STREAM,2,1.18.5,IP Hexadecimal 5
+ipHex6,STREAM,2,1.18.6,IP Hexadecimal 6
+ipHex7,STREAM,2,1.18.7,IP Hexadecimal 7
+ipHex8,STREAM,2,1.18.8,IP Hexadecimal 8
+macEntry,MACADDR,6,1.19.0,MAC Address
+macOctet1,BYTE,1,1.19.1,MAC Octet 1
+macOctet2,BYTE,1,1.19.2,MAC Octet 2
+macOctet3,BYTE,1,1.19.3,MAC Octet 3
+macOctet4,BYTE,1,1.19.4,MAC Octet 4
+macOctet5,BYTE,1,1.19.5,MAC Octet 5
+macOctet6,BYTE,1,1.19.6,MAC Octet 6
+sysEntry,OPAQUE,0,2.1.0,Concentrator Registry values
+sysID,STRING,32,2.1.1,DCU ID
+sysType,UINT,4,2.1.2,DCU TYPE  
+sysName,STRING,64,2.1.3,DCU name  
+sysLocation,STRING,64,2.1.4,DCU location  
+sysContact,STRING,64,2.1.5,DCU manager  
+sysModel,STRING,32,2.1.6,DCU HW model name   
+sysHwVersion,WORD,2,2.1.7,DCU HW version  
+sysHwBuild,BYTE,1,2.1.8,DCU HW build   
+sysSwVersion,WORD,2,2.1.9,DCU SW version   
+sysSwBuild,BYTE,1,2.1.10,DCU SW build
+sysPort,UINT,4,2.1.11,DCU Listen port number
+sysStatusEntry,OPAQUE,0,2.2.0,DCU current status
+sysUptime,UINT,4,2.2.1,live time after boot-up
+sysTime,TIMESTAMP,7,2.2.2,current DCU time
+sysTemerature,INT,4,2.2.3,current temperature
+sysState,WORD,1,2.2.4,current status
+sysServerEntry,OPAQUE,0,2.3.0,Server configuration
+serverAddr,STRING,256,2.3.1,Server Address
+serverPort,UINT,4,2.3.2,Server Data Port
+serverAlarmPort,UINT,4,2.3.3,Server Alarm Port
+severProtocol,BYTE,1,2.3.4,Server Application Protocol
+serverDataProtocol,BYTE,1,2.3.5,Server Network Protocol–Data
+serverAlarmProtocol,BYTE,1,2.3.6,Server Network Protocol–Alarm
+otaConfEntry,OPAQUE,0,9.1.0,OTA Configuration Entry
+sysID,STRING,32,9.1.1,DCU ID
+sysType,UINT,4,9.1.2,DCU Type
+sysName,STRING,64,9.1.3,DCU Name
+sysLocation,STRING,64,9.1.4,DCU Location
+sysContact,STRING,64,9.1.5,DCU Contact 
+sysModel,STRING,32,9.1.6,DCU Model
+sysHwVersion,WORD,2,9.1.7,DCU HW Version   
+sysHwBuild,BYTE,1,9.1.8,DCU HW Build
+sysSwVersion,WORD,2,9.1.9,DCU SW Version
+sysSwRevision,UINT,4,9.1.10,DCU SW Revision 
+sysPort,UINT,4,9.1.11,DCU Port
+meterDataEntryNew,OPAQUE,0,10.1.0,Metering Data
+mdId,EUI64,8,10.1.1,Modem Id
+mdSerial,STRING,20,10.1.2,Meter Id
+mdType,BYTE,1,10.1.3,Modem Type
+mdServiceType,BYTE,1,10.1.4,Meter Type
+mdVendor,BYTE,1,10.1.5,Meter Vendor 
+dataCount,WORD,2,10.1.6,Metering data count
+mdData,OCTET,0,10.1.9,Metering data
+meterDataEntry2,OPAQUE,0,21.1.0,Meter Data Entry
+meterId,STRING,20,21.1.1,Meter ID
+meterModel,STRING,20,21.1.2,Meter model
+meterVendor,STRING,3,21.1.3,Meter Vendor
+type,BYTE,1,21.1.4,Meter Type
+meterPhase,BYTE,1,21.1.5,Meter Phase
+modemId,EUI64,8,21.1.6,Modem Id
+shortId,WORD,2,21.1.7,Network short Id
+status,BOOL,1,21.1.8,Network status
+installTime,TIMESTAMP,7,21.1.9,Install time stamp
+lastOnLine,TIMESTAMP,7,21.1.10,Last metering time stamp
+lastOffLine,TIMESTAMP,7,21.1.11,Last metering fail time stamp
+failReason,INT,4,21.1.12,Meter Fail Reason
+billingTime,TIMESTAMP,7,21.1.13,Meter Billing Time
+relayStatus,BYTE,1,21.1.14,Meter Relay Status
+masterModemEntry,OPAQUE,0,31.1.0,Master modem Entry
+masterId,BYTE,1,31.1.1,Master modem ID
+masterType,WORD,2,31.1.2,Master Modem Type
+masterVendor,STRING,4,31.1.3,Master Modem Vendor
+masterG3Entry,OPAQUE,0,31.2.0,G3 master modem Entry
+mG3Id,BYTE,1,31.2.1,Master Modem ID
+mG3PanId,WORD,2,31.2.2,PAN ID
+mG3TxDataPacketCount,UINT,4,31.2.3,TX data packet count
+mG3RxDataPacketCount,UINT,4,31.2.4,RX data packet count
+mG3TxCmdPacketCount,UINT,4,31.2.5,TX command packet count
+mG3RxDataPacketCount,UINT,4,31.2.6,RX command packet count
+mG3CsmaFailCount,UINT,4,31.2.7,CSMA fail count
+mG3CsmaCollisionCount,UINT,4,31.2.8,CSMA collision count
+mG3BroadcastCount,UINT,4,31.2.9,Broadcast count
+mG3MulticastCount,UINT,4,31.2.10,Multicast count
+mG3BadCrcCount,UINT,4,31.2.11,Bad CRC count
+modemG3Entry,OPAQUE,0,31.3.0,G3 modem Entry
+moG3Id,HEX,8,31.3.1,G3 ID
+moG3ShortId,WORD,2,31.3.2,G3 Short Id
+moG3NodeKind,STRING,20,31.3.3,G3 Node Kind
+moG3NoOfMeters,WORD,2,31.3.4,G3 No of Meters
+moG3FwVer,WORD,2,31.3.5,G3 FW Ver
+moG3FwBuild,WORD,2,31.3.6,G3 FW Build
+moG3HwVer,WORD,2,31.3.7,G3 HW Ver
+moG3Status,BOOL,1,31.3.8,G3 status
+moG3LastOnLine,TIMESTAMP,7,31.3.9,G3 Last On line Time
+moG3LastOffLine,TIMESTAMP,7,31.3.10,G3 Last Off time
+moG3Install,TIMESTAMP,7,31.3.11,G3 Install Time

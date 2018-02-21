@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util" 
+    xmlns:batch="http://www.springframework.org/schema/batch"
+    xmlns:integration="http://www.springframework.org/schema/integration"
+    xmlns:int-ftp="http://www.springframework.org/schema/integration/ftp"
+    xmlns:int-sftp="http://www.springframework.org/schema/integration/sftp"
+    xmlns:int-file="http://www.springframework.org/schema/integration/file"    
+    xmlns:int="http://www.springframework.org/schema/integration"
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+    http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd    
+    http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-4.1.xsd
+    http://www.springframework.org/schema/integration/ftp http://www.springframework.org/schema/integration/ftp/spring-integration-ftp.xsd
+    http://www.springframework.org/schema/integration/sftp http://www.springframework.org/schema/integration/sftp/spring-integration-sftp.xsd">
+
+    <context:component-scan base-package="com.aimir.fep.integration.moe.batch" />
+
+    <context:property-placeholder location="/config/moe-integration.properties" />    
+
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="initialSize" value="5"/>
+        <property name="maxActive" value="10"/>
+        <property name="maxIdle" value="10"/>
+        <!--  <property name="validationQuery" value="select 1 from dual"/> -->
+        <property name="testOnBorrow" value="true"/>
+        <property name="testOnReturn" value="false"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager" />
+
+    <!-- bean for initializing datasource transaction manager -->
+    <bean id="transactionManager"
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <!-- bean job repository -->
+    <bean id="jobRepository"
+        class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean">
+        <property name="transactionManager" ref="transactionManager" />
+    </bean>
+
+    <!-- bean for lauching the job -->
+    <bean id="jobLauncher"
+        class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+        <property name="jobRepository" ref="jobRepository" />
+    </bean>
+
+    <!-- beans for defining the job and its steps. configure its readers and writers -->
+    <batch:job id="oracleSGGIntegrationFTPTask" restartable="${batch.job.restartable}">
+
+        <batch:step id="fileMerge" next="dftp_transfer">
+            <batch:tasklet ref="fileMergeTasklet" />
+        </batch:step>
+        <batch:step id="dftp_transfer" next="fileCompress">
+            <batch:tasklet ref="directFtpOutboundTransfer" />
+        </batch:step>
+        <batch:step id="fileCompress" next="fileMove">
+            <batch:tasklet ref="fileCompressTasklet" />
+        </batch:step>
+        <batch:step id="fileMove" next="fileDelete">
+            <batch:tasklet ref="fileMoveTasklet" />
+        </batch:step>
+        <batch:step id="fileDelete">
+            <batch:tasklet ref="fileDeletingTasklet" />
+        </batch:step>
+        
+    </batch:job>
+
+    <!--  bean for sftp transfer -->
+    <bean name="sftpOutboundTransfer"
+        class="com.aimir.fep.integration.moe.batch.SftpOutboundTransferTasklet">
+        <property name="sourceDir" value="${integration.dir.input}" />
+    </bean>
+
+    <!--  bean for ftp transfer -->
+    <bean name="ftpOutboundTransfer"
+        class="com.aimir.fep.integration.moe.batch.FtpOutboundTransferTasklet">
+        <property name="sourceDir" value="${integration.dir.input}" />
+    </bean>
+    
+    <!--  bean for ftp transfer -->
+    <bean name="directFtpOutboundTransfer"
+        class="com.aimir.fep.integration.moe.batch.DirectFtpOutboundTransferTasklet">
+        <property name="sourceDir" value="${integration.dir.input}" />
+        <property name="errorDir" value="${integration.dir.error}" />
+        <property name="destDir" value="${batch.sftp.dest.directory}" />
+        <property name="host" value="${batch.sftp.hostname}"/>
+        <property name="port" value="${batch.ftp.port}"/>
+        <property name="username" value="${batch.sftp.username}"/>
+        <property name="password" value="${batch.sftp.password}"/>
+        
+    </bean>
+
+    <bean id="step" class="org.springframework.batch.core.scope.StepScope" />
+
+    <!-- sftp session factory bean that contains details of the sftp location -->
+    <bean id="sftpSessionFactory"
+        class="org.springframework.integration.sftp.session.DefaultSftpSessionFactory">
+        <property name="host" value="${batch.sftp.hostname}" />
+        <property name="port" value="${batch.sftp.port}" />
+        <property name="user" value="${batch.sftp.username}" />
+        <property name="password" value="${batch.sftp.password}" />
+        <!--  
+        <property name="clientMode" value="1"/>
+        <property name="fileType" value="2"/>
+        <property name="useClientMode" value="true"/>
+        <property name="cipherSuites" value="a,b.c"/>
+        <property name="keyManager" ref="keyManager"/>
+        <property name="protocol" value="SSL"/>
+        <property name="trustManager" ref="trustManager"/>
+        <property name="prot" value="P"/>
+        <property name="needClientAuth" value="true"/>
+        <property name="authValue" value="oleg"/>
+        <property name="sessionCreation" value="true"/>
+        <property name="protocols" value="SSL, TLS"/>
+        <property name="implicit" value="true"/>
+        -->
+    </bean>
+    
+    <bean id="ftpSessionFactory" class="org.springframework.integration.ftp.session.DefaultFtpSessionFactory">
+    <property name="host" value="${batch.sftp.hostname}"/>
+    <property name="port" value="${batch.ftp.port}"/>
+    <property name="username" value="${batch.sftp.username}"/>
+    <property name="password" value="${batch.sftp.password}"/>
+    <property name="clientMode" value="2"/> <!-- passive 2 local 0 -->
+    <property name="fileType" value="2"/>
+    <property name="bufferSize" value="100000"/>
+    </bean>
+
+    <int:channel id="sftpChannel" />
+    <int:channel id="ftpChannel" />
+    
+    <int-sftp:outbound-channel-adapter
+        id="sftpOutbound" 
+        channel="sftpChannel" 
+        remote-directory="${batch.sftp.dest.directory}"
+        session-factory="sftpSessionFactory" />
+        
+    <int-ftp:outbound-channel-adapter 
+        id="ftpOutbound"
+        channel="ftpChannel"
+        session-factory="ftpSessionFactory"
+        charset="UTF-8"
+        remote-directory="${batch.sftp.dest.directory}"/>  
+        
+    <!-- file append tasklet bean -->
+    <bean id="fileMergeTasklet" class="com.aimir.fep.integration.moe.batch.FileMergeTasklet">
+        <property name="sourceDir" value="${integration.dir.root}" />
+        <property name="destDir" value="${integration.dir.input}" />
+    </bean>
+    
+    <!-- file compress tasklet bean -->
+    <bean id="fileCompressTasklet" class="com.aimir.fep.integration.moe.batch.FileCompressTasklet">
+        <property name="csrcResource">
+            <bean id="csrcResource" class="org.springframework.core.io.FileSystemResource">
+                <constructor-arg value="${integration.dir.input}" />
+            </bean>
+        </property>
+        <property name="cdestResource">
+            <bean id="cdestRespirce" class="org.springframework.core.io.FileSystemResource">
+                <constructor-arg value="${integration.dir.tmp}" />
+            </bean>
+        </property>
+    </bean>
+    
+    <!-- file move tasklet bean -->
+    <bean id="fileMoveTasklet" class="com.aimir.fep.integration.moe.batch.FileMoveTasklet">
+        <property name="msrcResource">
+            <bean id="msrcResource" class="org.springframework.core.io.FileSystemResource">
+                <constructor-arg value="${integration.dir.tmp}" />
+            </bean>
+        </property>
+        <property name="mdestResource">
+            <bean id="mdestResource" class="org.springframework.core.io.FileSystemResource">
+                <constructor-arg value="${integration.dir.archive}" />
+            </bean>
+        </property>
+    </bean>
+
+    <!-- file deleting tasklet bean -->
+    <bean id="fileDeletingTasklet" class="com.aimir.fep.integration.moe.batch.FileDeletingTasklet">
+        <property name="directoryResource">
+            <bean id="directory" class="org.springframework.core.io.FileSystemResource">
+                <constructor-arg value="${integration.dir.input}" />
+            </bean>
+        </property>
+    </bean>
+</beans>

@@ -1,0 +1,40 @@
+# vending system 에서 넘어오는 PaymentMode code값
+vending.credittype.postpay=0
+vending.credittype.prepay=1
+vending.credittype.emergency=2
+
+# vending system 에서 넘어오는 Emergency Credit Available code값
+vending.emergency.yes=yes
+vending.emergency.no=no
+
+# vending system 에서 넘어오는 Emergency Credit Auto Change code값
+vending.emergencyauto.yes=yes
+vending.emergencyauto.no=no
+
+# vending system 에서 넘어오는 Change Credit 여부 code값
+vending.changecredit.yes=yes
+vending.changecredit.no=no
+
+# vending system 에서 넘어오는 금액 증가 여부 code값
+vending.incrementcredit.yes=yes
+vending.incrementcredit.no=no
+
+# vending system 에서 넘어오는 Restart Account 여부 code값
+vending.restartaccount.yes=yes
+vending.restartaccount.no=no
+
+# vending system 에서 넘어오는 잔액을 0으로 하고 Emergency Credit 여부 code값
+vending.zeroemergency.yes=yes
+vending.zeroemergency.no=no
+
+# vending system 에서 넘어오는 Restart Billing 여부 code값
+vending.rebilling.yes=yes
+vending.rebilling.no=no
+
+# vending system 에서 넘어오는 잔액을 0으로 할지 여부 code값
+vending.zerocredit.yes=yes
+vending.zerocredit.no=no
+
+# vending system 에서 넘어오는 supplier 를 변경할지 여부 code값
+vending.changesupplier.yes=yes
+vending.changesupplier.no=no

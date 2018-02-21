@@ -1,0 +1,276 @@
+package com.aimir.fep.protocol.fmp.processor;
+
+import java.text.DateFormat;
+import java.util.Date;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.aimir.constants.CommonConstants;
+import com.aimir.fep.iot.controller.adapter.msgBridge.ContentInstanceInteractionHttpRequest;
+import com.aimir.fep.iot.domain.common.RSCException;
+import com.aimir.fep.iot.domain.resources.ContentInstance;
+import com.aimir.fep.iot.domain.resources.DeviceInfo;
+import com.aimir.fep.iot.domain.resources.Firmware;
+import com.aimir.fep.iot.domain.resources.RemoteCSE;
+import com.aimir.fep.iot.service.ContentInstanceService;
+import com.aimir.fep.iot.service.RemoteCseService;
+import com.aimir.fep.iot.utils.CommonUtil;
+import com.aimir.fep.protocol.fmp.frame.service.MDData;
+import com.aimir.fep.util.FMPProperty;
+import com.aimir.model.device.CommLog;
+
+/**
+ * IoT Data를 IoTSensorData큐에 넣는다.
+ * Queue Name : 
+ * @author eunmiae
+ *
+ */
+
+/**
+ * 
+ * IoTSensorDataProcessor
+ * mq에 저장된 데이터 프로세스 처리 객체
+ * 
+ */
+public class IoTSensorDataProcessor extends Processor {
+	
+	/** The logger. */
+	private Logger logger = Logger.getLogger(this.getClass());
+	//데이터 연계 획수 측정
+	private static int sCount=0;
+	private static Date sDate = new Date();
+	private DateFormat dformat = DateFormat.getDateInstance(DateFormat.MEDIUM);
+	
+	/*@Autowired
+	RemoteCSEInteractionHttpRequest remoteCSERequestHttp;
+	
+	@Autowired
+	DeviceInfoInteractionHttpRequest deviceInfoRequestHttp;
+
+	@Autowired
+	FirmwareInteractionHttpRequest firmwareRequestHttp;
+	
+	@Autowired
+	ContentInstanceInteractionHttpRequest cntInsRequestHttp;
+	
+	@Autowired
+	private RemoteCseService remoteCSEService;
+	
+	@Autowired
+	private DeviceInfoService deviceInfoService;
+	
+	@Autowired
+	private FirmwareService firmwareService;
+	
+	@Autowired
+	private ContentInstanceService cntInsService;*/
+	
+	@Autowired
+	ContentInstanceInteractionHttpRequest cntInsRequestHttp;
+	
+	@Autowired
+	private ContentInstanceService cntInsService;
+	
+    /**
+     * constructor
+     *
+     * @throws Exception
+     */
+    public IoTSensorDataProcessor() throws Exception
+    {
+        // mdLogger = (MDLogger)ctx.getBean("mdLogger");
+        // mdLogger.init();
+    }
+
+    // send notification
+    private void saveRemoteCSEData(RemoteCSE data) throws RSCException
+    {		
+    	/*if(!Boolean.valueOf(FMPProperty.getProperty("is.relay"))){
+	    	// remoteCSE가 존재하는지 체크한다.
+			if(CommonUtil.isEmpty(remoteCSEService.findOneDCUBydcuId(data.getCSEID()))){
+				// 신규 등록
+				remoteCSEService.insertDCU(data);
+			}else{
+				// 데이터 갱신
+				remoteCSEService.updateDCU(data);
+			}
+		}*/
+    	// 다음 연계 서버로 데이터 전송 (REST API REQUEST)
+		/* 통합사회안전망에는 필요없음
+		 * by ask
+		 * if (Boolean.valueOf(GlobalProperties.getProperty("iot.http.enable"))){
+			remoteCSERequestHttp.CSERegistrationHttpsMessage(data);
+		}*/
+    }
+    
+    private void saveDeviceInfoData(DeviceInfo data) throws RSCException
+    {
+    	/*if(!Boolean.valueOf(GlobalProperties.getProperty("is.relay"))){
+			// remoteCSE가 존재하는지 체크한다.
+			// remoteCSE가 존재하는지 체크한다.
+			if(CommonUtil.isEmpty(remoteCSEService.findOneDCUBydcuId(data.getCseid()))){
+				// 신규 등록
+				remoteCSEService.insertRemoteCSE(data);
+			}else{
+				// 데이터 갱신
+				deviceInfoService.updateDeviceInfoForDCU(data);
+			}
+		}
+		if (Boolean.valueOf(GlobalProperties.getProperty("iot.http.enable"))){ // REST API로 데이터 Request
+			deviceInfoRequestHttp.DeviceInfoRegistrationHttpsMessage(data);
+		}*/
+    }
+    
+    private void saveFirmwareData(Firmware data) throws RSCException
+    {	
+    	/*if(!Boolean.valueOf(GlobalProperties.getProperty("is.relay"))){
+			// remoteCSE가 존재하는지 체크한다.
+			if(CommonUtil.isEmpty(remoteCSEService.findOneDCUBydcuId(data.getCseid()))){
+				// 신규 등록
+				remoteCSEService.insertRemoteCSE(data);
+			}else{
+				// 데이터 갱신
+				firmwareService.updateFirmwareForDCU(data);
+			}
+		}
+		if (Boolean.valueOf(GlobalProperties.getProperty("iot.http.enable"))){ // REST API로 데이터 Request
+			firmwareRequestHttp.FirmwareRegistrationHttpsMessage(data);
+		}*/
+    }
+   
+    private void saveContentInstanceData(ContentInstance data) throws RSCException
+    {
+    	log.debug("###saveContentInstanceData start ~~~ ");
+
+    	if(!Boolean.valueOf(FMPProperty.getProperty("is.relay"))){
+			// remoteCSE가 존재하는지 체크한다.
+			cntInsService.insertContentInstance(data);
+		}
+    	//사회안전망에서 운영서버로 보낼때 진입 프로세스
+	    /* 통합 IoT에 필요없음 (by ask)
+	     * if (Boolean.valueOf(FMPProperty.getProperty("iot.http.enable"))){ // REST API로 데이터 Request
+			if(FMPProperty.getProperty("is.relay").equals("false")){
+				if(dformat.format(sDate).equals(dformat.format(new Date()))){
+					this.sCount= this.sCount+1;
+				}else{
+					sDate = new Date();
+					this.sCount= 0;
+				}
+				cntInsService.increaseSendSensingCnt(sCount);
+			}
+	    	cntInsRequestHttp.ContentInstanceRegistrationHttpsMessage(data);
+		}*/
+    }
+
+    /**
+     * processing Measurement Data Service Data
+     *
+     * @param sdata <code>Object</code> ServiceData
+     */
+    /**
+     * mq에 저장된 데이터 처리
+     * onMessage에서 processing 호출 비동기 방식
+     * @return 
+     */
+    public void processings(Object sdata) throws Exception
+    {
+    	logger.debug("### processings start~~ ["+ sdata +"]");
+        if(sdata instanceof RemoteCSE)
+        {
+        	RemoteCSE remoteCSEData = (RemoteCSE)sdata;
+            saveRemoteCSEData(remoteCSEData);
+        }else if (sdata instanceof Firmware){
+        	Firmware firmwareData = (Firmware)sdata;
+        	saveFirmwareData(firmwareData);
+        }else if (sdata instanceof DeviceInfo) {
+        	DeviceInfo deviceInfoData = (DeviceInfo)sdata;
+            saveDeviceInfoData(deviceInfoData);
+        }else if (sdata instanceof ContentInstance){
+        	ContentInstance contentInstanceData = (ContentInstance)sdata;
+        	saveContentInstanceData(contentInstanceData);
+        }else {
+        	logger.debug("### processing data sdata does not ContentInstance ");
+            return;
+        }
+    }
+    
+    /**
+     * processing Measurement Data Service Data
+     *
+     * @param sdata <code>Object</code> ServiceData
+     */
+    public int processing(Object sdata) throws Exception
+    {
+        //commLog.setSvcTypeCode(CommonConstants.getHeaderSvc("S"));
+        //commLog.setOperationCode(ProcessorHandler.SERVICE_MEASUREMENTDATA);
+        //commLog.setTotalMeasumentDataCnt(((MDData)sdata).getCnt().getValue());
+
+    	processings(sdata);
+    	return 0;
+    }
+    
+
+    @Override
+    public void restore() throws Exception {
+//        // mdLogger = (MDLogger)ctx.getBean("mdLogger");
+//        mdLogger.init();
+//        
+//        try {
+//            if(mdLogger.isReadableObject())
+//            {
+//                Serializable[] mdhds = mdLogger.readObject();
+//                for(int i = 0 ; i < mdhds.length ; i++)
+//                {
+//                    if (mdhds[i] instanceof MDData)
+//                    {
+//                        MDData data = (MDData)mdhds[i];
+//                            
+//                        try {
+//                            mds.save(data.getMcuId(), data.getCnt().getValue(), data.getMdData());
+//                            log.debug("saveMeasurementData");
+//                        }
+//                        catch(Exception ex)
+//                        {
+//                            log.error("saveMeasurementData failed",ex);
+//                            // 2010.08.10 백업 데이타를 MDHistoryData에서 MDData로 변경.
+//                            mdLogger.backupObject(data);
+//                        }
+//                    }
+//                    else if (mdhds[i] instanceof MDHistoryData)
+//                    {
+//                        log.info("try MD History Data restored");
+//                        MDHistoryData mdhd = (MDHistoryData)mdhds[i];
+//                        try {
+//                            mds.save(mdhd.getMcuId(), mdhd.getEntryCount(), mdhd.getMdData());
+//                        }
+//                        catch (Exception e)
+//                        {
+//                            log.error(e);
+//                            mdLogger.backupObject(mdhd);
+//                        }
+//                    }
+//                    else if (mdhds[i] instanceof RMDData) {
+//                        log.info("try RMD");
+//                        RMDData data = (RMDData)mdhds[i];
+//                        try {
+//                            mds.saveRData(data.getMcuId(), data.getCnt().getValue(), data.getrData());
+//                        }
+//                        catch (Exception e)
+//                        {
+//                            log.error(e);
+//                            mdLogger.backupObject(data);
+//                        }
+//                    }
+//                    else
+//                    {
+//                        log.warn("Log type is [" + mdhds[i].getClass().getName() + "]");
+//                    }
+//                }
+//            }
+//        }
+//        catch (Exception e) {
+//            log.warn(e.getMessage() + " try next");
+//        }
+    }
+}
